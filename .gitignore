@@ -358,5 +358,6 @@ healthchecksdb
 /logs
 /Deploy
 /venv
-/static
+/static/*.png
+/static/service_images
 /.venv
