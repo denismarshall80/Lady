@@ -96,9 +96,20 @@
             </form>
         </section>
         <section class="settings-group settings-panel" data-tab-panel="edit-card">
+            <label>Що редагуємо
+                <select data-service-edit-select>
+                    <option value="">Оберіть розділ або картку</option>
+                    {% for section in sections %}
+                    <option value="section-{{ section.Id }}">Розділ: {{ section.Title }}</option>
+                    {% for card in section.Cards %}
+                    <option value="card-{{ card.Id }}">Картка: {{ card.Title }} ({{ section.Title }})</option>
+                    {% endfor %}
+                    {% endfor %}
+                </select>
+            </label>
             <div class="edit-list">
                 {% for section in sections %}
-                <form method="post" action="{{ url_for('service_item_edit', kind='section', item_id=section.Id) }}" class="edit-row">
+                <form method="post" action="{{ url_for('service_item_edit', kind='section', item_id=section.Id) }}" class="edit-row service-edit-form" data-service-edit-form="section-{{ section.Id }}">
                     <strong>Розділ</strong>
                     <label>Назва <input name="title" value="{{ section.Title }}" required></label>
                     <label>Опис <textarea name="description" rows="2">{{ section.Description or '' }}</textarea></label>
@@ -106,7 +117,7 @@
                     <button class="primary compact-button" type="submit">Зберегти</button>
                 </form>
                 {% for card in section.Cards %}
-                <form method="post" action="{{ url_for('service_item_edit', kind='card', item_id=card.Id) }}" class="edit-row">
+                <form method="post" action="{{ url_for('service_item_edit', kind='card', item_id=card.Id) }}" class="edit-row service-edit-form" data-service-edit-form="card-{{ card.Id }}">
                     <strong>Картка</strong>
                     <label>Розділ
                         <select name="section_id">
@@ -136,7 +147,7 @@
                         <form method="post" action="{{ url_for('service_item_move', kind='section', item_id=section.Id) }}"><button class="icon-button" title="Вище" name="direction" value="up">↑</button></form>
                         <form method="post" action="{{ url_for('service_item_move', kind='section', item_id=section.Id) }}"><button class="icon-button" title="Нижче" name="direction" value="down">↓</button></form>
                     </td>
-                    <td>Розділ</td><td>{{ section.Title }}</td><td></td><td>{{ 'Активний' if section.IsActive else 'Прихований' }}</td>
+                    <td class="section-row-strong">Розділ</td><td class="section-row-strong">{{ section.Title }}</td><td></td><td>{{ 'Активний' if section.IsActive else 'Прихований' }}</td>
                     <td class="inline-actions">
                         <form method="post" action="{{ url_for('service_item_update', kind='section', item_id=section.Id) }}">
                             <button class="icon-button" title="{{ 'Приховати' if section.IsActive else 'Показати' }}" name="action" value="{{ 'hide' if section.IsActive else 'show' }}">{{ '○' if section.IsActive else '●' }}</button>

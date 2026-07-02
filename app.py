@@ -43,7 +43,9 @@ except Exception:
 #Ver = "LadySite v0.5.13" # first build 2024-07-01
 #Ver = "LadySite v0.5.14" #оновили ціни
 #Ver = "LadySite v0.5.15" #лічильник відвідин
-Ver = "LadySite v0.8.18" #редагування послуг
+#Ver = "LadySite v0.8.18" #редагування послуг
+#Ver = "LadySite v0.8.19" #адмінка зручніше
+Ver = "LadySite v0.8.20" #текст товарів
 
 HOST = "localhost" if os.name == "nt" else "0.0.0.0"
 PORT = 5000
@@ -55,12 +57,14 @@ VISIT_COOKIE = "lady_visitor"
 VISIT_TRACK_ENDPOINTS = {"index", "services", "about"}
 REPORT_DIR = os.path.join(PPath, "Report")
 REPORT_SEND_DIR = os.path.join(REPORT_DIR, "Send")
+SERVICE_IMAGE_DIR = os.path.join(PPath, "static", "service_images")
 DEFAULT_MAP_URL = "https://www.google.com/maps/place/%D0%B2%D1%83%D0%BB%D0%B8%D1%86%D1%8F+%D0%9B%D0%B5%D1%81%D1%96+%D0%A3%D0%BA%D1%80%D0%B0%D1%97%D0%BD%D0%BA%D0%B8,+41,+%D0%9A%D0%B0%D0%BC'%D1%8F%D0%BD%D0%B5%D1%86%D1%8C-%D0%9F%D0%BE%D0%B4%D1%96%D0%BB%D1%8C%D1%81%D1%8C%D0%BA%D0%B8%D0%B9,+%D0%A5%D0%BC%D0%B5%D0%BB%D1%8C%D0%BD%D0%B8%D1%86%D1%8C%D0%BA%D0%B0+%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C,+32300/@48.6759436,26.5838751,18.42z/data=!4m6!3m5!1s0x4733b87712b10bb7:0xc879ff1bd73b8e22!8m2!3d48.6759926!4d26.5847011!16s%2Fg%2F11g1lfpndx?entry=ttu"
 DEFAULT_MAP_EMBED_URL = "https://www.google.com/maps?q=48.6759926,26.5847011&z=18&output=embed"
 
 mf.PPath = PPath
 for folder in ("DATA", "logs", "Report", os.path.join("Report", "Send")):
     mf.CreateDir(os.path.join(PPath, folder))
+mf.CreateDir(SERVICE_IMAGE_DIR)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("LADY_SITE_SECRET", "lady-site-local-secret-change-me")
@@ -591,6 +595,40 @@ def parse_date(value: str) -> datetime | None:
         return None
 
 
+def localize_image_url(image_url: str) -> str:
+    image_url = (image_url or "").strip()
+    if not image_url or not image_url.lower().startswith(("http://", "https://")):
+        return image_url
+    try:
+        response = requests.get(image_url, timeout=15)
+        response.raise_for_status()
+        content_type = response.headers.get("Content-Type", "").lower()
+        ext = ".jpg"
+        if "png" in content_type:
+            ext = ".png"
+        elif "webp" in content_type:
+            ext = ".webp"
+        elif "gif" in content_type:
+            ext = ".gif"
+        existing = sorted(Path(SERVICE_IMAGE_DIR).glob("Image_*.*"))
+        next_num = 1
+        if existing:
+            nums = []
+            for path in existing:
+                match = re.search(r"Image_(\d+)", path.stem)
+                if match:
+                    nums.append(int(match.group(1)))
+            next_num = (max(nums) + 1) if nums else 1
+        filename = f"Image_{next_num:05d}{ext}"
+        target = os.path.join(SERVICE_IMAGE_DIR, filename)
+        with open(target, "wb") as fh:
+            fh.write(response.content)
+        return f"/static/service_images/{filename}"
+    except Exception as ex:
+        mf.tolog(f"localize_image_url() failed for {image_url}: {ex}")
+        return image_url
+
+
 def visitor_key(raw_id: str) -> str:
     return hashlib.sha256(raw_id.encode("utf-8")).hexdigest()
 
@@ -821,6 +859,7 @@ def inject_globals():
     return {
         "app_version": Ver,
         "visit_count": total_visit_count,
+        "appointment_count": total_appointment_count,
         "user": user,
         "is_admin": is_admin(user),
         "can_manage_services": can_manage_services(user),
@@ -852,6 +891,18 @@ def total_visit_count() -> int:
             return int(cur.fetchone()["cnt"])
     except Exception as ex:
         mf.tolog(f"total_visit_count() failed: {ex}")
+        return 0
+
+
+def total_appointment_count() -> int:
+    try:
+        if not runtime_state["schema_ready"]:
+            ensure_schema()
+        with db_cursor() as cur:
+            cur.execute("SELECT COUNT(*) AS cnt FROM Appointments")
+            return int(cur.fetchone()["cnt"])
+    except Exception as ex:
+        mf.tolog(f"total_appointment_count() failed: {ex}")
         return 0
 
 
@@ -911,7 +962,7 @@ def service_section_create():
         return redirect(url_for("services"))
     title = request.form.get("title", "").strip()
     description = request.form.get("description", "").strip()
-    image_url = request.form.get("image_url", "").strip()
+    image_url = localize_image_url(request.form.get("image_url", "").strip())
     if not title:
         flash("Назва розділу обов'язкова.", "error")
         return redirect(url_for("services"))
@@ -939,7 +990,7 @@ def service_card_create():
     title = request.form.get("title", "").strip()
     description = request.form.get("description", "").strip()
     price = request.form.get("price", "").strip()
-    image_url = request.form.get("image_url", "").strip()
+    image_url = localize_image_url(request.form.get("image_url", "").strip())
     if not section_id or not title:
         flash("Оберіть розділ і вкажіть назву картки.", "error")
         return redirect(url_for("services"))
@@ -971,7 +1022,7 @@ def service_item_edit(kind: str, item_id: int):
         return redirect(url_for("services"))
     title = request.form.get("title", "").strip()
     description = request.form.get("description", "").strip()
-    image_url = request.form.get("image_url", "").strip()
+    image_url = localize_image_url(request.form.get("image_url", "").strip())
     price = request.form.get("price", "").strip()
     section_id = parse_int(request.form.get("section_id", "0"), 0, 0, 999999999)
     if not title:
@@ -1214,9 +1265,37 @@ def admin_appointments():
     user = require_user()
     if not isinstance(user, dict):
         return user
-    days = parse_int(request.args.get("days", "7"), 7, 7, 365)
-    start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    end = start + timedelta(days=days)
+    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    if "days" in request.args:
+        days = parse_int(request.args.get("days", "7"), 7, 7, 365)
+        start = today
+        end = today + timedelta(days=days)
+        session["appointment_filter_mode"] = str(days)
+        session.pop("appointment_filter_from", None)
+        session.pop("appointment_filter_to", None)
+    elif "date_from" in request.args or "date_to" in request.args:
+        date_from = parse_date(request.args.get("date_from", ""))
+        date_to = parse_date(request.args.get("date_to", ""))
+        if not date_from or not date_to or date_to < date_from:
+            flash("Оберіть коректний період записів.", "error")
+            date_from = today
+            date_to = today + timedelta(days=6)
+        start = date_from.replace(hour=0, minute=0, second=0, microsecond=0)
+        end = date_to.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
+        session["appointment_filter_mode"] = "custom"
+        session["appointment_filter_from"] = start.strftime("%Y-%m-%d")
+        session["appointment_filter_to"] = (end - timedelta(days=1)).strftime("%Y-%m-%d")
+    elif session.get("appointment_filter_mode") == "custom":
+        start = parse_date(session.get("appointment_filter_from", "")) or today
+        date_to = parse_date(session.get("appointment_filter_to", "")) or today + timedelta(days=6)
+        start = start.replace(hour=0, minute=0, second=0, microsecond=0)
+        end = date_to.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
+    else:
+        days = parse_int(session.get("appointment_filter_mode", "7"), 7, 7, 365)
+        start = today
+        end = today + timedelta(days=days)
+        session["appointment_filter_mode"] = str(days)
+    days = max(1, (end.date() - start.date()).days)
     try:
         ensure_schema()
         with db_cursor() as cur:
@@ -1229,7 +1308,15 @@ def admin_appointments():
         _report_critical_error("admin appointments failed", ex)
         rows = []
         flash(f"Не вдалося прочитати записи: {ex}", "error")
-    return render_template("admin_appointments.html", appointments=rows, days=days, active_page="admin")
+    return render_template(
+        "admin_appointments.html",
+        appointments=rows,
+        days=days,
+        mode=session.get("appointment_filter_mode", "7"),
+        date_from=start.strftime("%Y-%m-%d"),
+        date_to=(end - timedelta(days=1)).strftime("%Y-%m-%d"),
+        active_page="admin",
+    )
 
 
 @app.route("/admin/visits")
@@ -1324,6 +1411,7 @@ def settings():
     if not isinstance(user, dict):
         return user
     config = load_config()
+    active_tab = request.args.get("tab", "maintenance")
     if request.method == "POST":
         action = request.form.get("action", "save")
         form_config = config.copy()
@@ -1344,23 +1432,23 @@ def settings():
                     flash(f"MySQL помилка: {runtime_state['schema_error']}", "error")
             except Exception as ex:
                 flash(f"MySQL помилка: {ex}", "error")
-            return redirect(url_for("settings"))
+            return redirect(url_for("settings", tab="mysql"))
         if action == "test_notify":
             save_config(form_config)
             ok = notify_staff("ЛЕДІ: тест повідомлень", "Тестове повідомлення з сайту ЛЕДІ.", form_config)
             flash("Тестове повідомлення відправлено." if ok else "Повідомлення не відправлено. Перевірте журнал.", "success" if ok else "error")
-            return redirect(url_for("settings"))
+            return redirect(url_for("settings", tab=request.form.get("active_tab", "email")))
         if action == "clear_logs":
             save_config(form_config)
             scheduler_job(force_cleanup=True)
             log_action("clear_logs")
             flash("Очищення виконано.", "success")
-            return redirect(url_for("settings"))
+            return redirect(url_for("settings", tab="maintenance"))
         save_config(form_config)
         log_action("settings_update")
         flash("Налаштування збережено.", "success")
-        return redirect(url_for("settings"))
-    return render_template("settings.html", config=config, active_page="settings")
+        return redirect(url_for("settings", tab=request.form.get("active_tab", "maintenance")))
+    return render_template("settings.html", config=config, active_tab=active_tab, active_page="settings")
 
 
 @app.route("/users", methods=["GET", "POST"])

@@ -3,18 +3,31 @@
 <section class="admin-head">
     <div>
         <p class="eyebrow">Адмінка</p>
-        <h1>Записи на прийом</h1>
+        <h1 class="admin-title-small">Записи на прийом</h1>
     </div>
-    <div class="admin-actions">
+    <div class="admin-actions visit-tools">
         <a class="button" href="{{ url_for('admin_appointments', days=days + 7) }}">Ще +7 днів</a>
-        <a class="button" href="{{ url_for('admin_appointments', days=7) }}">Тільки 7 днів</a>
+        <a class="button {{ 'primary' if mode == '7' else '' }}" href="{{ url_for('admin_appointments', days=7) }}">Тільки 7 днів</a>
+        <form class="visit-range-form" method="get" action="{{ url_for('admin_appointments') }}">
+            <input type="date" name="date_from" value="{{ date_from }}" aria-label="Дата з">
+            <input type="date" name="date_to" value="{{ date_to }}" aria-label="Дата по">
+            <button class="button {{ 'primary' if mode == 'custom' else '' }}" type="submit">Період</button>
+        </form>
     </div>
 </section>
 <section class="table-wrap">
     <table>
         <thead>
             <tr>
-                <th>Дата</th><th>Ім'я</th><th>Ціль</th><th>Телефон</th><th>Мило</th><th>create_at</th><th>updated_at</th><th>SendNow</th><th>SendBeforeCl</th>
+                <th>Дата</th>
+                <th>Ім'я</th>
+                <th>Ціль</th>
+                <th>Телефон</th>
+                <th>Email</th>
+                <th title="Дата створення запису">Дата створення</th>
+                <th title="Дата редагування запису">Дата редагування</th>
+                <th title="Повідомлення надіслано Адміністраторам і Менеджерам">Пов. Надіслано</th>
+                <th title="Повідомлення надіслано Адміністраторам і Менеджерам Перед приходом кліента">Пов. Надіслано ППК</th>
             </tr>
         </thead>
         <tbody>

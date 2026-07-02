@@ -61,8 +61,9 @@
         <strong>ЛЕДІ</strong>
         <span>Кам'янець-Подільський, вул. Лесі Українки, 41</span>
         <span>Тел.: +38 093 299-59-21</span>
-        <span>Відвідини: {{ visit_count() }}</span>
-        <span>{{ app_version }}</span>
+        {% if can_manage_services %}
+        <span class="footer-stats">Сайт відвідало: {{ visit_count() }} чоловіка&nbsp;&nbsp;&nbsp; Записалось: {{ appointment_count() }} чоловік&nbsp;&nbsp;&nbsp; {{ app_version }}</span>
+        {% endif %}
     </footer>
 </body>
 </html>
