@@ -62,51 +62,96 @@
         </label>
         <button class="primary" type="submit">Зберегти текст</button>
     </form>
-    <div class="admin-edit-grid">
-        <form method="post" action="{{ url_for('service_section_create') }}" class="settings-group">
-            <h3>Додати розділ</h3>
-            <label>Назва розділу <input name="title" placeholder="Тестовий розділ" required></label>
-            <label>Опис <textarea name="description" rows="3"></textarea></label>
-            <label>Картинка URL або /static/name.png <input name="image_url" placeholder="https://..."></label>
-            <button class="primary" type="submit">Додати розділ</button>
-        </form>
-        <form method="post" action="{{ url_for('service_card_create') }}" class="settings-group">
-            <h3>Додати картку</h3>
-            <label>Розділ
-                <select name="section_id" required>
-                    {% for section in sections %}
-                    <option value="{{ section.Id }}">{{ section.Title }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <label>Заголовок <input name="title" required></label>
-            <label>Короткий опис <textarea name="description" rows="3"></textarea></label>
-            <label>Ціна <input name="price" placeholder="від ХХ грн"></label>
-            <label>Картинка URL або /static/name.png <input name="image_url" placeholder="https://..."></label>
-            <button class="primary" type="submit">Додати картку</button>
-        </form>
+    <div class="admin-tabs" data-tabs>
+        <div class="settings-tabs" role="tablist" aria-label="Редагування послуг">
+            <button class="settings-tab is-active" type="button" data-tab-target="add-section">Додати розділ</button>
+            <button class="settings-tab" type="button" data-tab-target="add-card">Додати картку</button>
+            <button class="settings-tab" type="button" data-tab-target="edit-card">Редагувати карту</button>
+        </div>
+        <section class="settings-group settings-panel is-active" data-tab-panel="add-section">
+            <form method="post" action="{{ url_for('service_section_create') }}" class="admin-form-grid">
+                <label>Назва розділу <input name="title" placeholder="Тестовий розділ" required></label>
+                <label>Опис <textarea name="description" rows="3"></textarea></label>
+                <label>Картинка URL або /static/name.png <input name="image_url" placeholder="https://..."></label>
+                <button class="primary" type="submit">Додати розділ</button>
+            </form>
+        </section>
+        <section class="settings-group settings-panel" data-tab-panel="add-card">
+            <form method="post" action="{{ url_for('service_card_create') }}" class="admin-form-grid">
+                <label>Розділ
+                    <select name="section_id" required>
+                        {% for section in sections %}
+                        <option value="{{ section.Id }}">{{ section.Title }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>Заголовок <input name="title" required></label>
+                <label>Короткий опис <textarea name="description" rows="3"></textarea></label>
+                <label>Ціна <input name="price" placeholder="від ХХ грн"></label>
+                <label>Картинка URL або /static/name.png <input name="image_url" placeholder="https://..."></label>
+                <button class="primary" type="submit">Додати картку</button>
+            </form>
+        </section>
+        <section class="settings-group settings-panel" data-tab-panel="edit-card">
+            <div class="edit-list">
+                {% for section in sections %}
+                <form method="post" action="{{ url_for('service_item_edit', kind='section', item_id=section.Id) }}" class="edit-row">
+                    <strong>Розділ</strong>
+                    <label>Назва <input name="title" value="{{ section.Title }}" required></label>
+                    <label>Опис <textarea name="description" rows="2">{{ section.Description or '' }}</textarea></label>
+                    <label>Картинка <input name="image_url" value="{{ section.ImageUrl or '' }}"></label>
+                    <button class="primary compact-button" type="submit">Зберегти</button>
+                </form>
+                {% for card in section.Cards %}
+                <form method="post" action="{{ url_for('service_item_edit', kind='card', item_id=card.Id) }}" class="edit-row">
+                    <strong>Картка</strong>
+                    <label>Розділ
+                        <select name="section_id">
+                            {% for target in sections %}
+                            <option value="{{ target.Id }}" {{ 'selected' if target.Id == card.SectionId else '' }}>{{ target.Title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>Заголовок <input name="title" value="{{ card.Title }}" required></label>
+                    <label>Опис <textarea name="description" rows="2">{{ card.ShortDescription or '' }}</textarea></label>
+                    <label>Ціна <input name="price" value="{{ card.PriceText or '' }}"></label>
+                    <label>Картинка <input name="image_url" value="{{ card.ImageUrl or '' }}"></label>
+                    <button class="primary compact-button" type="submit">Зберегти</button>
+                </form>
+                {% endfor %}
+                {% endfor %}
+            </div>
+        </section>
     </div>
     <div class="table-wrap">
         <table>
-            <thead><tr><th>Тип</th><th>Назва</th><th>Стан</th><th>Дії</th></tr></thead>
+            <thead><tr><th></th><th>Тип</th><th>Назва</th><th>Розділ</th><th>Стан</th><th>Дії</th></tr></thead>
             <tbody>
                 {% for section in sections %}
                 <tr>
-                    <td>Розділ</td><td>{{ section.Title }}</td><td>{{ 'Активний' if section.IsActive else 'Прихований' }}</td>
+                    <td class="move-actions">
+                        <form method="post" action="{{ url_for('service_item_move', kind='section', item_id=section.Id) }}"><button class="icon-button" title="Вище" name="direction" value="up">↑</button></form>
+                        <form method="post" action="{{ url_for('service_item_move', kind='section', item_id=section.Id) }}"><button class="icon-button" title="Нижче" name="direction" value="down">↓</button></form>
+                    </td>
+                    <td>Розділ</td><td>{{ section.Title }}</td><td></td><td>{{ 'Активний' if section.IsActive else 'Прихований' }}</td>
                     <td class="inline-actions">
                         <form method="post" action="{{ url_for('service_item_update', kind='section', item_id=section.Id) }}">
-                            <button name="action" value="{{ 'hide' if section.IsActive else 'show' }}">{{ 'Приховати' if section.IsActive else 'Показати' }}</button>
-                            <button class="danger" name="action" value="delete" onclick="return confirm('Видалити розділ і його картки?')">Видалити</button>
+                            <button class="icon-button" title="{{ 'Приховати' if section.IsActive else 'Показати' }}" name="action" value="{{ 'hide' if section.IsActive else 'show' }}">{{ '○' if section.IsActive else '●' }}</button>
+                            <button class="icon-button danger" title="Видалити" name="action" value="delete" onclick="return confirm('Видалити розділ і його картки?')">×</button>
                         </form>
                     </td>
                 </tr>
                 {% for card in section.Cards %}
                 <tr>
-                    <td>Картка</td><td>{{ card.Title }}</td><td>{{ 'Активна' if card.IsActive else 'Прихована' }}</td>
+                    <td class="move-actions">
+                        <form method="post" action="{{ url_for('service_item_move', kind='card', item_id=card.Id) }}"><button class="icon-button" title="Вище" name="direction" value="up">↑</button></form>
+                        <form method="post" action="{{ url_for('service_item_move', kind='card', item_id=card.Id) }}"><button class="icon-button" title="Нижче" name="direction" value="down">↓</button></form>
+                    </td>
+                    <td>Картка</td><td>{{ card.Title }}</td><td>{{ section.Title }}</td><td>{{ 'Активна' if card.IsActive else 'Прихована' }}</td>
                     <td class="inline-actions">
                         <form method="post" action="{{ url_for('service_item_update', kind='card', item_id=card.Id) }}">
-                            <button name="action" value="{{ 'hide' if card.IsActive else 'show' }}">{{ 'Приховати' if card.IsActive else 'Показати' }}</button>
-                            <button class="danger" name="action" value="delete" onclick="return confirm('Видалити картку?')">Видалити</button>
+                            <button class="icon-button" title="{{ 'Приховати' if card.IsActive else 'Показати' }}" name="action" value="{{ 'hide' if card.IsActive else 'show' }}">{{ '○' if card.IsActive else '●' }}</button>
+                            <button class="icon-button danger" title="Видалити" name="action" value="delete" onclick="return confirm('Видалити картку?')">×</button>
                         </form>
                     </td>
                 </tr>

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="admin-head">
+    <div>
+        <p class="eyebrow">Адмінка</p>
+        <h1 class="admin-title-small">Відвідини сайту</h1>
+    </div>
+    <div class="admin-actions visit-tools">
+        <a class="button {{ 'primary' if mode == '7' else '' }}" href="{{ url_for('visit_stats', days=7) }}">7 днів</a>
+        <a class="button {{ 'primary' if mode == '14' else '' }}" href="{{ url_for('visit_stats', days=14) }}">14 днів</a>
+        <a class="button {{ 'primary' if mode == '30' else '' }}" href="{{ url_for('visit_stats', days=30) }}">30 днів</a>
+        <form class="visit-range-form" method="get" action="{{ url_for('visit_stats') }}">
+            <input type="date" name="date_from" value="{{ date_from }}" aria-label="Дата з">
+            <input type="date" name="date_to" value="{{ date_to }}" aria-label="Дата по">
+            <button class="button {{ 'primary' if mode == 'custom' else '' }}" type="submit">Період</button>
+        </form>
+    </div>
+</section>
+
+<section class="visit-stats">
+    <article class="visit-metric">
+        <span>Сьогодні</span>
+        <strong>{{ today_count }}</strong>
+        <small>люд.</small>
+    </article>
+    <article class="visit-metric">
+        <span>Вчора</span>
+        <strong>{{ yesterday_count }}</strong>
+        <small>люд.</small>
+    </article>
+    <article class="visit-metric">
+        <span>За {{ days }} днів</span>
+        <strong>{{ total_count }}</strong>
+        <small>люд.</small>
+    </article>
+</section>
+
+<section class="visit-chart-panel">
+    <div class="section-head compact-head">
+        <p class="eyebrow">Графік</p>
+        <h2>Відвідини сайту за днями</h2>
+    </div>
+    <div class="visit-chart" style="--max-count: {{ max_count }};">
+        {% for item in chart %}
+        <div class="visit-bar-wrap" title="{{ item.label }}: {{ item.count }}">
+            <div class="visit-bar" style="height: calc(({{ item.count }} / var(--max-count)) * 100%);">
+                <span>{{ item.count }}</span>
+            </div>
+            <small>{{ item.label }}</small>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

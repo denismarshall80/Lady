@@ -23,6 +23,7 @@
         {% if user %}
         <nav class="nav nav-center">
             <a class="{{ 'active' if active_page == 'admin' else '' }}" href="{{ url_for('admin_appointments') }}">Записи</a>
+            <a class="{{ 'active' if active_page == 'visits' else '' }}" href="{{ url_for('visit_stats') }}">Відвідини сайту</a>
             {% if is_admin %}
             <a class="{{ 'active' if active_page == 'settings' else '' }}" href="{{ url_for('settings') }}">Налаштування</a>
             <a class="{{ 'active' if active_page == 'users' else '' }}" href="{{ url_for('users') }}">Користувачі</a>
@@ -60,6 +61,7 @@
         <strong>ЛЕДІ</strong>
         <span>Кам'янець-Подільський, вул. Лесі Українки, 41</span>
         <span>Тел.: +38 093 299-59-21</span>
+        <span>Відвідини: {{ visit_count() }}</span>
         <span>{{ app_version }}</span>
     </footer>
 </body>

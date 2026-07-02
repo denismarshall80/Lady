@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import io
+import hashlib
 import json
 import os
 import re
 import smtplib
+import uuid
 import zipfile
 from contextlib import contextmanager
 from datetime import datetime, timedelta
@@ -18,6 +20,7 @@ from flask import (
     Flask,
     Response,
     flash,
+    g,
     redirect,
     render_template,
     request,
@@ -37,13 +40,19 @@ except Exception:
     DictCursor = None
 
 
-Ver = "LadySite v0.5.13" # first build 2024-07-01
+#Ver = "LadySite v0.5.13" # first build 2024-07-01
+#Ver = "LadySite v0.5.14" #оновили ціни
+#Ver = "LadySite v0.5.15" #лічильник відвідин
+Ver = "LadySite v0.8.18" #редагування послуг
 
 HOST = "localhost" if os.name == "nt" else "0.0.0.0"
 PORT = 5000
 PPath = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(PPath, "DATA", "LadySite.config")
 DEFAULT_SERVICES_PATH = os.path.join(PPath, "DATA", "default_services.json")
+SERVICE_CONTENT_VERSION = "2026-07-02-price-2"
+VISIT_COOKIE = "lady_visitor"
+VISIT_TRACK_ENDPOINTS = {"index", "services", "about"}
 REPORT_DIR = os.path.join(PPath, "Report")
 REPORT_SEND_DIR = os.path.join(REPORT_DIR, "Send")
 DEFAULT_MAP_URL = "https://www.google.com/maps/place/%D0%B2%D1%83%D0%BB%D0%B8%D1%86%D1%8F+%D0%9B%D0%B5%D1%81%D1%96+%D0%A3%D0%BA%D1%80%D0%B0%D1%97%D0%BD%D0%BA%D0%B8,+41,+%D0%9A%D0%B0%D0%BC'%D1%8F%D0%BD%D0%B5%D1%86%D1%8C-%D0%9F%D0%BE%D0%B4%D1%96%D0%BB%D1%8C%D1%81%D1%8C%D0%BA%D0%B8%D0%B9,+%D0%A5%D0%BC%D0%B5%D0%BB%D1%8C%D0%BD%D0%B8%D1%86%D1%8C%D0%BA%D0%B0+%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C,+32300/@48.6759436,26.5838751,18.42z/data=!4m6!3m5!1s0x4733b87712b10bb7:0xc879ff1bd73b8e22!8m2!3d48.6759926!4d26.5847011!16s%2Fg%2F11g1lfpndx?entry=ttu"
@@ -105,6 +114,7 @@ def load_config() -> dict[str, str]:
         "SEND_ERR_TIME_IN_MINUTES": "360",
         "ONLINE_APPOINTMENT_ENABLED": "1",
         "SERVICES_PAGE_INTRO": "Тут розділи і напрямки, якими займається наш центр.",
+        "SERVICE_CONTENT_VERSION": "",
         "MAP_URL": DEFAULT_MAP_URL,
         "MAP_EMBED_URL": DEFAULT_MAP_EMBED_URL,
     }
@@ -141,6 +151,7 @@ def save_config(config: dict[str, str]) -> None:
         "SEND_ERR_TIME_IN_MINUTES",
         "ONLINE_APPOINTMENT_ENABLED",
         "SERVICES_PAGE_INTRO",
+        "SERVICE_CONTENT_VERSION",
         "MAP_URL",
         "MAP_EMBED_URL",
     ]
@@ -279,6 +290,20 @@ def ensure_schema() -> None:
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                 """
             )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS PageVisits (
+                    Id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                    VisitorKey CHAR(64) NOT NULL,
+                    Path VARCHAR(255) NOT NULL,
+                    Endpoint VARCHAR(120) NULL,
+                    UserAgent VARCHAR(500) NULL,
+                    CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    INDEX idx_page_visits_created (CreatedAt),
+                    INDEX idx_page_visits_visitor_day (VisitorKey, CreatedAt)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                """
+            )
             cur.execute("SELECT COUNT(*) AS cnt FROM Users WHERE Login=%s", ("denis",))
             if int(cur.fetchone()["cnt"]) == 0:
                 cur.execute(
@@ -289,6 +314,11 @@ def ensure_schema() -> None:
                     ("denis", "Денис", None, generate_password_hash("DenMar15")),
                 )
             seed_service_content(cur)
+            config = load_config()
+            if config.get("SERVICE_CONTENT_VERSION") != SERVICE_CONTENT_VERSION:
+                sync_default_service_content(cur)
+                config["SERVICE_CONTENT_VERSION"] = SERVICE_CONTENT_VERSION
+                save_config(config)
         runtime_state["schema_ready"] = True
         runtime_state["schema_error"] = ""
     except Exception as ex:
@@ -343,6 +373,101 @@ def seed_service_content(cur) -> None:
                     str(card.get("image_url") or "").strip() or None,
                     card_index * 10,
                 ),
+            )
+
+
+def sync_default_service_content(cur) -> None:
+    aliases = {
+        "Пірсинг": [
+            "Медичний пірсинг",
+            "Пірсинг вух",
+            "Пірсинг носа",
+            "Пірсинг брови",
+            "Пірсинг язика",
+            "Пірсинг пупка",
+            "Додатково",
+        ],
+        "Прикраси": ["Італійська медична позолота"],
+    }
+    for index, section in enumerate(load_default_services(), start=1):
+        title = str(section.get("title") or "").strip()
+        if not title:
+            continue
+        description = str(section.get("description") or "").strip() or None
+        image_url = str(section.get("image_url") or "").strip() or None
+        lookup_titles = [title, *aliases.get(title, [])]
+        placeholders = ",".join(["%s"] * len(lookup_titles))
+        cur.execute(f"SELECT Id FROM ServiceSections WHERE Title IN ({placeholders}) ORDER BY Id", lookup_titles)
+        rows = cur.fetchall()
+        if rows:
+            section_id = int(rows[0]["Id"])
+            duplicate_section_ids = [int(row["Id"]) for row in rows[1:]]
+            if duplicate_section_ids:
+                duplicate_placeholders = ",".join(["%s"] * len(duplicate_section_ids))
+                cur.execute(
+                    f"UPDATE ServiceCards SET SectionId=%s WHERE SectionId IN ({duplicate_placeholders})",
+                    (section_id, *duplicate_section_ids),
+                )
+                cur.execute(f"DELETE FROM ServiceSections WHERE Id IN ({duplicate_placeholders})", duplicate_section_ids)
+            cur.execute(
+                """
+                UPDATE ServiceSections
+                SET Title=%s, Description=%s, ImageUrl=%s, SortOrder=%s, IsActive=TRUE
+                WHERE Id=%s
+                """,
+                (title, description, image_url, index * 10, section_id),
+            )
+        else:
+            cur.execute(
+                "INSERT INTO ServiceSections (Title, Description, ImageUrl, SortOrder) VALUES (%s, %s, %s, %s)",
+                (title, description, image_url, index * 10),
+            )
+            section_id = int(cur.lastrowid)
+
+        cards = section.get("cards", [])
+        if not isinstance(cards, list):
+            cards = []
+        active_titles: list[str] = []
+        for card_index, card in enumerate(cards, start=1):
+            card_title = str(card.get("title") or "").strip()
+            if not card_title:
+                continue
+            active_titles.append(card_title)
+            card_values = (
+                str(card.get("description") or "").strip() or None,
+                str(card.get("price") or "").strip() or "від ХХ грн",
+                str(card.get("image_url") or "").strip() or None,
+                card_index * 10,
+            )
+            cur.execute("SELECT Id FROM ServiceCards WHERE SectionId=%s AND Title=%s ORDER BY Id", (section_id, card_title))
+            existing_rows = cur.fetchall()
+            if existing_rows:
+                card_id = int(existing_rows[0]["Id"])
+                duplicate_card_ids = [int(row["Id"]) for row in existing_rows[1:]]
+                if duplicate_card_ids:
+                    duplicate_placeholders = ",".join(["%s"] * len(duplicate_card_ids))
+                    cur.execute(f"DELETE FROM ServiceCards WHERE Id IN ({duplicate_placeholders})", duplicate_card_ids)
+                cur.execute(
+                    """
+                    UPDATE ServiceCards
+                    SET ShortDescription=%s, PriceText=%s, ImageUrl=%s, SortOrder=%s, IsActive=TRUE
+                    WHERE Id=%s
+                    """,
+                    (*card_values, card_id),
+                )
+            else:
+                cur.execute(
+                    """
+                    INSERT INTO ServiceCards (SectionId, Title, ShortDescription, PriceText, ImageUrl, SortOrder)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                    """,
+                    (section_id, card_title, *card_values),
+                )
+        if active_titles:
+            placeholders = ",".join(["%s"] * len(active_titles))
+            cur.execute(
+                f"UPDATE ServiceCards SET IsActive=FALSE WHERE SectionId=%s AND Title NOT IN ({placeholders})",
+                (section_id, *active_titles),
             )
 
 
@@ -437,6 +562,13 @@ def log_action(action: str, details: str = "") -> None:
         mf.tolog(f"log_action({action}) failed: {ex}")
 
 
+def log_user_event(text: str) -> None:
+    actor = session.get("login") or "anonymous"
+    message = f"User {actor} {text}"
+    log_action("user_event", message)
+    mf.tolog(message)
+
+
 def parse_visit_at(date_value: str, time_value: str) -> datetime | None:
     raw = f"{date_value.strip()} {time_value.strip()}"
     try:
@@ -450,6 +582,48 @@ def parse_int(value: str, default: int, low: int = 1, high: int = 100000) -> int
         return min(high, max(low, int(value)))
     except (TypeError, ValueError):
         return default
+
+
+def parse_date(value: str) -> datetime | None:
+    try:
+        return datetime.strptime(value.strip(), "%Y-%m-%d")
+    except (AttributeError, ValueError):
+        return None
+
+
+def visitor_key(raw_id: str) -> str:
+    return hashlib.sha256(raw_id.encode("utf-8")).hexdigest()
+
+
+def should_track_visit() -> bool:
+    return request.method == "GET" and request.endpoint in VISIT_TRACK_ENDPOINTS
+
+
+def record_page_visit() -> None:
+    if not should_track_visit():
+        return
+    visitor_id = request.cookies.get(VISIT_COOKIE, "").strip()
+    if not re.fullmatch(r"[0-9a-fA-F-]{32,40}", visitor_id):
+        visitor_id = uuid.uuid4().hex
+        g.set_visit_cookie = visitor_id
+    try:
+        if not runtime_state["schema_ready"]:
+            ensure_schema()
+        with db_cursor(commit=True) as cur:
+            cur.execute(
+                """
+                INSERT INTO PageVisits (VisitorKey, Path, Endpoint, UserAgent)
+                VALUES (%s, %s, %s, %s)
+                """,
+                (
+                    visitor_key(visitor_id),
+                    request.path[:255],
+                    (request.endpoint or "")[:120] or None,
+                    (request.headers.get("User-Agent") or "")[:500] or None,
+                ),
+            )
+    except Exception as ex:
+        mf.tolog(f"record_page_visit() failed: {ex}")
 
 
 def notification_recipients(config: dict[str, str]) -> list[str]:
@@ -646,6 +820,7 @@ def inject_globals():
         user = None
     return {
         "app_version": Ver,
+        "visit_count": total_visit_count,
         "user": user,
         "is_admin": is_admin(user),
         "can_manage_services": can_manage_services(user),
@@ -653,6 +828,31 @@ def inject_globals():
 
 
 app.jinja_env.globals.update(user_display_name=user_display_name, avatar_initials=avatar_initials)
+
+
+@app.before_request
+def track_page_visit_before_request():
+    record_page_visit()
+
+
+@app.after_request
+def set_visit_cookie(response: Response):
+    visitor_id = getattr(g, "set_visit_cookie", "")
+    if visitor_id:
+        response.set_cookie(VISIT_COOKIE, visitor_id, max_age=60 * 60 * 24 * 365, samesite="Lax")
+    return response
+
+
+def total_visit_count() -> int:
+    try:
+        if not runtime_state["schema_ready"]:
+            ensure_schema()
+        with db_cursor() as cur:
+            cur.execute("SELECT COUNT(DISTINCT VisitorKey) AS cnt FROM PageVisits")
+            return int(cur.fetchone()["cnt"])
+    except Exception as ex:
+        mf.tolog(f"total_visit_count() failed: {ex}")
+        return 0
 
 
 @app.route("/")
@@ -714,7 +914,7 @@ def service_section_create():
             "INSERT INTO ServiceSections (Title, Description, ImageUrl, SortOrder) VALUES (%s, %s, %s, %s)",
             (title, description or None, image_url or None, sort_order),
         )
-    log_action("service_section_create", title)
+    log_user_event(f'додав розділ "{title}"')
     flash("Розділ додано.", "success")
     return redirect(url_for("services"))
 
@@ -736,6 +936,9 @@ def service_card_create():
         flash("Оберіть розділ і вкажіть назву картки.", "error")
         return redirect(url_for("services"))
     with db_cursor(commit=True) as cur:
+        cur.execute("SELECT Title FROM ServiceSections WHERE Id=%s", (section_id,))
+        section = cur.fetchone()
+        section_title = section["Title"] if section else ""
         cur.execute("SELECT COALESCE(MAX(SortOrder), 0) + 10 AS next_order FROM ServiceCards WHERE SectionId=%s", (section_id,))
         sort_order = int(cur.fetchone()["next_order"])
         cur.execute(
@@ -745,9 +948,124 @@ def service_card_create():
             """,
             (section_id, title, description or None, price or "від ХХ грн", image_url or None, sort_order),
         )
-    log_action("service_card_create", title)
+    log_user_event(f'додав картку "{title}" в розділ "{section_title}"')
     flash("Картку послуги додано.", "success")
     return redirect(url_for("services"))
+
+
+@app.route("/services/item/<kind>/<int:item_id>/edit", methods=["POST"])
+def service_item_edit(kind: str, item_id: int):
+    user = require_user()
+    if not isinstance(user, dict):
+        return user
+    if not can_manage_services(user):
+        flash("Недостатньо прав для редагування послуг.", "error")
+        return redirect(url_for("services"))
+    title = request.form.get("title", "").strip()
+    description = request.form.get("description", "").strip()
+    image_url = request.form.get("image_url", "").strip()
+    price = request.form.get("price", "").strip()
+    section_id = parse_int(request.form.get("section_id", "0"), 0, 0, 999999999)
+    if not title:
+        flash("Назва обов'язкова.", "error")
+        return redirect(url_for("services") + "#services-admin")
+    with db_cursor(commit=True) as cur:
+        if kind == "section":
+            cur.execute(
+                "UPDATE ServiceSections SET Title=%s, Description=%s, ImageUrl=%s WHERE Id=%s",
+                (title, description or None, image_url or None, item_id),
+            )
+            log_text = f'відредагував розділ "{title}"'
+        elif kind == "card":
+            cur.execute("SELECT Title FROM ServiceSections WHERE Id=%s", (section_id,))
+            section = cur.fetchone()
+            if not section:
+                flash("Оберіть розділ для картки.", "error")
+                return redirect(url_for("services") + "#services-admin")
+            cur.execute("SELECT SectionId, SortOrder FROM ServiceCards WHERE Id=%s", (item_id,))
+            current_card = cur.fetchone()
+            sort_order = current_card["SortOrder"] if current_card else 100
+            if current_card and int(current_card["SectionId"]) != section_id:
+                cur.execute("SELECT COALESCE(MAX(SortOrder), 0) + 10 AS next_order FROM ServiceCards WHERE SectionId=%s", (section_id,))
+                sort_order = int(cur.fetchone()["next_order"])
+            cur.execute(
+                """
+                UPDATE ServiceCards
+                SET SectionId=%s, Title=%s, ShortDescription=%s, PriceText=%s, ImageUrl=%s, SortOrder=%s
+                WHERE Id=%s
+                """,
+                (section_id, title, description or None, price or "від ХХ грн", image_url or None, sort_order, item_id),
+            )
+            log_text = f'відредагував картку "{title}" в розділі "{section["Title"]}"'
+        else:
+            flash("Невідомий тип елемента.", "error")
+            return redirect(url_for("services") + "#services-admin")
+    log_user_event(log_text)
+    flash("Зміни збережено.", "success")
+    return redirect(url_for("services") + "#services-admin")
+
+
+@app.route("/services/item/<kind>/<int:item_id>/move", methods=["POST"])
+def service_item_move(kind: str, item_id: int):
+    user = require_user()
+    if not isinstance(user, dict):
+        return user
+    if not can_manage_services(user):
+        flash("Недостатньо прав для редагування послуг.", "error")
+        return redirect(url_for("services"))
+    direction = request.form.get("direction", "")
+    if direction not in {"up", "down"}:
+        flash("Невідомий напрямок переміщення.", "error")
+        return redirect(url_for("services") + "#services-admin")
+    with db_cursor(commit=True) as cur:
+        if kind == "section":
+            table = "ServiceSections"
+            scope_sql = ""
+            scope_args: tuple[Any, ...] = ()
+            cur.execute("SELECT Id, Title, SortOrder FROM ServiceSections WHERE Id=%s", (item_id,))
+            current = cur.fetchone()
+            label = "розділ"
+        elif kind == "card":
+            table = "ServiceCards"
+            cur.execute(
+                """
+                SELECT c.Id, c.Title, c.SortOrder, c.SectionId, s.Title AS SectionTitle
+                FROM ServiceCards c
+                JOIN ServiceSections s ON s.Id=c.SectionId
+                WHERE c.Id=%s
+                """,
+                (item_id,),
+            )
+            current = cur.fetchone()
+            scope_sql = "AND SectionId=%s"
+            scope_args = (current["SectionId"],) if current else ()
+            label = "картку"
+        else:
+            flash("Невідомий тип елемента.", "error")
+            return redirect(url_for("services") + "#services-admin")
+        if not current:
+            flash("Елемент не знайдено.", "error")
+            return redirect(url_for("services") + "#services-admin")
+        compare = "<" if direction == "up" else ">"
+        order = "DESC" if direction == "up" else "ASC"
+        cur.execute(
+            f"""
+            SELECT Id, SortOrder FROM {table}
+            WHERE SortOrder {compare} %s {scope_sql}
+            ORDER BY SortOrder {order}, Id {order}
+            LIMIT 1
+            """,
+            (current["SortOrder"], *scope_args),
+        )
+        neighbor = cur.fetchone()
+        if not neighbor:
+            flash("Далі рухати нікуди.", "error")
+            return redirect(url_for("services") + "#services-admin")
+        cur.execute(f"UPDATE {table} SET SortOrder=%s WHERE Id=%s", (neighbor["SortOrder"], current["Id"]))
+        cur.execute(f"UPDATE {table} SET SortOrder=%s WHERE Id=%s", (current["SortOrder"], neighbor["Id"]))
+    log_user_event(f'{"підняв" if direction == "up" else "опустив"} {label} "{current["Title"]}" {"вверх" if direction == "up" else "вниз"}')
+    flash("Порядок оновлено.", "success")
+    return redirect(url_for("services") + "#services-admin")
 
 
 @app.route("/services/item/<kind>/<int:item_id>", methods=["POST"])
@@ -769,18 +1087,31 @@ def service_item_update(kind: str, item_id: int):
             return redirect(url_for("services"))
         if action == "hide":
             cur.execute(f"UPDATE {table} SET IsActive=FALSE WHERE Id=%s", (item_id,))
+            cur.execute(f"SELECT Title FROM {table} WHERE Id=%s", (item_id,))
+            row = cur.fetchone()
+            log_text = f'приховав {"розділ" if kind == "section" else "картку"} "{row["Title"] if row else item_id}"'
         elif action == "show":
             cur.execute(f"UPDATE {table} SET IsActive=TRUE WHERE Id=%s", (item_id,))
+            cur.execute(f"SELECT Title FROM {table} WHERE Id=%s", (item_id,))
+            row = cur.fetchone()
+            log_text = f'показав {"розділ" if kind == "section" else "картку"} "{row["Title"] if row else item_id}"'
         elif action == "delete":
             if kind == "section":
+                cur.execute("SELECT Title FROM ServiceSections WHERE Id=%s", (item_id,))
+                row = cur.fetchone()
                 cur.execute("DELETE FROM ServiceCards WHERE SectionId=%s", (item_id,))
+                log_text = f'видалив розділ "{row["Title"] if row else item_id}"'
+            else:
+                cur.execute("SELECT Title FROM ServiceCards WHERE Id=%s", (item_id,))
+                row = cur.fetchone()
+                log_text = f'видалив картку "{row["Title"] if row else item_id}"'
             cur.execute(f"DELETE FROM {table} WHERE Id=%s", (item_id,))
         else:
             flash("Невідома дія.", "error")
-            return redirect(url_for("services"))
-    log_action("service_item_update", f"{kind}:{item_id}:{action}")
+            return redirect(url_for("services") + "#services-admin")
+    log_user_event(log_text)
     flash("Зміни збережено.", "success")
-    return redirect(url_for("services"))
+    return redirect(url_for("services") + "#services-admin")
 
 
 @app.route("/about")
@@ -891,6 +1222,92 @@ def admin_appointments():
         rows = []
         flash(f"Не вдалося прочитати записи: {ex}", "error")
     return render_template("admin_appointments.html", appointments=rows, days=days, active_page="admin")
+
+
+@app.route("/admin/visits")
+def visit_stats():
+    user = require_user()
+    if not isinstance(user, dict):
+        return user
+    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    if "days" in request.args:
+        days = parse_int(request.args.get("days", "14"), 14, 7, 60)
+        start = today - timedelta(days=days - 1)
+        end = today + timedelta(days=1)
+        session["visit_stats_mode"] = str(days)
+        session.pop("visit_stats_from", None)
+        session.pop("visit_stats_to", None)
+    elif "date_from" in request.args or "date_to" in request.args:
+        date_from = parse_date(request.args.get("date_from", ""))
+        date_to = parse_date(request.args.get("date_to", ""))
+        if not date_from or not date_to or date_to < date_from:
+            flash("Оберіть коректний період від і до.", "error")
+            date_to = today
+            date_from = today - timedelta(days=13)
+        start = date_from.replace(hour=0, minute=0, second=0, microsecond=0)
+        end = date_to.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
+        session["visit_stats_mode"] = "custom"
+        session["visit_stats_from"] = start.strftime("%Y-%m-%d")
+        session["visit_stats_to"] = (end - timedelta(days=1)).strftime("%Y-%m-%d")
+    elif session.get("visit_stats_mode") == "custom":
+        start = parse_date(session.get("visit_stats_from", "")) or today - timedelta(days=13)
+        date_to = parse_date(session.get("visit_stats_to", "")) or today
+        start = start.replace(hour=0, minute=0, second=0, microsecond=0)
+        end = date_to.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
+    else:
+        days = parse_int(session.get("visit_stats_mode", "14"), 14, 7, 60)
+        start = today - timedelta(days=days - 1)
+        end = today + timedelta(days=1)
+        session["visit_stats_mode"] = str(days)
+    days = max(1, (end.date() - start.date()).days)
+    labels = [(start + timedelta(days=offset)).date() for offset in range(days)]
+    counts_by_day = {day: 0 for day in labels}
+    try:
+        ensure_schema()
+        with db_cursor() as cur:
+            cur.execute(
+                """
+                SELECT DATE(CreatedAt) AS VisitDay, COUNT(DISTINCT VisitorKey) AS VisitCount
+                FROM PageVisits
+                WHERE CreatedAt >= %s AND CreatedAt < %s
+                GROUP BY DATE(CreatedAt)
+                ORDER BY VisitDay
+                """,
+                (start, end),
+            )
+            for row in cur.fetchall():
+                visit_day = row["VisitDay"]
+                if isinstance(visit_day, str):
+                    visit_day = datetime.strptime(visit_day, "%Y-%m-%d").date()
+                counts_by_day[visit_day] = int(row["VisitCount"])
+    except Exception as ex:
+        _report_critical_error("visit stats failed", ex)
+        flash(f"Не вдалося прочитати статистику відвідин: {ex}", "error")
+    chart = [
+        {
+            "date": day,
+            "label": day.strftime("%d.%m"),
+            "count": counts_by_day[day],
+        }
+        for day in labels
+    ]
+    max_count = max([item["count"] for item in chart] or [1]) or 1
+    today_count = counts_by_day.get(today.date(), 0)
+    yesterday_count = counts_by_day.get((today - timedelta(days=1)).date(), 0)
+    total_count = sum(item["count"] for item in chart)
+    return render_template(
+        "visit_stats.html",
+        chart=chart,
+        max_count=max_count,
+        today_count=today_count,
+        yesterday_count=yesterday_count,
+        total_count=total_count,
+        days=days,
+        mode=session.get("visit_stats_mode", "14"),
+        date_from=start.strftime("%Y-%m-%d"),
+        date_to=(end - timedelta(days=1)).strftime("%Y-%m-%d"),
+        active_page="visits",
+    )
 
 
 @app.route("/settings", methods=["GET", "POST"])

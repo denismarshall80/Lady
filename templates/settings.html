@@ -3,10 +3,13 @@
 <section class="admin-head">
     <div>
         <p class="eyebrow">Адміністратор</p>
-        <h1>Налаштування сайту</h1>
+        <h1 class="admin-title-small">Налаштування сайту</h1>
     </div>
 </section>
-<form class="settings-form" method="post">
+<form class="settings-form" method="post" data-tabs>
+    <div class="settings-save-top">
+        <button class="primary" name="action" value="save" type="submit">Зберегти налаштування</button>
+    </div>
     <div class="settings-tabs" role="tablist" aria-label="Розділи налаштувань">
         <button class="settings-tab is-active" type="button" data-tab-target="maintenance">Обслуговування</button>
         <button class="settings-tab" type="button" data-tab-target="mysql">MySQL</button>

@@ -359,3 +359,4 @@ healthchecksdb
 /Deploy
 /venv
 /static
+/.venv
