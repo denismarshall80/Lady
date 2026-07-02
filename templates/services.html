@@ -5,8 +5,11 @@
         <h1>Послуги і ціни</h1>
         <p>{{ config.SERVICES_PAGE_INTRO }}</p>
     </div>
-    {% if can_manage_services %}
-    <a class="button primary" href="#services-admin">Редагувати послуги</a>
+    {% if manager_view %}
+    <div class="service-title-actions">
+        <a class="button" href="{{ url_for('services', preview='public') }}" target="_blank" rel="noopener">Перегляд як клієнт</a>
+        <a class="button primary" href="#services-admin">Редагувати послуги</a>
+    </div>
     {% endif %}
 </section>
 
@@ -24,7 +27,7 @@
                 <div>
                     <h2>{{ section.Title }}</h2>
                     <p>{{ section.Description or 'Опис розділу буде додано.' }}</p>
-                    {% if can_manage_services and not section.IsActive %}<strong class="status-note">Приховано</strong>{% endif %}
+                    {% if manager_view and not section.IsActive %}<strong class="status-note">Приховано</strong>{% endif %}
                 </div>
             </div>
             <div class="service-cards">
@@ -36,7 +39,7 @@
                         <p>{{ card.ShortDescription or 'Опис послуги буде додано.' }}</p>
                         <strong>{{ card.PriceText or 'від ХХ грн' }}</strong>
                     </div>
-                    {% if can_manage_services and not card.IsActive %}<span class="status-note">Приховано</span>{% endif %}
+                    {% if manager_view and not card.IsActive %}<span class="status-note">Приховано</span>{% endif %}
                 </article>
                 {% else %}
                 <p class="empty">Картки для цього розділу ще не додані.</p>
@@ -49,7 +52,7 @@
     </div>
 </section>
 
-{% if can_manage_services %}
+{% if manager_view %}
 <section class="services-admin" id="services-admin">
     <div class="section-head">
         <p class="eyebrow">Адміністратор</p>

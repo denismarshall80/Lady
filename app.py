@@ -864,16 +864,24 @@ def index():
 
 @app.route("/services")
 def services():
+    preview_public = request.args.get("preview") == "public"
+    manager_view = can_manage_services(current_user()) and not preview_public
     try:
         ensure_schema()
-        sections = load_service_sections(include_inactive=can_manage_services(current_user()))
+        sections = load_service_sections(include_inactive=manager_view)
         config = load_config()
     except Exception as ex:
         _report_critical_error("services page failed", ex)
         sections = []
         config = load_config()
         flash(f"Послуги тимчасово недоступні: {ex}", "error")
-    return render_template("services.html", sections=sections, config=config, active_page="services")
+    return render_template(
+        "services.html",
+        sections=sections,
+        config=config,
+        manager_view=manager_view,
+        active_page="services",
+    )
 
 
 @app.route("/services/intro", methods=["POST"])
