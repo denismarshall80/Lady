@@ -31,26 +31,71 @@
             <td>{{ 'Адмін' if item.Role == 'admin' else 'Менеджер' }}</td>
             <td>{{ 'Заблокований' if item.IsBlocked else 'Активний' }}</td>
             <td>{{ item.Last or '' }}</td>
-            <td class="row-actions">
-                <form method="post" action="{{ url_for('user_update', login_value=item.Login) }}">
-                    <select name="role">
-                        <option value="manager" {{ 'selected' if item.Role == 'manager' else '' }}>Менеджер</option>
-                        <option value="admin" {{ 'selected' if item.Role == 'admin' else '' }}>Адмін</option>
-                    </select>
-                    <button name="action" value="role">Роль</button>
-                </form>
-                <form method="post" action="{{ url_for('user_update', login_value=item.Login) }}">
-                    <input name="password" type="password" placeholder="новий пароль">
-                    <button name="action" value="password">Пароль</button>
-                </form>
-                <form method="post" action="{{ url_for('user_update', login_value=item.Login) }}">
-                    {% if item.IsBlocked %}
-                    <button name="action" value="unblock">Розблокувати</button>
-                    {% else %}
-                    <button name="action" value="block">Блокувати</button>
-                    {% endif %}
-                    <button class="danger" name="action" value="delete" onclick="return confirm('Видалити користувача?')">Видалити</button>
-                </form>
+            <td class="row-actions compact-actions">
+                <details class="context-menu">
+                    <summary class="icon-button" title="Дії" aria-label="Дії">⋯</summary>
+                    <div class="context-menu-panel">
+                        <button type="button" data-dialog-open="role-dialog-{{ loop.index }}">Змінити роль</button>
+                        <button type="button" data-dialog-open="password-dialog-{{ loop.index }}">Змінити пароль</button>
+                        {% if item.IsBlocked %}
+                        <button type="button" data-dialog-open="status-dialog-{{ loop.index }}">Розблокувати</button>
+                        {% else %}
+                        <button type="button" data-dialog-open="status-dialog-{{ loop.index }}">Блокувати</button>
+                        {% endif %}
+                        <button class="danger" type="button" data-dialog-open="delete-dialog-{{ loop.index }}">Видалити</button>
+                    </div>
+                </details>
+                <dialog class="action-dialog" id="role-dialog-{{ loop.index }}">
+                    <form method="post" action="{{ url_for('user_update', login_value=item.Login) }}">
+                        <h2>Роль користувача</h2>
+                        <p>{{ item.Login }}</p>
+                        <label>Роль
+                            <select name="role">
+                                <option value="manager" {{ 'selected' if item.Role == 'manager' else '' }}>Менеджер</option>
+                                <option value="admin" {{ 'selected' if item.Role == 'admin' else '' }}>Адмін</option>
+                            </select>
+                        </label>
+                        <div class="dialog-actions">
+                            <button class="primary" name="action" value="role">Зберегти</button>
+                            <button type="button" data-dialog-close>Відміна</button>
+                        </div>
+                    </form>
+                </dialog>
+                <dialog class="action-dialog" id="password-dialog-{{ loop.index }}">
+                    <form method="post" action="{{ url_for('user_update', login_value=item.Login) }}">
+                        <h2>Новий пароль</h2>
+                        <p>{{ item.Login }}</p>
+                        <label>Пароль <input name="password" type="password" required></label>
+                        <div class="dialog-actions">
+                            <button class="primary" name="action" value="password">Зберегти</button>
+                            <button type="button" data-dialog-close>Відміна</button>
+                        </div>
+                    </form>
+                </dialog>
+                <dialog class="action-dialog" id="status-dialog-{{ loop.index }}">
+                    <form method="post" action="{{ url_for('user_update', login_value=item.Login) }}">
+                        <h2>{{ 'Розблокувати' if item.IsBlocked else 'Блокувати' }} користувача?</h2>
+                        <p>{{ item.Login }}</p>
+                        <div class="dialog-actions">
+                            {% if item.IsBlocked %}
+                            <button class="primary" name="action" value="unblock">Розблокувати</button>
+                            {% else %}
+                            <button class="danger" name="action" value="block">Блокувати</button>
+                            {% endif %}
+                            <button type="button" data-dialog-close>Відміна</button>
+                        </div>
+                    </form>
+                </dialog>
+                <dialog class="action-dialog" id="delete-dialog-{{ loop.index }}">
+                    <form method="post" action="{{ url_for('user_update', login_value=item.Login) }}">
+                        <h2>Видалити користувача?</h2>
+                        <p>{{ item.Login }} буде видалений без повернення.</p>
+                        <div class="dialog-actions">
+                            <button class="danger" name="action" value="delete">Видалити</button>
+                            <button type="button" data-dialog-close>Відміна</button>
+                        </div>
+                    </form>
+                </dialog>
             </td>
         </tr>
         {% endfor %}

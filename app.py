@@ -29,6 +29,7 @@ from flask import (
     url_for,
 )
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
 
 import utils.myfunct as mf
 
@@ -45,7 +46,7 @@ except Exception:
 #Ver = "LadySite v0.5.15" #лічильник відвідин
 #Ver = "LadySite v0.8.18" #редагування послуг
 #Ver = "LadySite v0.8.19" #адмінка зручніше
-Ver = "LadySite v0.8.20" #текст товарів
+Ver = "LadySite v0.8.21" #редагування цін і адмінки
 
 HOST = "localhost" if os.name == "nt" else "0.0.0.0"
 PORT = 5000
@@ -294,6 +295,7 @@ def ensure_schema() -> None:
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                 """
             )
+            cur.execute("ALTER TABLE ServiceCards MODIFY PriceText TEXT NULL")
             cur.execute(
                 """
                 CREATE TABLE IF NOT EXISTS PageVisits (
@@ -492,6 +494,8 @@ def load_service_sections(include_inactive: bool = False) -> list[dict[str, Any]
         cards = cur.fetchall()
     by_section: dict[int, list[dict[str, Any]]] = {}
     for card in cards:
+        price_lines = [line.strip() for line in str(card.get("PriceText") or "").splitlines() if line.strip()]
+        card["PriceLines"] = price_lines or [str(card.get("PriceText") or "").strip() or "від ХХ грн"]
         by_section.setdefault(int(card["SectionId"]), []).append(card)
     for section in sections:
         section["Cards"] = by_section.get(int(section["Id"]), [])
@@ -627,6 +631,38 @@ def localize_image_url(image_url: str) -> str:
     except Exception as ex:
         mf.tolog(f"localize_image_url() failed for {image_url}: {ex}")
         return image_url
+
+
+def normalize_price_text(price: str) -> str:
+    lines = [line.strip() for line in (price or "").splitlines() if line.strip()]
+    return "\n".join(lines) or "від ХХ грн"
+
+
+def uploaded_service_image_url(field_name: str = "image_file") -> str:
+    file = request.files.get(field_name)
+    if not file or not file.filename:
+        return ""
+    original = secure_filename(file.filename)
+    suffix = Path(original).suffix.lower()
+    if suffix not in {".jpg", ".jpeg", ".png", ".webp", ".gif"}:
+        flash("Картинка має бути JPG, PNG, WEBP або GIF.", "error")
+        return ""
+    filename = f"Image_{uuid.uuid4().hex[:12]}{suffix}"
+    target = os.path.join(SERVICE_IMAGE_DIR, filename)
+    file.save(target)
+    return f"/static/service_images/{filename}"
+
+
+def service_image_from_request(current_url: str = "") -> str:
+    uploaded = uploaded_service_image_url()
+    if uploaded:
+        return uploaded
+    if request.form.get("image_mode", "file") == "file":
+        return current_url
+    image_url = request.form.get("image_url", "").strip()
+    if image_url:
+        return localize_image_url(image_url)
+    return current_url
 
 
 def visitor_key(raw_id: str) -> str:
@@ -962,7 +998,7 @@ def service_section_create():
         return redirect(url_for("services"))
     title = request.form.get("title", "").strip()
     description = request.form.get("description", "").strip()
-    image_url = localize_image_url(request.form.get("image_url", "").strip())
+    image_url = service_image_from_request()
     if not title:
         flash("Назва розділу обов'язкова.", "error")
         return redirect(url_for("services"))
@@ -989,8 +1025,8 @@ def service_card_create():
     section_id = parse_int(request.form.get("section_id", "0"), 0, 0, 999999999)
     title = request.form.get("title", "").strip()
     description = request.form.get("description", "").strip()
-    price = request.form.get("price", "").strip()
-    image_url = localize_image_url(request.form.get("image_url", "").strip())
+    price = normalize_price_text(request.form.get("price", ""))
+    image_url = service_image_from_request()
     if not section_id or not title:
         flash("Оберіть розділ і вкажіть назву картки.", "error")
         return redirect(url_for("services"))
@@ -1005,7 +1041,7 @@ def service_card_create():
             INSERT INTO ServiceCards (SectionId, Title, ShortDescription, PriceText, ImageUrl, SortOrder)
             VALUES (%s, %s, %s, %s, %s, %s)
             """,
-            (section_id, title, description or None, price or "від ХХ грн", image_url or None, sort_order),
+            (section_id, title, description or None, price, image_url or None, sort_order),
         )
     log_user_event(f'додав картку "{title}" в розділ "{section_title}"')
     flash("Картку послуги додано.", "success")
@@ -1022,14 +1058,16 @@ def service_item_edit(kind: str, item_id: int):
         return redirect(url_for("services"))
     title = request.form.get("title", "").strip()
     description = request.form.get("description", "").strip()
-    image_url = localize_image_url(request.form.get("image_url", "").strip())
-    price = request.form.get("price", "").strip()
+    price = normalize_price_text(request.form.get("price", ""))
     section_id = parse_int(request.form.get("section_id", "0"), 0, 0, 999999999)
     if not title:
         flash("Назва обов'язкова.", "error")
         return redirect(url_for("services") + "#services-admin")
     with db_cursor(commit=True) as cur:
         if kind == "section":
+            cur.execute("SELECT ImageUrl FROM ServiceSections WHERE Id=%s", (item_id,))
+            current = cur.fetchone()
+            image_url = service_image_from_request(current["ImageUrl"] if current else "")
             cur.execute(
                 "UPDATE ServiceSections SET Title=%s, Description=%s, ImageUrl=%s WHERE Id=%s",
                 (title, description or None, image_url or None, item_id),
@@ -1041,9 +1079,10 @@ def service_item_edit(kind: str, item_id: int):
             if not section:
                 flash("Оберіть розділ для картки.", "error")
                 return redirect(url_for("services") + "#services-admin")
-            cur.execute("SELECT SectionId, SortOrder FROM ServiceCards WHERE Id=%s", (item_id,))
+            cur.execute("SELECT SectionId, SortOrder, ImageUrl FROM ServiceCards WHERE Id=%s", (item_id,))
             current_card = cur.fetchone()
             sort_order = current_card["SortOrder"] if current_card else 100
+            image_url = service_image_from_request(current_card.get("ImageUrl", "") if current_card else "")
             if current_card and int(current_card["SectionId"]) != section_id:
                 cur.execute("SELECT COALESCE(MAX(SortOrder), 0) + 10 AS next_order FROM ServiceCards WHERE SectionId=%s", (section_id,))
                 sort_order = int(cur.fetchone()["next_order"])
@@ -1053,7 +1092,7 @@ def service_item_edit(kind: str, item_id: int):
                 SET SectionId=%s, Title=%s, ShortDescription=%s, PriceText=%s, ImageUrl=%s, SortOrder=%s
                 WHERE Id=%s
                 """,
-                (section_id, title, description or None, price or "від ХХ грн", image_url or None, sort_order, item_id),
+                (section_id, title, description or None, price, image_url or None, sort_order, item_id),
             )
             log_text = f'відредагував картку "{title}" в розділі "{section["Title"]}"'
         else:

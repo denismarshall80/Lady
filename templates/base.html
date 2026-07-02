@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='lady.css') }}">
     <script src="{{ url_for('static', filename='lady.js') }}" defer></script>
 </head>
-<body>
+<body class="{{ 'admin-page' if active_page in ['admin', 'visits', 'settings', 'users', 'logs'] else '' }}">
     <header class="topbar">
         <div class="topbar-left">
             <a class="brand" href="{{ url_for('index') }}">

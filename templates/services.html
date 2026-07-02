@@ -1,4 +1,18 @@
 {% extends "base.html" %}
+{% macro image_picker(value='') %}
+<div class="image-picker" data-image-picker>
+    <div class="segmented-control" role="group" aria-label="Спосіб додавання картинки">
+        <label><input type="radio" name="image_mode" value="file" checked> Файл</label>
+        <label><input type="radio" name="image_mode" value="url"> Посилання</label>
+    </div>
+    <label class="image-mode-panel" data-image-mode-panel="file">Картинка файлом
+        <input name="image_file" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+    </label>
+    <label class="image-mode-panel" data-image-mode-panel="url">Картинка посиланням
+        <input name="image_url" value="{{ value or '' }}" placeholder="https://... або /static/name.png">
+    </label>
+</div>
+{% endmacro %}
 {% block content %}
 <section class="page-hero small-hero services-title">
     <div>
@@ -37,7 +51,15 @@
                     <div>
                         <h3>{{ card.Title }}</h3>
                         <p>{{ card.ShortDescription or 'Опис послуги буде додано.' }}</p>
-                        <strong>{{ card.PriceText or 'від ХХ грн' }}</strong>
+                        {% if card.PriceLines|length > 1 %}
+                        <ul class="price-lines">
+                            {% for price_line in card.PriceLines %}
+                            <li>{{ price_line }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <strong>{{ card.PriceLines[0] if card.PriceLines else (card.PriceText or 'від ХХ грн') }}</strong>
+                        {% endif %}
                     </div>
                     {% if manager_view and not card.IsActive %}<span class="status-note">Приховано</span>{% endif %}
                 </article>
@@ -72,15 +94,15 @@
             <button class="settings-tab" type="button" data-tab-target="edit-card">Редагувати карту</button>
         </div>
         <section class="settings-group settings-panel is-active" data-tab-panel="add-section">
-            <form method="post" action="{{ url_for('service_section_create') }}" class="admin-form-grid">
+            <form method="post" action="{{ url_for('service_section_create') }}" class="admin-form-grid" enctype="multipart/form-data">
                 <label>Назва розділу <input name="title" placeholder="Тестовий розділ" required></label>
                 <label>Опис <textarea name="description" rows="3"></textarea></label>
-                <label>Картинка URL або /static/name.png <input name="image_url" placeholder="https://..."></label>
+                {{ image_picker() }}
                 <button class="primary" type="submit">Додати розділ</button>
             </form>
         </section>
         <section class="settings-group settings-panel" data-tab-panel="add-card">
-            <form method="post" action="{{ url_for('service_card_create') }}" class="admin-form-grid">
+            <form method="post" action="{{ url_for('service_card_create') }}" class="admin-form-grid" enctype="multipart/form-data">
                 <label>Розділ
                     <select name="section_id" required>
                         {% for section in sections %}
@@ -90,8 +112,12 @@
                 </label>
                 <label>Заголовок <input name="title" required></label>
                 <label>Короткий опис <textarea name="description" rows="3"></textarea></label>
-                <label>Ціна <input name="price" placeholder="від ХХ грн"></label>
-                <label>Картинка URL або /static/name.png <input name="image_url" placeholder="https://..."></label>
+                <div class="price-editor" data-price-editor>
+                    <label>Ціни <textarea name="price" rows="3" data-price-source>від ХХ грн</textarea></label>
+                    <div class="price-line-list" data-price-lines></div>
+                    <button class="compact-button" type="button" data-price-add>Додати ціну</button>
+                </div>
+                {{ image_picker() }}
                 <button class="primary" type="submit">Додати картку</button>
             </form>
         </section>
@@ -100,25 +126,28 @@
                 <select data-service-edit-select>
                     <option value="">Оберіть розділ або картку</option>
                     {% for section in sections %}
-                    <option value="section-{{ section.Id }}">Розділ: {{ section.Title }}</option>
+                    <option value="section-{{ section.Id }}">Розділ: {{ section.Title }} | Стан: {{ 'Активний' if section.IsActive else 'Прихований' }}</option>
                     {% for card in section.Cards %}
-                    <option value="card-{{ card.Id }}">Картка: {{ card.Title }} ({{ section.Title }})</option>
+                    <option value="card-{{ card.Id }}">Картка: {{ card.Title }} | Розділ: {{ section.Title }} | Стан: {{ 'Активна' if card.IsActive else 'Прихована' }}</option>
                     {% endfor %}
                     {% endfor %}
                 </select>
             </label>
             <div class="edit-list">
                 {% for section in sections %}
-                <form method="post" action="{{ url_for('service_item_edit', kind='section', item_id=section.Id) }}" class="edit-row service-edit-form" data-service-edit-form="section-{{ section.Id }}">
-                    <strong>Розділ</strong>
+                <form method="post" action="{{ url_for('service_item_edit', kind='section', item_id=section.Id) }}" class="edit-row service-edit-form section-edit-layout" data-service-edit-form="section-{{ section.Id }}" enctype="multipart/form-data">
+                    <strong>Розділ: {{ 'Активний' if section.IsActive else 'Прихований' }}</strong>
                     <label>Назва <input name="title" value="{{ section.Title }}" required></label>
                     <label>Опис <textarea name="description" rows="2">{{ section.Description or '' }}</textarea></label>
-                    <label>Картинка <input name="image_url" value="{{ section.ImageUrl or '' }}"></label>
-                    <button class="primary compact-button" type="submit">Зберегти</button>
+                    {{ image_picker(section.ImageUrl) }}
+                    <div class="form-actions">
+                        <button class="primary compact-button" type="submit">Зберегти</button>
+                        <button class="compact-button" type="button" data-form-cancel>Відміна</button>
+                    </div>
                 </form>
                 {% for card in section.Cards %}
-                <form method="post" action="{{ url_for('service_item_edit', kind='card', item_id=card.Id) }}" class="edit-row service-edit-form" data-service-edit-form="card-{{ card.Id }}">
-                    <strong>Картка</strong>
+                <form method="post" action="{{ url_for('service_item_edit', kind='card', item_id=card.Id) }}" class="edit-row service-edit-form card-edit-layout" data-service-edit-form="card-{{ card.Id }}" enctype="multipart/form-data">
+                    <strong>Картка: {{ 'Активна' if card.IsActive else 'Прихована' }}</strong>
                     <label>Розділ
                         <select name="section_id">
                             {% for target in sections %}
@@ -127,10 +156,17 @@
                         </select>
                     </label>
                     <label>Заголовок <input name="title" value="{{ card.Title }}" required></label>
-                    <label>Опис <textarea name="description" rows="2">{{ card.ShortDescription or '' }}</textarea></label>
-                    <label>Ціна <input name="price" value="{{ card.PriceText or '' }}"></label>
-                    <label>Картинка <input name="image_url" value="{{ card.ImageUrl or '' }}"></label>
-                    <button class="primary compact-button" type="submit">Зберегти</button>
+                    <label class="description-field">Опис <textarea name="description" rows="4">{{ card.ShortDescription or '' }}</textarea></label>
+                    <div class="price-editor" data-price-editor>
+                        <label>Ціни <textarea name="price" rows="3" data-price-source>{{ card.PriceText or '' }}</textarea></label>
+                        <div class="price-line-list" data-price-lines></div>
+                        <button class="compact-button" type="button" data-price-add>Додати ціну</button>
+                    </div>
+                    {{ image_picker(card.ImageUrl) }}
+                    <div class="form-actions">
+                        <button class="primary compact-button" type="submit">Зберегти</button>
+                        <button class="compact-button" type="button" data-form-cancel>Відміна</button>
+                    </div>
                 </form>
                 {% endfor %}
                 {% endfor %}
@@ -151,6 +187,7 @@
                     <td class="inline-actions">
                         <form method="post" action="{{ url_for('service_item_update', kind='section', item_id=section.Id) }}">
                             <button class="icon-button" title="{{ 'Приховати' if section.IsActive else 'Показати' }}" name="action" value="{{ 'hide' if section.IsActive else 'show' }}">{{ '○' if section.IsActive else '●' }}</button>
+                            <button class="icon-button edit-action" type="button" title="Редагувати" data-service-edit-open="section-{{ section.Id }}">✎</button>
                             <button class="icon-button danger" title="Видалити" name="action" value="delete" onclick="return confirm('Видалити розділ і його картки?')">×</button>
                         </form>
                     </td>
@@ -165,6 +202,7 @@
                     <td class="inline-actions">
                         <form method="post" action="{{ url_for('service_item_update', kind='card', item_id=card.Id) }}">
                             <button class="icon-button" title="{{ 'Приховати' if card.IsActive else 'Показати' }}" name="action" value="{{ 'hide' if card.IsActive else 'show' }}">{{ '○' if card.IsActive else '●' }}</button>
+                            <button class="icon-button edit-action" type="button" title="Редагувати" data-service-edit-open="card-{{ card.Id }}">✎</button>
                             <button class="icon-button danger" title="Видалити" name="action" value="delete" onclick="return confirm('Видалити картку?')">×</button>
                         </form>
                     </td>
