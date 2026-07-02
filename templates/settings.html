@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="admin-head">
+    <div>
+        <p class="eyebrow">Адміністратор</p>
+        <h1>Налаштування сайту</h1>
+    </div>
+</section>
+<form class="settings-form" method="post">
+    <div class="settings-tabs" role="tablist" aria-label="Розділи налаштувань">
+        <button class="settings-tab is-active" type="button" data-tab-target="maintenance">Обслуговування</button>
+        <button class="settings-tab" type="button" data-tab-target="mysql">MySQL</button>
+        <button class="settings-tab" type="button" data-tab-target="email">Email</button>
+        <button class="settings-tab" type="button" data-tab-target="tg">TG</button>
+        <button class="settings-tab" type="button" data-tab-target="contacts">Карта і контакти</button>
+    </div>
+    <section class="settings-group settings-panel is-active" data-tab-panel="maintenance">
+        <h2>Обслуговування</h2>
+        <label>Онлайн запис
+            <select name="cfg_ONLINE_APPOINTMENT_ENABLED">
+                <option value="1" {{ 'selected' if config.ONLINE_APPOINTMENT_ENABLED != '0' else '' }}>Увімкнено</option>
+                <option value="0" {{ 'selected' if config.ONLINE_APPOINTMENT_ENABLED == '0' else '' }}>Вимкнено</option>
+            </select>
+        </label>
+        <label>Нагадувати про клієнта за ХХ годин <input name="cfg_REMIND_BEFORE_HOURS" value="{{ config.REMIND_BEFORE_HOURS }}"></label>
+        <label>Зберігати логи, днів <input name="cfg_CLEAR_LOG_DAYS" value="{{ config.CLEAR_LOG_DAYS }}"></label>
+        <label>Очищати кожні, годин <input name="cfg_CLEAR_LOG_HOURS" value="{{ config.CLEAR_LOG_HOURS }}"></label>
+        <label>Видаляти старі записи, днів <input name="cfg_DELETE_OLD_APPOINTMENTS_DAYS" value="{{ config.DELETE_OLD_APPOINTMENTS_DAYS }}"></label>
+        <label>Інтервал відправки звітів, хвилин <input name="cfg_SEND_ERR_TIME_IN_MINUTES" value="{{ config.SEND_ERR_TIME_IN_MINUTES }}"></label>
+        <button name="action" value="clear_logs" type="submit">Очистити зараз</button>
+    </section>
+    <section class="settings-group settings-panel" data-tab-panel="mysql">
+        <h2>MySQL</h2>
+        <label>MYSQL_USER <input name="cfg_MYSQL_USER" value="{{ config.MYSQL_USER }}"></label>
+        <label>MYSQL_PASSWORD <input name="cfg_MYSQL_PASSWORD" type="password" placeholder="залиште порожнім, щоб не міняти"></label>
+        <label>MYSQL_HOST <input name="cfg_MYSQL_HOST" value="{{ config.MYSQL_HOST }}"></label>
+        <label>MYSQL_PORT <input name="cfg_MYSQL_PORT" value="{{ config.MYSQL_PORT }}"></label>
+        <label>MYSQL_DATABASE <input name="cfg_MYSQL_DATABASE" value="{{ config.MYSQL_DATABASE }}"></label>
+        <button name="action" value="test_mysql" type="submit">Тест MySQL</button>
+    </section>
+    <section class="settings-group settings-panel" data-tab-panel="email">
+        <h2>Email</h2>
+        <label>SMTP_HOST <input name="cfg_SMTP_HOST" value="{{ config.SMTP_HOST }}"></label>
+        <label>SMTP_PORT <input name="cfg_SMTP_PORT" value="{{ config.SMTP_PORT }}"></label>
+        <label>SMTP_USER <input name="cfg_SMTP_USER" value="{{ config.SMTP_USER }}"></label>
+        <label>SMTP_PASSWORD <input name="cfg_SMTP_PASSWORD" type="password" placeholder="залиште порожнім, щоб не міняти"></label>
+        <label>SMTP_FROM <input name="cfg_SMTP_FROM" value="{{ config.SMTP_FROM }}"></label>
+        <label>SMTP_TLS
+            <select name="cfg_SMTP_TLS">
+                <option value="1" {{ 'selected' if config.SMTP_TLS != '0' else '' }}>Увімкнено</option>
+                <option value="0" {{ 'selected' if config.SMTP_TLS == '0' else '' }}>Вимкнено</option>
+            </select>
+        </label>
+        <label>Список мил для повідомлень
+            <textarea name="cfg_NOTIFY_EMAILS" rows="4">{{ config.NOTIFY_EMAILS }}</textarea>
+        </label>
+        <button name="action" value="test_notify" type="submit">Тест повідомлень</button>
+    </section>
+    <section class="settings-group settings-panel" data-tab-panel="tg">
+        <h2>TG</h2>
+        <label>TELEGRAM_BOT_TOKEN <input name="cfg_TELEGRAM_BOT_TOKEN" value="{{ config.TELEGRAM_BOT_TOKEN }}"></label>
+        <label>TELEGRAM_CHAT_ID <input name="cfg_TELEGRAM_CHAT_ID" value="{{ config.TELEGRAM_CHAT_ID }}"></label>
+        <button name="action" value="test_notify" type="submit">Тест повідомлень</button>
+    </section>
+    <section class="settings-group settings-panel" data-tab-panel="contacts">
+        <h2>Карта і контакти</h2>
+        <label>Google Maps посилання
+            <textarea name="cfg_MAP_URL" rows="5">{{ config.MAP_URL }}</textarea>
+        </label>
+        <label>Google Maps embed URL
+            <textarea name="cfg_MAP_EMBED_URL" rows="3">{{ config.MAP_EMBED_URL }}</textarea>
+        </label>
+    </section>
+    <button class="primary wide" name="action" value="save" type="submit">Зберегти налаштування</button>
+</form>
+{% endblock %}

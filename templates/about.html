@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-hero about-hero">
+    <div>
+        <p class="eyebrow">Про центр</p>
+        <h1>ЛЕДІ поруч, коли хочеться турботи без поспіху</h1>
+        <p>Ми працюємо для людей, яким важливі здоров'я, охайний догляд і нормальна людська увага. У центрі можна отримати консультацію, підібрати ортопедичні рішення, записатися на масаж, реабілітаційний догляд або beauty-процедуру.</p>
+    </div>
+    <img src="{{ url_for('static', filename='Doctor_01.png') }}" alt="Фахівчиня центру ЛЕДІ">
+</section>
+
+<section class="doctor-strip">
+    <img src="{{ url_for('static', filename='Doctor_01.png') }}" alt="Працівниця центру">
+    <img src="{{ url_for('static', filename='Doctor_02.png') }}" alt="Консультація">
+    <img src="{{ url_for('static', filename='Doctor_03.png') }}" alt="Медичний кабінет">
+</section>
+
+<section class="about-text">
+    <h2>Що важливо для нас</h2>
+    <p>Ми не поспішаємо там, де потрібна точність. Пояснюємо простими словами, допомагаємо підібрати послугу і підтримуємо контакт після запису.</p>
+    <p>У нас можна дізнатися про індивідуальні устілки, ортопедичне взуття, товари для дітей і дорослих, професійний масаж, реабілітацію, медичний пірсинг та італійську медичну позолоту.</p>
+</section>
+
+<section class="contacts-map">
+    <div class="contact-card">
+        <p class="eyebrow">Адреса</p>
+        <h2>м. Кам'янець-Подільський, вул. Лесі Українки, 41</h2>
+        <p>На території дитячої поліклініки.</p>
+        <p><strong>Графік:</strong> Пн-Пт 09:00 - 17:00, Сб 09:00 - 13:00</p>
+        <p><strong>Телефон:</strong> +38 093 299-59-21</p>
+        <a class="button primary" href="{{ config.MAP_URL }}" target="_blank" rel="noopener">Відкрити в Google Maps</a>
+    </div>
+    <iframe src="{{ config.MAP_EMBED_URL }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Карта ЛЕДІ"></iframe>
+</section>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="login-page">
+    <form class="login-form" method="post">
+        <img src="{{ url_for('static', filename='Lady_logo.png') }}" alt="ЛЕДІ">
+        <h1>Вхід для персоналу</h1>
+        <label>Логін
+            <input name="login" autocomplete="username" required>
+        </label>
+        <label>Пароль
+            <input name="password" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="primary wide" type="submit">Увійти</button>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+    <div class="hero-copy">
+        <p class="eyebrow">Кам'янець-Подільський</p>
+        <h1>Центр краси і здоров'я “ЛЕДІ”</h1>
+        <p class="lead">Догляд, ортопедичні рішення, реабілітація та уважний прийом без зайвої метушні. Ми допомагаємо почуватися легше, впевненіше і красивіше щодня.</p>
+        <div class="hero-actions">
+            {% if online_enabled %}
+            <a class="button primary" href="#appointment">Записатися</a>
+            {% endif %}
+            <a class="button" href="{{ url_for('services') }}">Подивитись послуги</a>
+        </div>
+    </div>
+    <div class="hero-photo">
+        <img src="https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=1200&q=80" alt="Фахівчиня у медичному кабінеті">
+    </div>
+</section>
+
+<section class="intro-band">
+    <div>
+        <h2>Тут дбають про деталі</h2>
+        <p>У “ЛЕДІ” поєднані практичні послуги для здоров'я стопи, професійний масаж, реабілітаційний догляд і акуратні beauty-процедури. Атмосфера проста: спокійно, людяно, з повагою до часу клієнта.</p>
+        <p>Працюємо з ортопедичним взуттям, індивідуальними устілками, товарами для дітей і дорослих, медичним пірсингом та прикрасами з італійською медичною позолотою.</p>
+    </div>
+    <img src="{{ url_for('static', filename='Lady_02.png') }}" alt="Атмосфера центру ЛЕДІ">
+</section>
+
+<section class="tiles">
+    <article>
+        <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80" alt="Медична консультація">
+        <h3>Консультація і підбір</h3>
+        <p>Підкажемо, з чого почати, і підберемо зручний час для візиту.</p>
+    </article>
+    <article>
+        <img src="https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=900&q=80" alt="Масаж і догляд">
+        <h3>Масаж та реабілітація</h3>
+        <p>Професійний догляд для відновлення, легкості та гарного самопочуття.</p>
+    </article>
+    <article>
+        <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=900&q=80" alt="Медичний спеціаліст">
+        <h3>Здоров'я і краса</h3>
+        <p>Ортопедичні товари, індивідуальні устілки та акуратні процедури.</p>
+    </article>
+</section>
+
+<section class="appointment-section" id="appointment">
+    <div class="section-head">
+        <p class="eyebrow">Онлайн запис</p>
+        <h2>Записатися на прийом</h2>
+        {% if online_enabled %}
+        <p>Залиште контакти, і адміністратор підтвердить візит.</p>
+        {% else %}
+        <p>Онлайн запис тимчасово вимкнено. Будь ласка, зв'яжіться з нами телефоном: +38 093 299-59-21.</p>
+        {% endif %}
+    </div>
+    {% if online_enabled %}
+    <form class="appointment-form" method="post" action="{{ url_for('appointment_create') }}">
+        <label>Дата
+            <input type="date" name="visit_date" required>
+        </label>
+        <label>Час
+            <input type="time" name="visit_time" required>
+        </label>
+        <label>Ім'я
+            <input name="client_name" required placeholder="Ваше ім'я">
+        </label>
+        <label>Ціль візиту
+            <textarea name="visit_purpose" rows="4" required placeholder="Наприклад: масаж, устілки, консультація"></textarea>
+        </label>
+        <label>Телефон
+            <input name="phone" placeholder="+38 ...">
+        </label>
+        <label>Email
+            <input name="email" type="email" placeholder="name@example.com">
+        </label>
+        <button class="primary wide" type="submit">Надіслати запис</button>
+    </form>
+    {% endif %}
+</section>
+{% endblock %}

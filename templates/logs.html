@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="admin-head">
+    <div>
+        <p class="eyebrow">Адміністратор</p>
+        <h1>Журнал</h1>
+    </div>
+</section>
+<section class="log-tools">
+    <form class="log-tools-row" method="get">
+        <label>Дата <input type="date" name="date" value="{{ date }}" onchange="this.form.submit()"></label>
+        <label>Від <input type="date" name="start_date" required></label>
+        <label>До <input type="date" name="end_date" required></label>
+        <button formaction="{{ url_for('logs_download_range') }}">Завантажити ZIP</button>
+    </form>
+</section>
+<section class="logs-grid">
+    <div>
+        <h2>Файл логу</h2>
+        <pre class="log-text">{{ log_content }}</pre>
+    </div>
+    <div>
+        <h2>AuditLog</h2>
+        <div class="table-wrap compact">
+            <table>
+                <thead><tr><th>Час</th><th>Користувач</th><th>Дія</th><th>Деталі</th><th>IP</th></tr></thead>
+                <tbody>
+                    {% for item in audit %}
+                    <tr><td>{{ item.CreatedAt }}</td><td>{{ item.Actor }}</td><td>{{ item.Action }}</td><td>{{ item.Details or '' }}</td><td>{{ item.Ip or '' }}</td></tr>
+                    {% else %}
+                    <tr><td colspan="5" class="empty">Записів журналу немає.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

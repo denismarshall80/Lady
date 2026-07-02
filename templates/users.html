@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="admin-head">
+    <div>
+        <p class="eyebrow">Адміністратор</p>
+        <h1>Користувачі</h1>
+    </div>
+</section>
+<form class="user-create" method="post">
+    <label>Логін <input name="login" required></label>
+    <label>Ім'я <input name="full_name"></label>
+    <label>Email <input name="email" type="email"></label>
+    <label>Пароль <input name="password" type="password" required></label>
+    <label>Роль
+        <select name="role">
+            <option value="manager">Менеджер</option>
+            <option value="admin">Адміністратор</option>
+        </select>
+    </label>
+    <button class="primary" type="submit">Додати</button>
+</form>
+<section class="table-wrap">
+    <table>
+        <thead><tr><th>Логін</th><th>Ім'я</th><th>Email</th><th>Роль</th><th>Стан</th><th>Останній вхід</th><th>Дії</th></tr></thead>
+        <tbody>
+        {% for item in users %}
+        <tr>
+            <td>{{ item.Login }}</td>
+            <td>{{ item.FullName or '' }}</td>
+            <td>{{ item.Email or '' }}</td>
+            <td>{{ 'Адмін' if item.Role == 'admin' else 'Менеджер' }}</td>
+            <td>{{ 'Заблокований' if item.IsBlocked else 'Активний' }}</td>
+            <td>{{ item.Last or '' }}</td>
+            <td class="row-actions">
+                <form method="post" action="{{ url_for('user_update', login_value=item.Login) }}">
+                    <select name="role">
+                        <option value="manager" {{ 'selected' if item.Role == 'manager' else '' }}>Менеджер</option>
+                        <option value="admin" {{ 'selected' if item.Role == 'admin' else '' }}>Адмін</option>
+                    </select>
+                    <button name="action" value="role">Роль</button>
+                </form>
+                <form method="post" action="{{ url_for('user_update', login_value=item.Login) }}">
+                    <input name="password" type="password" placeholder="новий пароль">
+                    <button name="action" value="password">Пароль</button>
+                </form>
+                <form method="post" action="{{ url_for('user_update', login_value=item.Login) }}">
+                    {% if item.IsBlocked %}
+                    <button name="action" value="unblock">Розблокувати</button>
+                    {% else %}
+                    <button name="action" value="block">Блокувати</button>
+                    {% endif %}
+                    <button class="danger" name="action" value="delete" onclick="return confirm('Видалити користувача?')">Видалити</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

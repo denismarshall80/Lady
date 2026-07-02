@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-hero small-hero services-title">
+    <div>
+        <h1>Послуги і ціни</h1>
+        <p>{{ config.SERVICES_PAGE_INTRO }}</p>
+    </div>
+    {% if can_manage_services %}
+    <a class="button primary" href="#services-admin">Редагувати послуги</a>
+    {% endif %}
+</section>
+
+<section class="services-layout">
+    <aside class="services-sidebar">
+        {% for section in sections %}
+        <a class="{{ 'active' if loop.first else '' }}" data-service-nav href="#section-{{ section.Id }}">{{ section.Title }}</a>
+        {% endfor %}
+    </aside>
+    <div class="services-content">
+        {% for section in sections %}
+        <section class="service-section" id="section-{{ section.Id }}">
+            <div class="service-section-head">
+                <img src="{{ section.ImageUrl or url_for('static', filename='Doctor_01.png') }}" alt="{{ section.Title }}">
+                <div>
+                    <h2>{{ section.Title }}</h2>
+                    <p>{{ section.Description or 'Опис розділу буде додано.' }}</p>
+                    {% if can_manage_services and not section.IsActive %}<strong class="status-note">Приховано</strong>{% endif %}
+                </div>
+            </div>
+            <div class="service-cards">
+                {% for card in section.Cards %}
+                <article class="service-card">
+                    <img src="{{ card.ImageUrl or section.ImageUrl or url_for('static', filename='Doctor_02.png') }}" alt="{{ card.Title }}">
+                    <div>
+                        <h3>{{ card.Title }}</h3>
+                        <p>{{ card.ShortDescription or 'Опис послуги буде додано.' }}</p>
+                        <strong>{{ card.PriceText or 'від ХХ грн' }}</strong>
+                    </div>
+                    {% if can_manage_services and not card.IsActive %}<span class="status-note">Приховано</span>{% endif %}
+                </article>
+                {% else %}
+                <p class="empty">Картки для цього розділу ще не додані.</p>
+                {% endfor %}
+            </div>
+        </section>
+        {% else %}
+        <section class="page-hero"><p>Послуги ще не додані.</p></section>
+        {% endfor %}
+    </div>
+</section>
+
+{% if can_manage_services %}
+<section class="services-admin" id="services-admin">
+    <div class="section-head">
+        <p class="eyebrow">Адміністратор</p>
+        <h2>Редагування “Послуги і ціни”</h2>
+    </div>
+    <form method="post" action="{{ url_for('service_intro_update') }}" class="settings-group services-intro-form">
+        <h3>Основний текст сторінки</h3>
+        <label>Текст під заголовком
+            <textarea name="services_intro" rows="3">{{ config.SERVICES_PAGE_INTRO }}</textarea>
+        </label>
+        <button class="primary" type="submit">Зберегти текст</button>
+    </form>
+    <div class="admin-edit-grid">
+        <form method="post" action="{{ url_for('service_section_create') }}" class="settings-group">
+            <h3>Додати розділ</h3>
+            <label>Назва розділу <input name="title" placeholder="Тестовий розділ" required></label>
+            <label>Опис <textarea name="description" rows="3"></textarea></label>
+            <label>Картинка URL або /static/name.png <input name="image_url" placeholder="https://..."></label>
+            <button class="primary" type="submit">Додати розділ</button>
+        </form>
+        <form method="post" action="{{ url_for('service_card_create') }}" class="settings-group">
+            <h3>Додати картку</h3>
+            <label>Розділ
+                <select name="section_id" required>
+                    {% for section in sections %}
+                    <option value="{{ section.Id }}">{{ section.Title }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>Заголовок <input name="title" required></label>
+            <label>Короткий опис <textarea name="description" rows="3"></textarea></label>
+            <label>Ціна <input name="price" placeholder="від ХХ грн"></label>
+            <label>Картинка URL або /static/name.png <input name="image_url" placeholder="https://..."></label>
+            <button class="primary" type="submit">Додати картку</button>
+        </form>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Тип</th><th>Назва</th><th>Стан</th><th>Дії</th></tr></thead>
+            <tbody>
+                {% for section in sections %}
+                <tr>
+                    <td>Розділ</td><td>{{ section.Title }}</td><td>{{ 'Активний' if section.IsActive else 'Прихований' }}</td>
+                    <td class="inline-actions">
+                        <form method="post" action="{{ url_for('service_item_update', kind='section', item_id=section.Id) }}">
+                            <button name="action" value="{{ 'hide' if section.IsActive else 'show' }}">{{ 'Приховати' if section.IsActive else 'Показати' }}</button>
+                            <button class="danger" name="action" value="delete" onclick="return confirm('Видалити розділ і його картки?')">Видалити</button>
+                        </form>
+                    </td>
+                </tr>
+                {% for card in section.Cards %}
+                <tr>
+                    <td>Картка</td><td>{{ card.Title }}</td><td>{{ 'Активна' if card.IsActive else 'Прихована' }}</td>
+                    <td class="inline-actions">
+                        <form method="post" action="{{ url_for('service_item_update', kind='card', item_id=card.Id) }}">
+                            <button name="action" value="{{ 'hide' if card.IsActive else 'show' }}">{{ 'Приховати' if card.IsActive else 'Показати' }}</button>
+                            <button class="danger" name="action" value="delete" onclick="return confirm('Видалити картку?')">Видалити</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

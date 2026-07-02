@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Центр краси і здоров'я ЛЕДІ{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Lady_logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='lady.css') }}">
+    <script src="{{ url_for('static', filename='lady.js') }}" defer></script>
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-left">
+            <a class="brand" href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='Lady_logo.png') }}" alt="ЛЕДІ">
+                <span>Центр краси і здоров'я “ЛЕДІ”</span>
+            </a>
+            <nav class="nav nav-left">
+                <a class="{{ 'active' if active_page == 'services' else '' }}" href="{{ url_for('services') }}">Послуги і ціни</a>
+                <a class="{{ 'active' if active_page == 'about' else '' }}" href="{{ url_for('about') }}">Про нас</a>
+            </nav>
+        </div>
+        {% if user %}
+        <nav class="nav nav-center">
+            <a class="{{ 'active' if active_page == 'admin' else '' }}" href="{{ url_for('admin_appointments') }}">Записи</a>
+            {% if is_admin %}
+            <a class="{{ 'active' if active_page == 'settings' else '' }}" href="{{ url_for('settings') }}">Налаштування</a>
+            <a class="{{ 'active' if active_page == 'users' else '' }}" href="{{ url_for('users') }}">Користувачі</a>
+            <a class="{{ 'active' if active_page == 'logs' else '' }}" href="{{ url_for('logs') }}">Журнал</a>
+            {% endif %}
+        </nav>
+        <details class="user-menu">
+            <summary class="user-menu-trigger" role="button">
+                <span class="topbar-user-avatar">{{ avatar_initials(user_display_name(user)) }}</span>
+                <span class="topbar-user-name">{{ user_display_name(user) }}</span>
+            </summary>
+            <div class="user-menu-panel">
+                <a href="{{ url_for('logout') }}">Вийти</a>
+            </div>
+        </details>
+        {% else %}
+        <nav class="nav nav-right">
+            <a class="{{ 'active' if active_page == 'login' else '' }}" href="{{ url_for('login') }}">Вхід</a>
+        </nav>
+        {% endif %}
+    </header>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="messages">
+        {% for category, message in messages %}
+        <div class="message {{ category }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="footer">
+        <strong>ЛЕДІ</strong>
+        <span>Кам'янець-Подільський, вул. Лесі Українки, 41</span>
+        <span>Тел.: +38 093 299-59-21</span>
+        <span>{{ app_version }}</span>
+    </footer>
+</body>
+</html>
