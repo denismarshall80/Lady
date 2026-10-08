@@ -21,6 +21,7 @@
     <p>У нас можна дізнатися про індивідуальні устілки, ортопедичне взуття, товари для дітей і дорослих, професійний масаж, реабілітацію, медичний пірсинг та італійську медичну позолоту.</p>
 </section>
 
+{% if not is_admin %}
 <section class="contacts-map">
     <div class="contact-card">
         <p class="eyebrow">Адреса</p>
@@ -32,4 +33,5 @@
     </div>
     <iframe src="{{ config.MAP_EMBED_URL }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Карта ЛЕДІ"></iframe>
 </section>
+{% endif %}
 {% endblock %}

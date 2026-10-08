@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Сайт на обслуговуванні{% endblock %}
+{% block content %}
+<section class="maintenance-screen">
+    <img src="{{ url_for('static', filename='Lady_logo.png') }}" alt="ЛЕДІ">
+    <h1>Сайт на обслуговуванні і тимчасово не працює!</h1>
+    <p>Будь ласка, зайдіть трохи пізніше.</p>
+    <a class="button primary" href="{{ url_for('login') }}">Вхід</a>
+</section>
+{% endblock %}

@@ -3,25 +3,36 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Центр краси і здоров'я ЛЕДІ{% endblock %}</title>
+    <title>{% block title %}{% if site_maintenance|default(false) %}Сайт на обслуговуванні{% else %}Центр краси і здоров'я ЛЕДІ{% endif %}{% endblock %}</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='Lady_logo.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='lady.css') }}">
     <script src="{{ url_for('static', filename='lady.js') }}" defer></script>
 </head>
 <body class="{{ 'admin-page' if active_page in ['admin', 'visits', 'settings', 'users', 'logs'] else '' }}">
+    {% set hide_public_shell = maintenance_mode|default(false) or (site_maintenance|default(false) and not user) %}
+    {% if not hide_public_shell %}
     <header class="topbar">
         <div class="topbar-left">
             <a class="brand" href="{{ url_for('index') }}">
                 <img src="{{ url_for('static', filename='Lady_logo.png') }}" alt="ЛЕДІ">
+                {% if not is_admin and not site_maintenance|default(false) %}
                 <span>Центр краси і здоров'я “ЛЕДІ”</span>
+                {% endif %}
             </a>
+            {% if not is_admin %}
             <nav class="nav nav-left">
                 <a class="{{ 'active' if active_page == 'services' else '' }}" href="{{ url_for('services') }}">Послуги і ціни</a>
+                {% if not site_maintenance|default(false) %}
                 <a class="{{ 'active' if active_page == 'about' else '' }}" href="{{ url_for('about') }}">Про нас</a>
+                {% endif %}
             </nav>
+            {% endif %}
         </div>
         {% if user %}
         <nav class="nav nav-center">
+            {% if is_admin and site_maintenance|default(false) %}
+            <a class="{{ 'active' if active_page == 'services' else '' }}" href="{{ url_for('services') }}">Послуги і ціни</a>
+            {% endif %}
             <a class="{{ 'active' if active_page == 'admin' else '' }}" href="{{ url_for('admin_appointments') }}">Записи</a>
             <a class="{{ 'active' if active_page == 'visits' else '' }}" href="{{ url_for('visit_stats') }}">Відвідини сайту</a>
             {% if is_admin %}
@@ -45,6 +56,7 @@
         </nav>
         {% endif %}
     </header>
+    {% endif %}
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     <div class="messages">
@@ -57,13 +69,19 @@
     <main>
         {% block content %}{% endblock %}
     </main>
+    {% if not hide_public_shell %}
     <footer class="footer">
+        {% if not site_maintenance|default(false) %}
         <strong>ЛЕДІ</strong>
+        {% endif %}
+        {% if not is_admin %}
         <span>Кам'янець-Подільський, вул. Лесі Українки, 41</span>
         <span>Тел.: +38 093 299-59-21</span>
+        {% endif %}
         {% if can_manage_services %}
         <span class="footer-stats">Сайт відвідало: {{ visit_count() }} чоловіка&nbsp;&nbsp;&nbsp; Записалось: {{ appointment_count() }} чоловік&nbsp;&nbsp;&nbsp; {{ app_version }}</span>
         {% endif %}
     </footer>
+    {% endif %}
 </body>
 </html>

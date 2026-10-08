@@ -13,11 +13,14 @@
         <button class="settings-tab {{ 'is-active' if active_tab == 'mysql' else '' }}" type="button" data-tab-target="mysql">MySQL</button>
         <button class="settings-tab {{ 'is-active' if active_tab == 'email' else '' }}" type="button" data-tab-target="email">Email</button>
         <button class="settings-tab {{ 'is-active' if active_tab == 'tg' else '' }}" type="button" data-tab-target="tg">TG</button>
-        <button class="settings-tab {{ 'is-active' if active_tab == 'contacts' else '' }}" type="button" data-tab-target="contacts">Карта і контакти</button>
         <button class="primary settings-save-inline" name="action" value="save" type="submit">Зберегти налаштування</button>
     </div>
     <section class="settings-group settings-panel {{ 'is-active' if active_tab == 'maintenance' else '' }}" data-tab-panel="maintenance">
         <h2>Обслуговування</h2>
+        <label class="checkbox-line">
+            <input type="checkbox" name="cfg_SITE_MAINTENANCE_ENABLED" value="1" {{ 'checked' if config.SITE_MAINTENANCE_ENABLED == '1' else '' }}>
+            Сайт на обслуговуванні і тимчасово не працює!
+        </label>
         <label>Онлайн запис
             <select name="cfg_ONLINE_APPOINTMENT_ENABLED">
                 <option value="1" {{ 'selected' if config.ONLINE_APPOINTMENT_ENABLED != '0' else '' }}>Увімкнено</option>
@@ -63,15 +66,6 @@
         <label>TELEGRAM_BOT_TOKEN <input name="cfg_TELEGRAM_BOT_TOKEN" value="{{ config.TELEGRAM_BOT_TOKEN }}"></label>
         <label>TELEGRAM_CHAT_ID <input name="cfg_TELEGRAM_CHAT_ID" value="{{ config.TELEGRAM_CHAT_ID }}"></label>
         <button name="action" value="test_notify" type="submit">Тест повідомлень</button>
-    </section>
-    <section class="settings-group settings-panel {{ 'is-active' if active_tab == 'contacts' else '' }}" data-tab-panel="contacts">
-        <h2>Карта і контакти</h2>
-        <label>Google Maps посилання
-            <textarea name="cfg_MAP_URL" rows="5">{{ config.MAP_URL }}</textarea>
-        </label>
-        <label>Google Maps embed URL
-            <textarea name="cfg_MAP_EMBED_URL" rows="3">{{ config.MAP_EMBED_URL }}</textarea>
-        </label>
     </section>
     <button class="primary wide" name="action" value="save" type="submit">Зберегти налаштування</button>
 </form>

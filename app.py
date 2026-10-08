@@ -46,7 +46,9 @@ except Exception:
 #Ver = "LadySite v0.5.15" #лічильник відвідин
 #Ver = "LadySite v0.8.18" #редагування послуг
 #Ver = "LadySite v0.8.19" #адмінка зручніше
-Ver = "LadySite v0.8.21" #редагування цін і адмінки
+#Ver = "LadySite v0.88.21" #редагування цін і адмінки
+Ver = "LadySite v0.90.02 (2026-07-06)" #додали включення/виключення сайту!
+
 
 HOST = "localhost" if os.name == "nt" else "0.0.0.0"
 PORT = 5000
@@ -118,6 +120,7 @@ def load_config() -> dict[str, str]:
         "DELETE_OLD_APPOINTMENTS_DAYS": "60",
         "SEND_ERR_TIME_IN_MINUTES": "360",
         "ONLINE_APPOINTMENT_ENABLED": "1",
+        "SITE_MAINTENANCE_ENABLED": "0",
         "SERVICES_PAGE_INTRO": "Тут розділи і напрямки, якими займається наш центр.",
         "SERVICE_CONTENT_VERSION": "",
         "MAP_URL": DEFAULT_MAP_URL,
@@ -155,6 +158,7 @@ def save_config(config: dict[str, str]) -> None:
         "DELETE_OLD_APPOINTMENTS_DAYS",
         "SEND_ERR_TIME_IN_MINUTES",
         "ONLINE_APPOINTMENT_ENABLED",
+        "SITE_MAINTENANCE_ENABLED",
         "SERVICES_PAGE_INTRO",
         "SERVICE_CONTENT_VERSION",
         "MAP_URL",
@@ -517,6 +521,10 @@ def current_user() -> dict[str, Any] | None:
 
 def is_admin(user: dict[str, Any] | None) -> bool:
     return bool(user and user.get("Role") == "admin")
+
+
+def config_flag(config: dict[str, str], key: str, default: str = "0") -> bool:
+    return config.get(key, default).strip().lower() in {"1", "true", "yes", "on"}
 
 
 def can_manage_services(user: dict[str, Any] | None) -> bool:
@@ -892,6 +900,10 @@ def inject_globals():
         user = current_user()
     except Exception:
         user = None
+    try:
+        site_maintenance = config_flag(load_config(), "SITE_MAINTENANCE_ENABLED")
+    except Exception:
+        site_maintenance = False
     return {
         "app_version": Ver,
         "visit_count": total_visit_count,
@@ -899,10 +911,33 @@ def inject_globals():
         "user": user,
         "is_admin": is_admin(user),
         "can_manage_services": can_manage_services(user),
+        "site_maintenance": site_maintenance,
     }
 
 
 app.jinja_env.globals.update(user_display_name=user_display_name, avatar_initials=avatar_initials)
+
+
+@app.before_request
+def show_maintenance_for_non_admins():
+    if request.endpoint in {"static", "login", "logout"}:
+        return None
+    config = load_config()
+    if not config_flag(config, "SITE_MAINTENANCE_ENABLED"):
+        return None
+    try:
+        user = current_user()
+    except Exception as ex:
+        mf.tolog(f"maintenance user check failed: {ex}")
+        user = None
+    if is_admin(user):
+        return None
+    return render_template(
+        "maintenance.html",
+        config=config,
+        active_page="maintenance",
+        maintenance_mode=True,
+    ), 503
 
 
 @app.before_request
@@ -1451,9 +1486,12 @@ def settings():
         return user
     config = load_config()
     active_tab = request.args.get("tab", "maintenance")
+    if active_tab == "contacts":
+        active_tab = "maintenance"
     if request.method == "POST":
         action = request.form.get("action", "save")
         form_config = config.copy()
+        form_config["SITE_MAINTENANCE_ENABLED"] = "1" if "cfg_SITE_MAINTENANCE_ENABLED" in request.form else "0"
         for key in list(form_config.keys()):
             field = f"cfg_{key}"
             if field in request.form:

@@ -144,6 +144,45 @@ document.addEventListener('DOMContentLoaded', function () {
         serviceSections.forEach(function (item) { observer.observe(item.target); });
     }
 
+    function positionContextMenu(menu) {
+        const trigger = menu.querySelector('summary');
+        const panel = menu.querySelector('.context-menu-panel');
+        if (!trigger || !panel) return;
+
+        const triggerRect = trigger.getBoundingClientRect();
+        const panelRect = panel.getBoundingClientRect();
+        const gap = 6;
+        const viewportGap = 8;
+        let left = triggerRect.right - panelRect.width;
+        let top = triggerRect.bottom + gap;
+
+        left = Math.max(viewportGap, Math.min(left, window.innerWidth - panelRect.width - viewportGap));
+        if (top + panelRect.height > window.innerHeight - viewportGap) {
+            top = triggerRect.top - panelRect.height - gap;
+        }
+        top = Math.max(viewportGap, Math.min(top, window.innerHeight - panelRect.height - viewportGap));
+
+        menu.style.setProperty('--context-menu-left', left + 'px');
+        menu.style.setProperty('--context-menu-top', top + 'px');
+    }
+
+    document.querySelectorAll('.context-menu').forEach(function (menu) {
+        menu.addEventListener('toggle', function () {
+            if (!menu.open) return;
+            document.querySelectorAll('.context-menu[open]').forEach(function (otherMenu) {
+                if (otherMenu !== menu) otherMenu.removeAttribute('open');
+            });
+            positionContextMenu(menu);
+        });
+    });
+
+    window.addEventListener('resize', function () {
+        document.querySelectorAll('.context-menu[open]').forEach(positionContextMenu);
+    });
+    window.addEventListener('scroll', function () {
+        document.querySelectorAll('.context-menu[open]').forEach(positionContextMenu);
+    }, true);
+
     document.addEventListener('click', function (event) {
         document.querySelectorAll('.user-menu[open]').forEach(function (menu) {
             if (!menu.contains(event.target)) {
