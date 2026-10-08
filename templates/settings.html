@@ -6,13 +6,15 @@
         <h1 class="admin-title-small">Налаштування сайту</h1>
     </div>
 </section>
-<form class="settings-form" method="post" data-tabs>
+<div data-tabs>
+<form class="settings-form" method="post">
     <input type="hidden" name="active_tab" value="{{ active_tab }}">
     <div class="settings-tabs" role="tablist" aria-label="Розділи налаштувань">
         <button class="settings-tab {{ 'is-active' if active_tab == 'maintenance' else '' }}" type="button" data-tab-target="maintenance">Обслуговування</button>
         <button class="settings-tab {{ 'is-active' if active_tab == 'mysql' else '' }}" type="button" data-tab-target="mysql">MySQL</button>
         <button class="settings-tab {{ 'is-active' if active_tab == 'email' else '' }}" type="button" data-tab-target="email">Email</button>
         <button class="settings-tab {{ 'is-active' if active_tab == 'tg' else '' }}" type="button" data-tab-target="tg">TG</button>
+        <button class="settings-tab {{ 'is-active' if active_tab == 'html' else '' }}" type="button" data-tab-target="html">HTML</button>
         <button class="primary settings-save-inline" name="action" value="save" type="submit">Зберегти налаштування</button>
     </div>
     <section class="settings-group settings-panel {{ 'is-active' if active_tab == 'maintenance' else '' }}" data-tab-panel="maintenance">
@@ -67,7 +69,14 @@
         <label>TELEGRAM_CHAT_ID <input name="cfg_TELEGRAM_CHAT_ID" value="{{ config.TELEGRAM_CHAT_ID }}"></label>
         <button name="action" value="test_notify" type="submit">Тест повідомлень</button>
     </section>
-    <p><a class="button" href="{{ url_for('site_code_settings') }}">HTML-код на всіх сторінках (AdSense, аналітика)</a></p>
     <button class="primary wide" name="action" value="save" type="submit">Зберегти налаштування</button>
 </form>
+<section class="settings-group settings-panel {{ 'is-active' if active_tab == 'html' else '' }}" data-tab-panel="html">
+    <h2>HTML</h2>
+    <p>HTML-код, скрипти та метатеги для всіх сторінок сайту.</p>
+    <form method="post" action="{{ url_for('site_code_settings') }}">
+        {% include 'html_code_fields.html' %}
+    </form>
+</section>
+</div>
 {% endblock %}

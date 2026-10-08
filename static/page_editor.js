@@ -84,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function render() {
         list.replaceChildren();
         blocks.forEach((block, index) => {
+            const wrapper = node('div', '', 'block-editor-wrap');
             const panel = disclosure(block, 'block', 'block-editor');
             const summary = node('summary');
             summary.append(node('span', `Блок ${index + 1}`));
@@ -93,9 +94,13 @@ document.addEventListener('DOMContentLoaded', () => {
             note.setAttribute('aria-label', `Нотатка про блок ${index + 1}`);
             note.value = block.note ?? '';
             note.addEventListener('click', event => event.stopPropagation());
-            note.addEventListener('keydown', event => event.stopPropagation());
+            ['keydown', 'keypress', 'keyup'].forEach(type => {
+                note.addEventListener(type, event => {
+                    event.stopPropagation();
+                    if (event.key === 'Enter') event.preventDefault();
+                });
+            });
             note.addEventListener('input', () => { block.note = note.value; markDirty(); });
-            summary.append(note);
             panel.append(summary);
             const controls = node('div', '', 'block-toolbar');
             controls.append(button('↑ Вище', () => reorder(blocks, index, -1)), button('↓ Нижче', () => reorder(blocks, index, 1)),
@@ -147,7 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (block.items.length >= 12) { status.textContent = 'Максимум 12 елементів у блоці.'; return; }
                 block.items.push(emptyItem()); markDirty(); render();
             }));
-            list.append(panel);
+            wrapper.append(panel, note);
+            list.append(wrapper);
         });
     }
     root.querySelector('[data-block-add]').addEventListener('click', () => {

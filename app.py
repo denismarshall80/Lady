@@ -51,9 +51,9 @@ except Exception:
 #Ver = "LadySite v0.90.02 (2026-07-06)" #додали включення/виключення сайту!
 #Ver = "LadySite v0.91.04 (2026-10-08)" #редактор блоків, сторінки послуг, глобальний HTML-код
 #Ver = "LadySite v0.91.05 (2026-10-08)" #згортання редактора, нотатки блоків, назва вкладки, футер, малюнки без обрізання
-#Ver = "LadySite v0.92.01 (2026-10-08)" #переходи до розділів з урахуванням висоти закріпленого меню
-#Ver = "LadySite v0.92.02 (2026-10-08)" #компактний футер, версія зліва, оновлення кешу стилів
-Ver = "LadySite v0.93.01 (2026-10-08)" #короткі лічильники футера, приховування записів при вимкненому онлайн-записі
+#Ver = "LadySite v0.92.02 (2026-10-08)" #переходи до розділів з урахуванням висоти закріпленого меню #компактний футер, версія зліва, оновлення кешу стилів
+#Ver = "LadySite v0.93.02 (2026-10-08)" #короткі лічильники футера, приховування записів при вимкненому онлайн-записі #кнопка вставки метатега Google AdSense у налаштуваннях HTML-коду
+Ver = "LadySite v0.94.01 (2026-10-08)" #пробіли в нотатках не розгортають блоки, оновлення кешу редактора; окрема вкладка HTML для скриптів і метатегів
 
 
 HOST = "localhost" if os.name == "nt" else "0.0.0.0"
@@ -1575,7 +1575,9 @@ def settings():
         log_action("settings_update")
         flash("Налаштування збережено.", "success")
         return redirect(url_for("settings", tab=request.form.get("active_tab", "maintenance")))
-    return render_template("settings.html", config=config, active_tab=active_tab, active_page="settings")
+    session.setdefault("code_csrf", uuid.uuid4().hex)
+    return render_template("settings.html", config=config, active_tab=active_tab, active_page="settings",
+                           code=pc.read_content().get("global_code", {}), csrf=session["code_csrf"])
 
 
 @app.route("/users", methods=["GET", "POST"])
@@ -1777,7 +1779,7 @@ def site_code_settings():
         pc.update_content(lambda content: content.update(global_code=code))
         log_action("site_code_update", "head, body_end")
         flash("Код для всіх сторінок збережено.", "success")
-        return redirect(url_for("site_code_settings"))
+        return redirect(url_for("settings", tab="html"))
     return render_template("site_code.html", code=pc.read_content().get("global_code", {}),
                            csrf=session["code_csrf"], active_page="settings")
 

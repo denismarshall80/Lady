@@ -14,5 +14,5 @@
         <p role="status" data-page-status></p>
     </form>
     <script type="application/json" data-page-data>{{ page.blocks|tojson }}</script>
-    <script src="{{ url_for('static', filename='page_editor.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='page_editor.js', v=app_version) }}" defer></script>
 </section>

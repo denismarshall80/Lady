@@ -32,7 +32,10 @@ html { scroll-padding-top: var(--anchor-offset, 12px); }
 .content-link { text-decoration: inherit; }
 .block-editor { margin: 18px 0; padding: 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--soft); scroll-margin-top: 100px; }
 .block-editor > summary { font-weight: bold; cursor: pointer; margin-bottom: 12px; }
-.block-note { display: inline-block; width: min(520px, 65%); margin-left: 12px; font-weight: normal; }
+.block-editor-wrap { position: relative; margin: 18px 0; }
+.block-editor-wrap .block-editor { margin: 0; }
+.block-editor-wrap .block-editor > summary { min-height: 38px; line-height: 38px; }
+.block-note { position: absolute; top: 18px; left: 96px; width: min(520px, calc(100% - 116px)); font-weight: normal; }
 .block-editor:not([open]) > summary { margin-bottom: 0; }
 .item-editor > summary { cursor: pointer; font-weight: bold; }
 .block-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 12px 0; }

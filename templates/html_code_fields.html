@@ -1,0 +1,17 @@
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <label>Перед &lt;/head&gt;<textarea class="code-input" name="head" rows="10" spellcheck="false">{{ code.head|default('') }}</textarea></label>
+        <button type="button" id="insert-adsense-meta">Вставити метатег Google AdSense</button>
+        <label>Перед &lt;/body&gt;<textarea class="code-input" name="body_end" rows="10" spellcheck="false">{{ code.body_end|default('') }}</textarea></label>
+        <button class="primary" type="submit">Зберегти код</button>
+<script>
+document.getElementById('insert-adsense-meta').addEventListener('click', function () {
+    const field = document.querySelector('textarea[name="head"]');
+    const parsed = new DOMParser().parseFromString(field.value, 'text/html');
+    if (!parsed.querySelector('meta[name="google-adsense-account"]')) {
+        const tag = '<meta name="google-adsense-account" content="ca-pub-2294227136369675">';
+        field.value += (field.value && !field.value.endsWith('\n') ? '\n' : '') + tag;
+        field.dispatchEvent(new Event('input', {bubbles: true}));
+    }
+    field.focus();
+});
+</script>
