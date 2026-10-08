@@ -21,6 +21,7 @@ from flask import (
     Response,
     flash,
     g,
+    has_request_context,
     redirect,
     render_template,
     request,
@@ -33,6 +34,7 @@ from werkzeug.utils import secure_filename
 
 import Utils.myfunct as mf
 import Utils.page_content as pc
+import Utils.site_log as sl
 
 try:
     import pymysql
@@ -53,7 +55,7 @@ except Exception:
 #Ver = "LadySite v0.91.05 (2026-10-08)" #згортання редактора, нотатки блоків, назва вкладки, футер, малюнки без обрізання
 #Ver = "LadySite v0.92.02 (2026-10-08)" #переходи до розділів з урахуванням висоти закріпленого меню #компактний футер, версія зліва, оновлення кешу стилів
 #Ver = "LadySite v0.93.02 (2026-10-08)" #короткі лічильники футера, приховування записів при вимкненому онлайн-записі #кнопка вставки метатега Google AdSense у налаштуваннях HTML-коду
-Ver = "LadySite v0.94.01 (2026-10-08)" #пробіли в нотатках не розгортають блоки, оновлення кешу редактора; окрема вкладка HTML для скриптів і метатегів
+Ver = "LadySite v0.94.06 (2026-10-08)" #пробіли в нотатках не розгортають блоки, оновлення кешу редактора; окрема вкладка HTML для скриптів і метатегів; прибрано кнопку вставки метатега AdSense; алерти в меню, logotext, одна кнопка налаштувань; єдиний CSV-журнал, експорт і очищення; однакові вкладки налаштувань і прокрутка всередині секції; /profile
 
 
 HOST = "localhost" if os.name == "nt" else "0.0.0.0"
@@ -127,6 +129,7 @@ def load_config() -> dict[str, str]:
         "SEND_ERR_TIME_IN_MINUTES": "360",
         "ONLINE_APPOINTMENT_ENABLED": "1",
         "SITE_MAINTENANCE_ENABLED": "0",
+        "ALERT_MAX_WIDTH": "240",
         "SERVICES_PAGE_INTRO": "Тут розділи і напрямки, якими займається наш центр.",
         "SERVICE_CONTENT_VERSION": "",
         "MAP_URL": DEFAULT_MAP_URL,
@@ -169,6 +172,7 @@ def save_config(config: dict[str, str]) -> None:
         "SERVICE_CONTENT_VERSION",
         "MAP_URL",
         "MAP_EMBED_URL",
+        "ALERT_MAX_WIDTH",
     ]
     lines = ["# LadySite configuration", "", "# MySQL"]
     for key in order[:5]:
@@ -233,6 +237,7 @@ def ensure_schema() -> None:
                     Login VARCHAR(120) PRIMARY KEY,
                     FullName VARCHAR(255) NULL,
                     Email VARCHAR(255) NULL,
+                    AvatarUrl TEXT NULL,
                     Pass VARCHAR(255) NOT NULL,
                     Role ENUM('admin','manager') NOT NULL DEFAULT 'manager',
                     IsBlocked BOOLEAN NOT NULL DEFAULT FALSE,
@@ -259,20 +264,6 @@ def ensure_schema() -> None:
                     INDEX idx_visit_at (VisitAt),
                     INDEX idx_send_now (SendNow),
                     INDEX idx_send_before (SendBeforeCl)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-                """
-            )
-            cur.execute(
-                """
-                CREATE TABLE IF NOT EXISTS AuditLog (
-                    Id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                    CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    Actor VARCHAR(120) NOT NULL,
-                    Action VARCHAR(255) NOT NULL,
-                    Details TEXT NULL,
-                    Ip VARCHAR(80) NULL,
-                    INDEX idx_audit_created (CreatedAt),
-                    INDEX idx_audit_actor (Actor)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                 """
             )
@@ -305,6 +296,9 @@ def ensure_schema() -> None:
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                 """
             )
+            cur.execute("SHOW COLUMNS FROM Users LIKE 'AvatarUrl'")
+            if not cur.fetchone():
+                cur.execute("ALTER TABLE Users ADD COLUMN AvatarUrl TEXT NULL")
             cur.execute("ALTER TABLE ServiceCards MODIFY PriceText TEXT NULL")
             cur.execute(
                 """
@@ -521,7 +515,7 @@ def current_user() -> dict[str, Any] | None:
     if not login:
         return None
     with db_cursor() as cur:
-        cur.execute("SELECT Login, FullName, Email, Role, IsBlocked, ActiveSessionId FROM Users WHERE Login=%s", (login,))
+        cur.execute("SELECT Login, FullName, Email, AvatarUrl, Role, IsBlocked, ActiveSessionId FROM Users WHERE Login=%s", (login,))
         user = cur.fetchone()
     if not user or user.get("IsBlocked"):
         session.clear()
@@ -574,25 +568,29 @@ def require_admin() -> dict[str, Any] | Response:
 
 def log_action(action: str, details: str = "") -> None:
     try:
-        actor = session.get("login") or "anonymous"
-        ip = request.headers.get("X-Forwarded-For", "").split(",", 1)[0].strip() if request else ""
-        if not ip and request:
-            ip = request.remote_addr or ""
-        with db_cursor(commit=True) as cur:
-            cur.execute(
-                "INSERT INTO AuditLog (Actor, Action, Details, Ip) VALUES (%s, %s, %s, %s)",
-                (actor, action[:255], details[:60000] if details else None, ip or None),
-            )
-        mf.tolog(f"AUDIT action={action} actor={actor} ip={ip or 'unknown'} details={details[:1000]}")
+        actor = (session.get("login") or "anonymous") if has_request_context() else "Я (сайт)"
+        sl.write_event(PPath, action, details, actor, log_ip())
     except Exception as ex:
         mf.tolog(f"log_action({action}) failed: {ex}")
+
+
+def log_ip():
+    if has_request_context():
+        return request.headers.get("X-Forwarded-For", "").split(",", 1)[0].strip() or request.remote_addr or ""
+    return sl.system_ip()
+
+
+def write_system_log(message):
+    sl.write_event(PPath, sl.action_from_message(message), message, "Я (сайт)", log_ip())
+
+
+mf.LogWriter = write_system_log
 
 
 def log_user_event(text: str) -> None:
     actor = session.get("login") or "anonymous"
     message = f"User {actor} {text}"
     log_action("user_event", message)
-    mf.tolog(message)
 
 
 def parse_visit_at(date_value: str, time_value: str) -> datetime | None:
@@ -918,8 +916,12 @@ def inject_globals():
     except Exception:
         site_maintenance = False
         footer_online_enabled = False
+        global_config = {}
+    content = pc.read_content()
     return {
-        "global_code": pc.read_content().get("global_code", {}),
+        "global_code": content.get("global_code", {}),
+        "alert_max_width": parse_int(global_config.get("ALERT_MAX_WIDTH", "240"), 240, 40, 2000),
+        "site_logotext": content.get("pages", {}).get("/", {}).get("logotext", pc.element({"text": "" if is_admin(user) else "Центр краси і здоров'я “ЛЕДІ”", "size": 18, "bold": True})),
         "content_csrf": session["content_csrf"],
         "app_version": Ver,
         "visit_count": total_visit_count,
@@ -1384,6 +1386,60 @@ def logout():
     return redirect(url_for("index"))
 
 
+@app.route("/profile", methods=["GET", "POST"])
+def profile():
+    user = require_user()
+    if not isinstance(user, dict):
+        return user
+    session.setdefault("profile_csrf", uuid.uuid4().hex)
+    if request.method == "POST":
+        if request.form.get("csrf") != session["profile_csrf"]:
+            return "Оновіть сторінку та повторіть збереження.", 400
+        password = request.form.get("new_password", "")
+        if password and (len(password) < 5 or password != request.form.get("confirm_password", "")):
+            flash("Новий пароль має містити щонайменше 5 символів, а підтвердження — збігатися.", "error")
+            return redirect(url_for("profile"))
+        try:
+            with db_cursor(commit=True) as cur:
+                cur.execute("SELECT FullName, Email, AvatarUrl, Pass FROM Users WHERE Login=%s FOR UPDATE", (user["Login"],))
+                previous = cur.fetchone()
+                if not previous:
+                    return "Користувача не знайдено.", 404
+                if password and not check_password_hash(previous["Pass"], request.form.get("current_password", "")):
+                    flash("Поточний пароль неправильний.", "error")
+                    return redirect(url_for("profile"))
+                avatar = previous.get("AvatarUrl") or ""
+                if request.form.get("remove_avatar") == "1":
+                    avatar = ""
+                upload = request.files.get("avatar_file")
+                if upload and upload.filename:
+                    avatar_upload = uploaded_service_image_url("avatar_file")
+                    if not avatar_upload:
+                        return redirect(url_for("profile"))
+                    avatar = avatar_upload
+                name = request.form.get("full_name", "")
+                email = request.form.get("email", "")
+                cur.execute("UPDATE Users SET FullName=%s, Email=%s, AvatarUrl=%s WHERE Login=%s",
+                            (name, email, avatar or None, user["Login"]))
+                new_sid = uuid.uuid4().hex if password else None
+                if password:
+                    cur.execute("UPDATE Users SET Pass=%s, ActiveSessionId=%s WHERE Login=%s",
+                                (generate_password_hash(password), new_sid, user["Login"]))
+            if new_sid:
+                session["session_id"] = new_sid
+            changes = {key: {"old": previous.get(key) or "", "new": value} for key, value in
+                       (("FullName", name), ("Email", email), ("AvatarUrl", avatar)) if (previous.get(key) or "") != value}
+            if password:
+                changes["password_changed"] = True
+            log_action("profile_update", json.dumps(changes, ensure_ascii=False))
+            flash("Профіль збережено.", "success")
+        except Exception as ex:
+            _report_critical_error("profile update failed", ex)
+            flash("Не вдалося зберегти профіль.", "error")
+        return redirect(url_for("profile"))
+    return render_template("profile.html", profile=user, csrf=session["profile_csrf"], active_page="profile")
+
+
 @app.route("/admin")
 def admin_appointments():
     user = require_user()
@@ -1661,19 +1717,32 @@ def logs():
     today = datetime.now().strftime("%Y-%m-%d")
     raw_date = request.args.get("date", today)
     date = raw_date if re.fullmatch(r"\d{4}-\d{2}-\d{2}", raw_date or "") else today
-    path = os.path.join(PPath, "logs", f"{date}.log")
-    content = ""
-    if os.path.exists(path):
-        with open(path, "r", encoding="utf-8", errors="replace") as fh:
-            content = fh.read()
-    audit = []
     try:
-        with db_cursor() as cur:
-            cur.execute("SELECT * FROM AuditLog ORDER BY CreatedAt DESC LIMIT 200")
-            audit = cur.fetchall()
-    except Exception as ex:
-        flash(f"AuditLog недоступний: {ex}", "error")
-    return render_template("logs.html", date=date, log_content=content, audit=audit, active_page="logs")
+        datetime.strptime(date, "%Y-%m-%d")
+    except ValueError:
+        return "Некоректна дата", 400
+    rows = load_journal(date)
+    return render_template("logs.html", date=date, journal=sorted(rows, key=lambda row: row['Час'], reverse=True),
+                           filename=sl.log_path(PPath, date).name, active_page="logs")
+
+
+def load_journal(day):
+    path = sl.log_path(PPath, day)
+    legacy = Path(PPath) / 'logs' / f'{day}.log'
+    history = []
+    if legacy.exists() or not path.exists():
+        start = datetime.strptime(day, '%Y-%m-%d')
+        try:
+            with db_cursor() as cur:
+                cur.execute('SELECT CreatedAt, Actor, Action, Details, Ip FROM AuditLog WHERE CreatedAt >= %s AND CreatedAt < %s ORDER BY CreatedAt',
+                            (start, start + timedelta(days=1)))
+                for row in cur.fetchall():
+                    history.append(dict(zip(sl.FIELDS, (row['CreatedAt'].strftime('%Y/%m/%d %H:%M:%S'), row['Actor'], row['Action'], row['Details'] or '', row['Ip'] or ''))))
+        except Exception:
+            # Legacy text remains readable even if the old DB is unavailable.
+            pass
+        history.extend(sl.legacy_rows(legacy))
+    return sl.merge_history(PPath, day, history)
 
 
 @app.route("/logs/download/range")
@@ -1685,16 +1754,23 @@ def logs_download_range():
     end_raw = request.args.get("end_date", "")
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", start_raw) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", end_raw):
         return ("Некоректний діапазон дат", 400)
-    start_date = datetime.strptime(start_raw, "%Y-%m-%d").date()
-    end_date = datetime.strptime(end_raw, "%Y-%m-%d").date()
+    try:
+        start_date = datetime.strptime(start_raw, "%Y-%m-%d").date()
+        end_date = datetime.strptime(end_raw, "%Y-%m-%d").date()
+    except ValueError:
+        return "Некоректний діапазон дат", 400
+    if end_date < start_date:
+        return "Некоректний діапазон дат", 400
     mem = io.BytesIO()
     with zipfile.ZipFile(mem, "w", zipfile.ZIP_DEFLATED) as zf:
         current = start_date
         while current <= end_date:
             name = current.strftime("%Y-%m-%d")
-            path = os.path.join(PPath, "logs", f"{name}.log")
-            if os.path.exists(path):
-                zf.write(path, arcname=f"{name}.log")
+            load_journal(name)
+            path = sl.log_path(PPath, name)
+            if path.exists():
+                with sl.locked(path):
+                    zf.write(path, arcname=path.name)
             current += timedelta(days=1)
     mem.seek(0)
     return send_file(mem, as_attachment=True, download_name=f"LadySite_logs_{start_raw}_{end_raw}.zip", mimetype="application/zip")
@@ -1742,6 +1818,8 @@ def content_save():
             raise ValueError("Назва сторінки обов’язкова.")
         def change(content):
             content["pages"][path].update(title=title, blocks=blocks)
+            if "logotext" in request.form:
+                content["pages"][path]["logotext"] = pc.element(json.loads(request.form["logotext"]))
         pc.update_content(change)
     except (ValueError, TypeError, KeyError) as ex:
         return {"error": str(ex)}, 400

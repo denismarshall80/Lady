@@ -102,6 +102,13 @@ a { color: inherit; }
 }
 .brand img { width: 68px; height: 52px; object-fit: contain; background: white; border-radius: 6px; }
 .brand span { max-width: 260px; }
+.brand-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.menu-alerts { flex: 0 1 var(--alert-width); width: var(--alert-width); max-width: var(--alert-width); min-width: 0; display: grid; gap: 4px; }
+.menu-alert { display: flex; align-items: center; gap: 6px; width: 100%; min-width: 0; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; background: #eef9f1; font-size: 12px; line-height: 1.4; }
+.menu-alert.error { background: #fff0f0; }
+.menu-alert span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.menu-alert button, .admin-page .menu-alert button { flex: 0 0 22px; min-height: 22px; height: 22px; padding: 0; font-size: 16px; line-height: 20px; }
+.standalone-alerts { position: fixed; top: 12px; right: 12px; z-index: 30; }
 .nav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .nav-left { justify-content: flex-start; }
 .nav-center { flex: 1; justify-content: center; }
@@ -693,6 +700,18 @@ th { background: #fff0e6; font-size: 17px; }
 }
 .settings-panel { grid-column: 1 / -1; display: none; }
 .settings-panel.is-active { display: grid; }
+.settings-screen { height: 100dvh; min-height: 0; overflow: hidden; }
+.settings-screen main { flex: 1 1 0; min-height: 0; display: flex; padding-bottom: 8px; }
+.settings-screen .topbar { flex-shrink: 0; }
+.settings-workspace { display: flex; flex-direction: column; width: 100%; min-height: 0; gap: 16px; }
+.settings-workspace > .admin-head { flex-shrink: 0; margin: 0; }
+.settings-workspace > .settings-tabs { flex-shrink: 0; }
+.settings-panel-scroll { flex: 1 1 0; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.settings-panel-scroll > .settings-panel { margin: 0; width: 100%; }
+.user-avatar-image { object-fit: cover; }
+.profile-avatar { width: 96px; height: 96px; object-fit: cover; border-radius: 50%; }
+.profile-form { max-width: 700px; margin: 16px auto; }
+.profile-password-fields { display: grid; gap: 14px; padding-top: 14px; }
 .user-create { margin-top: 20px; padding: 20px; background: white; border: 1px solid var(--line); border-radius: 8px; align-items: end; }
 .row-actions { display: grid; gap: 10px; min-width: 420px; }
 .row-actions form { display: flex; gap: 8px; align-items: center; }
@@ -910,4 +929,11 @@ th { background: #fff0e6; font-size: 17px; }
     .tiles, .price-grid, .visit-stats { grid-template-columns: 1fr; }
     .admin-head { align-items: flex-start; flex-direction: column; }
     .visit-chart { grid-template-columns: repeat(auto-fit, minmax(34px, 1fr)); gap: 8px; overflow-x: auto; }
+    .settings-screen .topbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 8px 12px; }
+    .settings-screen .topbar-left { grid-column: 1; grid-row: 1; }
+    .settings-screen .user-menu { grid-column: 2; grid-row: 1; }
+    .settings-screen .nav-center { grid-column: 1 / -1; grid-row: 2; flex-wrap: nowrap; overflow-x: auto; max-width: 100%; }
+    .settings-screen .nav-center a { flex-shrink: 0; white-space: nowrap; }
+    .settings-screen .menu-alerts { grid-column: 1 / -1; grid-row: 3; }
+    .settings-screen .menu-alerts:empty { display: none; }
 }

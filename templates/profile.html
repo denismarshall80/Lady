@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Мій профіль — ЛЕДІ{% endblock %}
+{% block content %}
+<section class="admin-head"><h1 class="admin-title-small">Мій профіль</h1></section>
+<form class="settings-group profile-form" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <p>Логін: <strong>{{ profile.Login }}</strong></p>
+    <label>Ім’я <input name="full_name" value="{{ profile.FullName or '' }}" autocomplete="name"></label>
+    <label>Email <input name="email" value="{{ profile.Email or '' }}" type="email" autocomplete="email"></label>
+    {% if profile.AvatarUrl %}<img class="profile-avatar" src="{{ profile.AvatarUrl }}" alt="Ваш аватар">{% endif %}
+    <label>Аватар <input type="file" name="avatar_file" accept="image/png,image/jpeg,image/webp,image/gif"></label>
+    <label class="checkbox-line"><input type="checkbox" name="remove_avatar" value="1">Прибрати аватар</label>
+    <details class="element-editor">
+        <summary>Змінити пароль</summary>
+        <div class="profile-password-fields">
+            <label>Поточний пароль <input type="password" name="current_password" autocomplete="current-password"></label>
+            <label>Новий пароль <input type="password" name="new_password" autocomplete="new-password"></label>
+            <label>Повторіть новий пароль <input type="password" name="confirm_password" autocomplete="new-password"></label>
+        </div>
+    </details>
+    <button class="primary" type="submit">Зберегти профіль</button>
+</form>
+{% endblock %}

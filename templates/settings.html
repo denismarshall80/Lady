@@ -1,82 +1,90 @@
 {% extends "base.html" %}
+{% block body_class %}settings-screen{% endblock %}
 {% block content %}
+<div class="settings-workspace" data-tabs data-settings-tabs>
 <section class="admin-head">
     <div>
         <p class="eyebrow">Адміністратор</p>
         <h1 class="admin-title-small">Налаштування сайту</h1>
     </div>
 </section>
-<div data-tabs>
-<form class="settings-form" method="post">
+<form method="post" action="{{ url_for('settings') }}" id="settings-config-form" hidden>
     <input type="hidden" name="active_tab" value="{{ active_tab }}">
+</form>
+<form method="post" action="{{ url_for('site_code_settings') }}" id="settings-html-form" hidden></form>
     <div class="settings-tabs" role="tablist" aria-label="Розділи налаштувань">
         <button class="settings-tab {{ 'is-active' if active_tab == 'maintenance' else '' }}" type="button" data-tab-target="maintenance">Обслуговування</button>
         <button class="settings-tab {{ 'is-active' if active_tab == 'mysql' else '' }}" type="button" data-tab-target="mysql">MySQL</button>
         <button class="settings-tab {{ 'is-active' if active_tab == 'email' else '' }}" type="button" data-tab-target="email">Email</button>
         <button class="settings-tab {{ 'is-active' if active_tab == 'tg' else '' }}" type="button" data-tab-target="tg">TG</button>
         <button class="settings-tab {{ 'is-active' if active_tab == 'html' else '' }}" type="button" data-tab-target="html">HTML</button>
-        <button class="primary settings-save-inline" name="action" value="save" type="submit">Зберегти налаштування</button>
+        <button class="settings-tab {{ 'is-active' if active_tab == 'alert' else '' }}" type="button" data-tab-target="alert">Alert</button>
+        <button class="primary settings-save-inline" name="action" value="save" type="submit" form="{{ 'settings-html-form' if active_tab == 'html' else 'settings-config-form' }}">Зберегти налаштування</button>
     </div>
+    <div class="settings-panel-scroll">
     <section class="settings-group settings-panel {{ 'is-active' if active_tab == 'maintenance' else '' }}" data-tab-panel="maintenance">
         <h2>Обслуговування</h2>
         <label class="checkbox-line">
-            <input type="checkbox" name="cfg_SITE_MAINTENANCE_ENABLED" value="1" {{ 'checked' if config.SITE_MAINTENANCE_ENABLED == '1' else '' }}>
+            <input form="settings-config-form" type="checkbox" name="cfg_SITE_MAINTENANCE_ENABLED" value="1" {{ 'checked' if config.SITE_MAINTENANCE_ENABLED == '1' else '' }}>
             Сайт на обслуговуванні і тимчасово не працює!
         </label>
         <label>Онлайн запис
-            <select name="cfg_ONLINE_APPOINTMENT_ENABLED">
+            <select form="settings-config-form" name="cfg_ONLINE_APPOINTMENT_ENABLED">
                 <option value="1" {{ 'selected' if config.ONLINE_APPOINTMENT_ENABLED != '0' else '' }}>Увімкнено</option>
                 <option value="0" {{ 'selected' if config.ONLINE_APPOINTMENT_ENABLED == '0' else '' }}>Вимкнено</option>
             </select>
         </label>
-        <label>Нагадувати про клієнта за ХХ годин <input name="cfg_REMIND_BEFORE_HOURS" value="{{ config.REMIND_BEFORE_HOURS }}"></label>
-        <label>Зберігати логи, днів <input name="cfg_CLEAR_LOG_DAYS" value="{{ config.CLEAR_LOG_DAYS }}"></label>
-        <label>Очищати кожні, годин <input name="cfg_CLEAR_LOG_HOURS" value="{{ config.CLEAR_LOG_HOURS }}"></label>
-        <label>Видаляти старі записи, днів <input name="cfg_DELETE_OLD_APPOINTMENTS_DAYS" value="{{ config.DELETE_OLD_APPOINTMENTS_DAYS }}"></label>
-        <label>Інтервал відправки звітів, хвилин <input name="cfg_SEND_ERR_TIME_IN_MINUTES" value="{{ config.SEND_ERR_TIME_IN_MINUTES }}"></label>
-        <button name="action" value="clear_logs" type="submit">Очистити зараз</button>
+        <label>Нагадувати про клієнта за ХХ годин <input form="settings-config-form" name="cfg_REMIND_BEFORE_HOURS" value="{{ config.REMIND_BEFORE_HOURS }}"></label>
+        <label>Зберігати логи, днів <input form="settings-config-form" name="cfg_CLEAR_LOG_DAYS" value="{{ config.CLEAR_LOG_DAYS }}"></label>
+        <label>Очищати кожні, годин <input form="settings-config-form" name="cfg_CLEAR_LOG_HOURS" value="{{ config.CLEAR_LOG_HOURS }}"></label>
+        <label>Видаляти старі записи, днів <input form="settings-config-form" name="cfg_DELETE_OLD_APPOINTMENTS_DAYS" value="{{ config.DELETE_OLD_APPOINTMENTS_DAYS }}"></label>
+        <label>Інтервал відправки звітів, хвилин <input form="settings-config-form" name="cfg_SEND_ERR_TIME_IN_MINUTES" value="{{ config.SEND_ERR_TIME_IN_MINUTES }}"></label>
+        <button form="settings-config-form" name="action" value="clear_logs" type="submit">Очистити зараз</button>
     </section>
     <section class="settings-group settings-panel {{ 'is-active' if active_tab == 'mysql' else '' }}" data-tab-panel="mysql">
         <h2>MySQL</h2>
-        <label>MYSQL_USER <input name="cfg_MYSQL_USER" value="{{ config.MYSQL_USER }}"></label>
-        <label>MYSQL_PASSWORD <input name="cfg_MYSQL_PASSWORD" type="password" placeholder="залиште порожнім, щоб не міняти"></label>
-        <label>MYSQL_HOST <input name="cfg_MYSQL_HOST" value="{{ config.MYSQL_HOST }}"></label>
-        <label>MYSQL_PORT <input name="cfg_MYSQL_PORT" value="{{ config.MYSQL_PORT }}"></label>
-        <label>MYSQL_DATABASE <input name="cfg_MYSQL_DATABASE" value="{{ config.MYSQL_DATABASE }}"></label>
-        <button name="action" value="test_mysql" type="submit">Тест MySQL</button>
+        <label>MYSQL_USER <input form="settings-config-form" name="cfg_MYSQL_USER" value="{{ config.MYSQL_USER }}"></label>
+        <label>MYSQL_PASSWORD <input form="settings-config-form" name="cfg_MYSQL_PASSWORD" type="password" placeholder="залиште порожнім, щоб не міняти"></label>
+        <label>MYSQL_HOST <input form="settings-config-form" name="cfg_MYSQL_HOST" value="{{ config.MYSQL_HOST }}"></label>
+        <label>MYSQL_PORT <input form="settings-config-form" name="cfg_MYSQL_PORT" value="{{ config.MYSQL_PORT }}"></label>
+        <label>MYSQL_DATABASE <input form="settings-config-form" name="cfg_MYSQL_DATABASE" value="{{ config.MYSQL_DATABASE }}"></label>
+        <button form="settings-config-form" name="action" value="test_mysql" type="submit">Тест MySQL</button>
     </section>
     <section class="settings-group settings-panel {{ 'is-active' if active_tab == 'email' else '' }}" data-tab-panel="email">
         <h2>Email</h2>
-        <label>SMTP_HOST <input name="cfg_SMTP_HOST" value="{{ config.SMTP_HOST }}"></label>
-        <label>SMTP_PORT <input name="cfg_SMTP_PORT" value="{{ config.SMTP_PORT }}"></label>
-        <label>SMTP_USER <input name="cfg_SMTP_USER" value="{{ config.SMTP_USER }}"></label>
-        <label>SMTP_PASSWORD <input name="cfg_SMTP_PASSWORD" type="password" placeholder="залиште порожнім, щоб не міняти"></label>
-        <label>SMTP_FROM <input name="cfg_SMTP_FROM" value="{{ config.SMTP_FROM }}"></label>
+        <label>SMTP_HOST <input form="settings-config-form" name="cfg_SMTP_HOST" value="{{ config.SMTP_HOST }}"></label>
+        <label>SMTP_PORT <input form="settings-config-form" name="cfg_SMTP_PORT" value="{{ config.SMTP_PORT }}"></label>
+        <label>SMTP_USER <input form="settings-config-form" name="cfg_SMTP_USER" value="{{ config.SMTP_USER }}"></label>
+        <label>SMTP_PASSWORD <input form="settings-config-form" name="cfg_SMTP_PASSWORD" type="password" placeholder="залиште порожнім, щоб не міняти"></label>
+        <label>SMTP_FROM <input form="settings-config-form" name="cfg_SMTP_FROM" value="{{ config.SMTP_FROM }}"></label>
         <label>SMTP_TLS
-            <select name="cfg_SMTP_TLS">
+            <select form="settings-config-form" name="cfg_SMTP_TLS">
                 <option value="1" {{ 'selected' if config.SMTP_TLS != '0' else '' }}>Увімкнено</option>
                 <option value="0" {{ 'selected' if config.SMTP_TLS == '0' else '' }}>Вимкнено</option>
             </select>
         </label>
         <label>Список мил для повідомлень
-            <textarea name="cfg_NOTIFY_EMAILS" rows="4">{{ config.NOTIFY_EMAILS }}</textarea>
+            <textarea form="settings-config-form" name="cfg_NOTIFY_EMAILS" rows="4">{{ config.NOTIFY_EMAILS }}</textarea>
         </label>
-        <button name="action" value="test_notify" type="submit">Тест повідомлень</button>
+        <button form="settings-config-form" name="action" value="test_notify" type="submit">Тест повідомлень</button>
     </section>
     <section class="settings-group settings-panel {{ 'is-active' if active_tab == 'tg' else '' }}" data-tab-panel="tg">
         <h2>TG</h2>
-        <label>TELEGRAM_BOT_TOKEN <input name="cfg_TELEGRAM_BOT_TOKEN" value="{{ config.TELEGRAM_BOT_TOKEN }}"></label>
-        <label>TELEGRAM_CHAT_ID <input name="cfg_TELEGRAM_CHAT_ID" value="{{ config.TELEGRAM_CHAT_ID }}"></label>
-        <button name="action" value="test_notify" type="submit">Тест повідомлень</button>
+        <label>TELEGRAM_BOT_TOKEN <input form="settings-config-form" name="cfg_TELEGRAM_BOT_TOKEN" value="{{ config.TELEGRAM_BOT_TOKEN }}"></label>
+        <label>TELEGRAM_CHAT_ID <input form="settings-config-form" name="cfg_TELEGRAM_CHAT_ID" value="{{ config.TELEGRAM_CHAT_ID }}"></label>
+        <button form="settings-config-form" name="action" value="test_notify" type="submit">Тест повідомлень</button>
     </section>
-    <button class="primary wide" name="action" value="save" type="submit">Зберегти налаштування</button>
-</form>
+    <section class="settings-group settings-panel {{ 'is-active' if active_tab == 'alert' else '' }}" data-tab-panel="alert">
+        <h2>Alert</h2>
+        <label>Максимальна ширина повідомлення, px <input form="settings-config-form" name="cfg_ALERT_MAX_WIDTH" value="{{ config.ALERT_MAX_WIDTH|default('240') }}" type="number" min="40" max="2000"></label>
+    </section>
 <section class="settings-group settings-panel {{ 'is-active' if active_tab == 'html' else '' }}" data-tab-panel="html">
     <h2>HTML</h2>
     <p>HTML-код, скрипти та метатеги для всіх сторінок сайту.</p>
-    <form method="post" action="{{ url_for('site_code_settings') }}">
+    {% with code_form_id='settings-html-form', hide_code_save=true %}
         {% include 'html_code_fields.html' %}
-    </form>
+    {% endwith %}
 </section>
+    </div>
 </div>
 {% endblock %}

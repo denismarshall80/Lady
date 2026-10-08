@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[data-menu-alert]').forEach(alert => {
+        alert.querySelector('[data-alert-close]').addEventListener('click', () => alert.remove());
+        setTimeout(() => alert.remove(), 10000);
+    });
     const topbar = document.querySelector('.topbar');
     const updateAnchorOffset = () => {
         const pinned = topbar && ['sticky', 'fixed'].includes(getComputedStyle(topbar).position);
@@ -37,6 +41,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
                 const activeInput = root.querySelector('[name="active_tab"]');
                 if (activeInput) activeInput.value = target;
+                if (root.hasAttribute('data-settings-tabs')) {
+                    root.querySelector('.settings-save-inline').setAttribute('form', target === 'html' ? 'settings-html-form' : 'settings-config-form');
+                    root.querySelector('.settings-panel-scroll').scrollTop = 0;
+                }
             });
         });
     });

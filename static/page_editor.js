@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const list = root.querySelector('[data-block-list]');
     const status = root.querySelector('[data-page-status]');
     let blocks = JSON.parse(root.querySelector('[data-page-data]').textContent);
+    const logoText = JSON.parse(root.querySelector('[data-logotext-data]').textContent);
     const expanded = new WeakMap();
     function disclosure(object, key, cls) {
         const panel = node('details', '', cls);
@@ -56,12 +57,14 @@ document.addEventListener('DOMContentLoaded', () => {
         parent.append(wrapper);
         return input;
     }
-    function elementEditor(parent, label, object) {
+    function elementEditor(parent, label, object, skipText = false) {
         const details = disclosure(object, 'element', 'element-editor');
         details.append(node('summary', label));
         const grid = node('div', '', 'element-fields');
-        const text = field(grid, 'Текст (необов’язково)', object, 'text', null, 'textarea');
-        text.parentElement.className = 'element-full';
+        if (!skipText) {
+            const text = field(grid, 'Текст (необов’язково)', object, 'text', null, 'textarea');
+            text.parentElement.className = 'element-full';
+        }
         field(grid, 'Посилання при кліку', object, 'url');
         field(grid, 'Шрифт', object, 'font', {Arial:'Arial', Georgia:'Georgia', Verdana:'Verdana', Tahoma:'Tahoma', 'Times New Roman':'Times New Roman'});
         field(grid, 'Розмір, px', object, 'size', null, 'number');
@@ -165,6 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         if (uploads) { status.textContent = 'Дочекайтеся завантаження малюнків.'; return; }
         const data = new FormData(form); data.append('blocks', JSON.stringify(blocks));
+        data.append('logotext', JSON.stringify(logoText));
         const submit = form.querySelector('[type="submit"]');
         submit.disabled = true;
         status.textContent = 'Збереження…';
@@ -181,5 +185,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('beforeunload', event => {
         if (dirty) { event.preventDefault(); event.returnValue = ''; }
     });
+    const logoEditor = root.querySelector('[data-logotext-editor]');
+    field(logoEditor, 'logotext — текст біля логотипа', logoText, 'text');
+    elementEditor(logoEditor, 'Шрифт і оформлення logotext', logoText, true);
     render();
 });

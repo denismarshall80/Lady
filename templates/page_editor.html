@@ -5,6 +5,7 @@
         <input type="hidden" name="page_path" value="{{ page_path }}">
         <input type="hidden" name="csrf" value="{{ content_csrf }}">
         <label>Назва сторінки (заголовок вкладки браузера) <input name="page_title" value="{{ page.title }}" required maxlength="250"></label>
+        <div data-logotext-editor></div>
         <p>Порожні заголовки, текст, кнопки й малюнки не показуються. Зміни публікуються після натискання «Зберегти сторінку».</p>
         <div data-block-list></div>
         <div class="form-actions">
@@ -14,5 +15,6 @@
         <p role="status" data-page-status></p>
     </form>
     <script type="application/json" data-page-data>{{ page.blocks|tojson }}</script>
+    <script type="application/json" data-logotext-data>{{ page.logotext|default(site_logotext)|tojson }}</script>
     <script src="{{ url_for('static', filename='page_editor.js', v=app_version) }}" defer></script>
 </section>

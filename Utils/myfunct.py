@@ -11,11 +11,13 @@ from pathlib import Path
 import glob
 import string
 import shutil
+import re
 from datetime import timedelta
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 PPath=""
+LogWriter = None
 gui = 'FAE04EC0-301F-11D1-BF4B-00C04F79EFBC-GHFKJHF-IRHDHKHFDK-67890790'
 
 
@@ -83,6 +85,12 @@ def CreateDir(dirname):
 def tolog(msg, fname="", isprint=False):
     global PPath
     try:
+        if LogWriter is not None and isNOE(fname):
+            if not isNOE(msg):
+                LogWriter(str(msg))
+                if isprint:
+                    print(msg)
+            return
         if isNOE(fname):
             CreateDir(combine(PPath, "logs"))
             fname = combine(PPath, "logs", getCurDate("%Y-%m-%d") + ".log")
@@ -520,11 +528,13 @@ def ClearOldLog(logpath, days):
     try:
         for file in os.listdir(logpath):
             try:
-                if file.endswith(".log"):
+                csv_date = re.fullmatch(r"Lady_(\d{4}-\d{2}-\d{2})_log\.csv", file)
+                if file.endswith(".log") or csv_date:
                     path = combine(logpath, file)
                     editdt = os.path.getctime(path)
-                    dt_c = datetime.datetime.fromtimestamp(editdt)
-                    if dt_c < nowdt:
+                    dt_c = datetime.datetime.strptime(csv_date[1], "%Y-%m-%d") if csv_date else datetime.datetime.fromtimestamp(editdt)
+                    expired = dt_c.date() < nowdt.date() if csv_date else dt_c < nowdt
+                    if expired:
                         DelFile(path)
                         if not FileExists(path):
                             deleted += 1

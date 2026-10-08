@@ -9,15 +9,17 @@
     <script src="{{ url_for('static', filename='lady.js', v=app_version) }}" defer></script>
     {{ global_code.head|default('')|safe }}
 </head>
-<body class="{{ 'admin-page' if active_page in ['admin', 'visits', 'settings', 'users', 'logs'] else '' }}">
+<body class="{{ 'admin-page' if active_page in ['admin', 'visits', 'settings', 'users', 'logs', 'profile'] else '' }} {% block body_class %}{% endblock %}">
     {% set hide_public_shell = maintenance_mode|default(false) or (site_maintenance|default(false) and not user) %}
+    {% set alerts = get_flashed_messages(with_categories=true) %}
+    {% set logo = page.logotext if page is defined and page.logotext is defined else site_logotext %}
     {% if not hide_public_shell %}
     <header class="topbar">
         <div class="topbar-left">
-            <a class="brand" href="{{ url_for('index') }}">
+            <a class="brand" href="{{ logo.url or url_for('index') }}">
                 <img src="{{ url_for('static', filename='lady-logo-original.png') }}" alt="ЛЕДІ">
-                {% if not is_admin and not site_maintenance|default(false) %}
-                <span>Центр краси і здоров'я “ЛЕДІ”</span>
+                {% if logo.text %}
+                <span class="brand-text" style="font-family:'{{ logo.font }}',sans-serif;font-size:{{ logo.size }}px;font-weight:{{ '700' if logo.bold else '400' }};font-style:{{ 'italic' if logo.italic else 'normal' }};text-decoration:{{ 'underline' if logo.underline else 'none' }};text-align:{{ logo.align }};align-self:{{ 'flex-start' if logo.vertical == 'top' else 'flex-end' if logo.vertical == 'bottom' else 'center' }}">{{ logo.text }}</span>
                 {% endif %}
             </a>
             {% if not is_admin %}
@@ -43,31 +45,26 @@
             <a class="{{ 'active' if active_page == 'logs' else '' }}" href="{{ url_for('logs') }}">Журнал</a>
             {% endif %}
         </nav>
+        {% include 'menu_alerts.html' %}
         <details class="user-menu">
             <summary class="user-menu-trigger" role="button">
-                <span class="topbar-user-avatar">{{ avatar_initials(user_display_name(user)) }}</span>
+                {% if user.AvatarUrl %}<img class="topbar-user-avatar user-avatar-image" src="{{ user.AvatarUrl }}" alt="Аватар">{% else %}<span class="topbar-user-avatar">{{ avatar_initials(user_display_name(user)) }}</span>{% endif %}
                 <span class="topbar-user-name">{{ user_display_name(user) }}</span>
             </summary>
             <div class="user-menu-panel">
+                <a href="{{ url_for('profile') }}">Профіль</a>
                 <a href="{{ url_for('logout') }}">Вийти</a>
             </div>
         </details>
         {% else %}
+        {% include 'menu_alerts.html' %}
         <nav class="nav nav-right">
             <a class="{{ 'active' if active_page == 'login' else '' }}" href="{{ url_for('login') }}">Вхід</a>
         </nav>
         {% endif %}
     </header>
     {% endif %}
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    <div class="messages">
-        {% for category, message in messages %}
-        <div class="message {{ category }}">{{ message }}</div>
-        {% endfor %}
-    </div>
-    {% endif %}
-    {% endwith %}
+    {% if hide_public_shell %}{% include 'menu_alerts.html' %}{% endif %}
     <main>
         {% block content %}{% endblock %}
     </main>

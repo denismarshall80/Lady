@@ -1,0 +1,8 @@
+<div class="menu-alerts {{ 'standalone-alerts' if hide_public_shell else '' }}" style="--alert-width:{{ alert_max_width }}px" aria-live="polite">
+    {% for category, message in alerts %}
+    <div class="menu-alert {{ category }}" data-menu-alert>
+        <button type="button" data-alert-close aria-label="Закрити повідомлення">×</button>
+        <span title="{{ message }}">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
