@@ -97,7 +97,7 @@ def normalize_blocks(raw):
         items = block.get('items', [])
         if not isinstance(items, list) or len(items) > 12:
             raise ValueError('Дозволено до 12 колонок у блоці.')
-        normalized = {'layout': block['layout'], 'heading': element(block.get('heading', {})),
+        normalized = {'note': str(block.get('note', '')), 'layout': block['layout'], 'heading': element(block.get('heading', {})),
                       'items': [], 'enabled': block.get('enabled', True) is not False}
         for item in items:
             if not isinstance(item, dict):

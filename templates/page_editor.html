@@ -4,7 +4,7 @@
     <form data-page-form action="{{ url_for('content_save') }}">
         <input type="hidden" name="page_path" value="{{ page_path }}">
         <input type="hidden" name="csrf" value="{{ content_csrf }}">
-        <label>Назва сторінки <input name="page_title" value="{{ page.title }}" required maxlength="250"></label>
+        <label>Назва сторінки (заголовок вкладки браузера) <input name="page_title" value="{{ page.title }}" required maxlength="250"></label>
         <p>Порожні заголовки, текст, кнопки й малюнки не показуються. Зміни публікуються після натискання «Зберегти сторінку».</p>
         <div data-block-list></div>
         <div class="form-actions">

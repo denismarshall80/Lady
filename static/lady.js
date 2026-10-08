@@ -1,4 +1,27 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const topbar = document.querySelector('.topbar');
+    const updateAnchorOffset = () => {
+        const pinned = topbar && ['sticky', 'fixed'].includes(getComputedStyle(topbar).position);
+        const height = pinned ? topbar.getBoundingClientRect().height : 0;
+        document.documentElement.style.setProperty('--anchor-offset', `${Math.ceil(height) + 12}px`);
+    };
+    updateAnchorOffset();
+    if (topbar) new ResizeObserver(updateAnchorOffset).observe(topbar);
+    window.addEventListener('resize', updateAnchorOffset);
+    const alignServiceHash = () => {
+        updateAnchorOffset();
+        if (!/^#section-\d+$/.test(location.hash)) return;
+        const target = document.getElementById(location.hash.slice(1));
+        if (target) target.scrollIntoView({block: 'start'});
+    };
+    if (document.readyState === 'complete') alignServiceHash();
+    else window.addEventListener('load', alignServiceHash, {once: true});
+    const footer = document.querySelector('.footer');
+    if (footer) {
+        const reserveFooterSpace = () => document.body.style.setProperty('--footer-height', `${footer.getBoundingClientRect().height}px`);
+        new ResizeObserver(reserveFooterSpace).observe(footer);
+        reserveFooterSpace();
+    }
     const tabRoots = Array.from(document.querySelectorAll('[data-tabs]'));
     tabRoots.forEach(function (root) {
         const tabButtons = Array.from(root.querySelectorAll('[data-tab-target]'));

@@ -73,6 +73,7 @@
     </main>
     {% if not hide_public_shell %}
     <footer class="footer">
+        {% if can_manage_services %}<span class="footer-version">{{ app_version }}</span>{% endif %}
         {% if not site_maintenance|default(false) %}
         <strong>ЛЕДІ</strong>
         {% endif %}
@@ -81,7 +82,7 @@
         <span>Тел.: +38 093 299-59-21</span>
         {% endif %}
         {% if can_manage_services %}
-        <span class="footer-stats">Сайт відвідало: {{ visit_count() }} чоловіка&nbsp;&nbsp;&nbsp; Записалось: {{ appointment_count() }} чоловік&nbsp;&nbsp;&nbsp; {{ app_version }}</span>
+        <span class="footer-stats">Сайт відвідало: {{ visit_count() }} чоловіка&nbsp;&nbsp;&nbsp; Записалось: {{ appointment_count() }} чоловік</span>
         {% endif %}
     </footer>
     {% endif %}

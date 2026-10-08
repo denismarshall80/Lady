@@ -5,6 +5,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const list = root.querySelector('[data-block-list]');
     const status = root.querySelector('[data-page-status]');
     let blocks = JSON.parse(root.querySelector('[data-page-data]').textContent);
+    const expanded = new WeakMap();
+    function disclosure(object, key, cls) {
+        const panel = node('details', '', cls);
+        panel.open = expanded.get(object)?.[key] ?? false;
+        panel.addEventListener('toggle', () => {
+            const state = expanded.get(object) || {};
+            state[key] = panel.open;
+            expanded.set(object, state);
+        });
+        return panel;
+    }
     let dirty = false;
     let uploads = 0;
     const layouts = {'text-image':'Інформація зліва + малюнок справа', 'image-text':'Малюнок зліва + інформація справа', text:'Інформація на всю ширину', image:'Малюнок на всю ширину', columns:'Колонки: малюнок + інформація знизу'};
@@ -46,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return input;
     }
     function elementEditor(parent, label, object) {
-        const details = node('details', '', 'element-editor');
+        const details = disclosure(object, 'element', 'element-editor');
         details.append(node('summary', label));
         const grid = node('div', '', 'element-fields');
         const text = field(grid, 'Текст (необов’язково)', object, 'text', null, 'textarea');
@@ -73,9 +84,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function render() {
         list.replaceChildren();
         blocks.forEach((block, index) => {
-            const panel = node('details', '', 'block-editor');
-            panel.open = true;
-            panel.append(node('summary', `Блок ${index + 1}: ${layouts[block.layout]}`));
+            const panel = disclosure(block, 'block', 'block-editor');
+            const summary = node('summary');
+            summary.append(node('span', `Блок ${index + 1}`));
+            const note = node('input', '', 'block-note');
+            note.type = 'text';
+            note.placeholder = 'Нотатка про блок';
+            note.setAttribute('aria-label', `Нотатка про блок ${index + 1}`);
+            note.value = block.note ?? '';
+            note.addEventListener('click', event => event.stopPropagation());
+            note.addEventListener('keydown', event => event.stopPropagation());
+            note.addEventListener('input', () => { block.note = note.value; markDirty(); });
+            summary.append(note);
+            panel.append(summary);
             const controls = node('div', '', 'block-toolbar');
             controls.append(button('↑ Вище', () => reorder(blocks, index, -1)), button('↓ Нижче', () => reorder(blocks, index, 1)),
                 button('Копіювати', () => { blocks.splice(index + 1, 0, structuredClone(block)); markDirty(); render(); }),
@@ -86,9 +107,10 @@ document.addEventListener('DOMContentLoaded', () => {
             layout.addEventListener('change', render);
             elementEditor(panel, 'Заголовок усього блоку', block.heading);
             block.items.forEach((item, itemIndex) => {
-                const itemPanel = node('div', '', 'item-editor');
+                const itemPanel = disclosure(item, 'item', 'item-editor');
+                itemPanel.append(node('summary', `Елемент ${itemIndex + 1}`));
                 const toolbar = node('div', '', 'block-toolbar');
-                toolbar.append(node('strong', `Елемент ${itemIndex + 1}`),
+                toolbar.append(
                     button('↑', () => reorder(block.items, itemIndex, -1)), button('↓', () => reorder(block.items, itemIndex, 1)),
                     button('Видалити елемент', () => { if (confirm('Видалити елемент?')) { block.items.splice(itemIndex, 1); markDirty(); render(); } }));
                 itemPanel.append(toolbar);
@@ -130,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     root.querySelector('[data-block-add]').addEventListener('click', () => {
         if (blocks.length >= 100) { status.textContent = 'Максимум 100 блоків.'; return; }
-        blocks.push({layout:'text-image', heading:emptyElement(32), enabled:true, items:[emptyItem()]});
+        blocks.push({note:'', layout:'text-image', heading:emptyElement(32), enabled:true, items:[emptyItem()]});
         markDirty(); render(); list.lastElementChild.scrollIntoView({behavior:'smooth', block:'start'});
     });
     form.addEventListener('submit', async event => {
