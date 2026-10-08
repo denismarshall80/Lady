@@ -1,0 +1,18 @@
+<section class="services-admin" id="page-editor" data-page-editor>
+    <div class="section-head"><h2>Редагування сторінки блоками</h2></div>
+    <p><a class="button" href="{{ page_path }}?preview=public" target="_blank" rel="noopener">Перегляд як клієнт</a></p>
+    <form data-page-form action="{{ url_for('content_save') }}">
+        <input type="hidden" name="page_path" value="{{ page_path }}">
+        <input type="hidden" name="csrf" value="{{ content_csrf }}">
+        <label>Назва сторінки <input name="page_title" value="{{ page.title }}" required maxlength="250"></label>
+        <p>Порожні заголовки, текст, кнопки й малюнки не показуються. Зміни публікуються після натискання «Зберегти сторінку».</p>
+        <div data-block-list></div>
+        <div class="form-actions">
+            <button type="button" data-block-add>Додати блок</button>
+            <button type="submit" class="primary">Зберегти сторінку</button>
+        </div>
+        <p role="status" data-page-status></p>
+    </form>
+    <script type="application/json" data-page-data>{{ page.blocks|tojson }}</script>
+    <script src="{{ url_for('static', filename='page_editor.js') }}" defer></script>
+</section>

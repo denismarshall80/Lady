@@ -67,6 +67,7 @@
         <label>TELEGRAM_CHAT_ID <input name="cfg_TELEGRAM_CHAT_ID" value="{{ config.TELEGRAM_CHAT_ID }}"></label>
         <button name="action" value="test_notify" type="submit">Тест повідомлень</button>
     </section>
+    <p><a class="button" href="{{ url_for('site_code_settings') }}">HTML-код на всіх сторінках (AdSense, аналітика)</a></p>
     <button class="primary wide" name="action" value="save" type="submit">Зберегти налаштування</button>
 </form>
 {% endblock %}

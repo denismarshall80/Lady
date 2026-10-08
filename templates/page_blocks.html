@@ -1,0 +1,36 @@
+{% macro show_element(element, tag='p', button=false) %}
+{% if element.text %}
+<div class="content-element vertical-{{ element.vertical }}" style="text-align:{{ element.align }};font-family:'{{ element.font }}',sans-serif;font-size:{{ element.size }}px;font-weight:{{ '700' if element.bold else '400' }};font-style:{{ 'italic' if element.italic else 'normal' }};text-decoration:{{ 'underline' if element.underline else 'none' }}">
+    <{{ tag }} class="content-text">{% if element.url %}<a class="{{ 'button primary' if button else 'content-link' }}" href="{{ element.url }}">{{ element.text }}</a>{% else %}{{ element.text }}{% endif %}</{{ tag }}>
+</div>
+{% endif %}
+{% endmacro %}
+<div class="content-blocks">
+{% for block in page.blocks if block.enabled %}
+{% set visible = namespace(rows=[]) %}
+{% for item in block['items'] %}
+    {% if (block.layout == 'image' and item.image) or (block.layout == 'text' and (item.title.text or item.text.text or item.button.text)) or (block.layout not in ['image', 'text'] and (item.image or item.title.text or item.text.text or item.button.text)) %}
+        {% set visible.rows = visible.rows + [item] %}
+    {% endif %}
+{% endfor %}
+{% if block.heading.text or visible.rows %}
+<section class="content-block">
+    {{ show_element(block.heading, 'h2') }}
+    <div class="content-layout layout-{{ block.layout }}" {% if block.layout == 'columns' %}style="--columns:{{ visible.rows|length or 1 }}"{% endif %}>
+    {% for item in visible.rows %}
+        <article class="content-item">
+        {% if block.layout != 'text' and item.image %}<img class="content-image" src="{{ item.image }}" alt="{{ item.alt }}" loading="lazy">{% endif %}
+        {% if block.layout != 'image' %}
+        <div class="content-info">
+            {{ show_element(item.title, 'h2') }}
+            {{ show_element(item.text) }}
+            {{ show_element(item.button, 'div', true) }}
+        </div>
+        {% endif %}
+        </article>
+    {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endfor %}
+</div>

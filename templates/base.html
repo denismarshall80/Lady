@@ -4,9 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{% if site_maintenance|default(false) %}Сайт на обслуговуванні{% else %}Центр краси і здоров'я ЛЕДІ{% endif %}{% endblock %}</title>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Lady_logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='lady-logo-original.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='lady.css') }}">
     <script src="{{ url_for('static', filename='lady.js') }}" defer></script>
+    {{ global_code.head|default('')|safe }}
 </head>
 <body class="{{ 'admin-page' if active_page in ['admin', 'visits', 'settings', 'users', 'logs'] else '' }}">
     {% set hide_public_shell = maintenance_mode|default(false) or (site_maintenance|default(false) and not user) %}
@@ -14,7 +15,7 @@
     <header class="topbar">
         <div class="topbar-left">
             <a class="brand" href="{{ url_for('index') }}">
-                <img src="{{ url_for('static', filename='Lady_logo.png') }}" alt="ЛЕДІ">
+                <img src="{{ url_for('static', filename='lady-logo-original.png') }}" alt="ЛЕДІ">
                 {% if not is_admin and not site_maintenance|default(false) %}
                 <span>Центр краси і здоров'я “ЛЕДІ”</span>
                 {% endif %}
@@ -30,7 +31,8 @@
         </div>
         {% if user %}
         <nav class="nav nav-center">
-            {% if is_admin and site_maintenance|default(false) %}
+            {% if is_admin %}
+            <a class="{{ 'active' if active_page == 'home' else '' }}" href="{{ url_for('index') }}">Головна</a>
             <a class="{{ 'active' if active_page == 'services' else '' }}" href="{{ url_for('services') }}">Послуги і ціни</a>
             {% endif %}
             <a class="{{ 'active' if active_page == 'admin' else '' }}" href="{{ url_for('admin_appointments') }}">Записи</a>
@@ -83,5 +85,6 @@
         {% endif %}
     </footer>
     {% endif %}
+    {{ global_code.body_end|default('')|safe }}
 </body>
 </html>

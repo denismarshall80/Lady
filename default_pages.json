@@ -1,0 +1,251 @@
+{
+  "version": 1,
+  "global_code": {
+    "head": "<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2294227136369675\" crossorigin=\"anonymous\"></script>",
+    "body_end": ""
+  },
+  "pages": {
+    "/": {
+      "title": "Центр краси і здоров’я ЛЕДІ",
+      "blocks": [
+        {
+          "layout": "text-image",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [
+            {
+              "image": "https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=1200&q=80",
+              "alt": "Фахівчиня у медичному кабінеті",
+              "title": {
+                "text": "Центр краси і здоров'я “ЛЕДІ”",
+                "url": "",
+                "font": "Arial",
+                "size": 42,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "text": {
+                "text": "Кам'янець-Подільський\n\nДогляд, ортопедичні рішення, реабілітація та уважний прийом без зайвої метушні. Ми допомагаємо почуватися легше, впевненіше і красивіше щодня.",
+                "url": "",
+                "font": "Arial",
+                "size": 20,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "button": {
+                "text": "Подивитись послуги",
+                "url": "/services",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              }
+            }
+          ],
+          "enabled": true
+        },
+        {
+          "layout": "text-image",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [
+            {
+              "image": "/static/Lady_02.png",
+              "alt": "Атмосфера центру ЛЕДІ",
+              "title": {
+                "text": "Тут дбають про деталі",
+                "url": "",
+                "font": "Arial",
+                "size": 30,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "text": {
+                "text": "У “ЛЕДІ” поєднані практичні послуги для здоров'я стопи, професійний масаж, реабілітаційний догляд і акуратні beauty-процедури. Атмосфера проста: спокійно, людяно, з повагою до часу клієнта.\n\nПрацюємо з ортопедичним взуттям, індивідуальними устілками, товарами для дітей і дорослих, медичним пірсингом та прикрасами з італійською медичною позолотою.",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "button": {
+                "text": "",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              }
+            }
+          ],
+          "enabled": true
+        },
+        {
+          "layout": "columns",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [
+            {
+              "image": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80",
+              "alt": "Консультація і підбір",
+              "title": {
+                "text": "Консультація і підбір",
+                "url": "",
+                "font": "Arial",
+                "size": 24,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "text": {
+                "text": "Підкажемо, з чого почати, і підберемо зручний час для візиту.",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "button": {
+                "text": "",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              }
+            },
+            {
+              "image": "https://images.unsplash.com/photo-1583947581924-860bda6a26df?auto=format&fit=crop&w=900&q=80",
+              "alt": "Ортопедичні товари",
+              "title": {
+                "text": "Ортопедичні товари",
+                "url": "",
+                "font": "Arial",
+                "size": 24,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "text": {
+                "text": "Широкий вибір ортопедичних товарів: підберемо, допоможемо і за потреби замовимо.",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "button": {
+                "text": "",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              }
+            },
+            {
+              "image": "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=900&q=80",
+              "alt": "Здоров'я і краса",
+              "title": {
+                "text": "Здоров'я і краса",
+                "url": "",
+                "font": "Arial",
+                "size": 24,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "text": {
+                "text": "Ортопедичні товари, індивідуальні устілки та акуратні процедури.",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "button": {
+                "text": "",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              }
+            }
+          ],
+          "enabled": true
+        }
+      ]
+    }
+  },
+  "services": {}
+}

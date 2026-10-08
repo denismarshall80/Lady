@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="settings-group">
+    <h1>HTML-код на всіх сторінках</h1>
+    <p>Код у head — для AdSense, аналітики та метатегів. Він виконується на всіх сторінках, зокрема під час обслуговування. Вставляйте код із довірених джерел.</p>
+    <form method="post">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <label>Перед &lt;/head&gt;<textarea class="code-input" name="head" rows="10" spellcheck="false">{{ code.head|default('') }}</textarea></label>
+        <label>Перед &lt;/body&gt;<textarea class="code-input" name="body_end" rows="10" spellcheck="false">{{ code.body_end|default('') }}</textarea></label>
+        <button class="primary">Зберегти код</button>
+        <a class="button" href="{{ url_for('settings') }}">До налаштувань</a>
+    </form>
+</section>
+{% endblock %}

@@ -36,10 +36,10 @@
     <div class="services-content">
         {% for section in sections %}
         <section class="service-section" id="section-{{ section.Id }}">
-            <div class="service-section-head">
+            <div class="service-section-head {{ 'image-right' if section.image_position|default('left') == 'right' else '' }}">
                 <img src="{{ section.ImageUrl or url_for('static', filename='Doctor_01.png') }}" alt="{{ section.Title }}">
                 <div>
-                    <h2>{{ section.Title }}</h2>
+                    <h2>{% if section.title_url %}<a href="{{ section.title_url }}">{{ section.Title }}</a>{% else %}{{ section.Title }}{% endif %}</h2>
                     <p>{{ section.Description or 'Опис розділу буде додано.' }}</p>
                     {% if manager_view and not section.IsActive %}<strong class="status-note">Приховано</strong>{% endif %}
                 </div>
@@ -49,7 +49,7 @@
                 <article class="service-card">
                     <img src="{{ card.ImageUrl or section.ImageUrl or url_for('static', filename='Doctor_02.png') }}" alt="{{ card.Title }}">
                     <div>
-                        <h3>{{ card.Title }}</h3>
+                        <h3>{% if card.title_url %}<a href="{{ card.title_url }}">{{ card.Title }}</a>{% else %}{{ card.Title }}{% endif %}</h3>
                         <p>{{ card.ShortDescription or 'Опис послуги буде додано.' }}</p>
                         {% if card.PriceLines|length > 1 %}
                         <ul class="price-lines">
@@ -96,6 +96,8 @@
         <section class="settings-group settings-panel is-active" data-tab-panel="add-section">
             <form method="post" action="{{ url_for('service_section_create') }}" class="admin-form-grid" enctype="multipart/form-data">
                 <label>Назва розділу <input name="title" placeholder="Тестовий розділ" required></label>
+                <label>Посилання заголовка <input name="title_url" placeholder="/services/pirsing або https://…"></label>
+                <label>Положення малюнка <select name="image_position"><option value="left">Зліва</option><option value="right">Справа</option></select></label>
                 <label>Опис <textarea name="description" rows="3"></textarea></label>
                 {{ image_picker() }}
                 <div class="form-actions centered-actions">
@@ -113,6 +115,7 @@
                     </select>
                 </label>
                 <label>Заголовок <input name="title" required></label>
+                <label>Посилання заголовка <input name="title_url" placeholder="/services/pirsing або https://…"></label>
                 <label>Короткий опис <textarea name="description" rows="3"></textarea></label>
                 <div class="price-editor" data-price-editor>
                     <label>Ціни <textarea name="price" rows="3" data-price-source>від ХХ грн</textarea></label>
@@ -143,6 +146,9 @@
                     <div class="edit-column edit-column-main">
                         <div class="edit-meta-row"><span>Розділ</span><strong>{{ 'Активний' if section.IsActive else 'Прихований' }}</strong></div>
                         <label>Назва <input name="title" value="{{ section.Title }}" required></label>
+                        <label>Посилання заголовка (необов’язково) <input name="title_url" value="{{ section.title_url|default('') }}" placeholder="/services/pirsing або https://…"></label>
+                        <button type="submit" name="page_action" value="open">{{ 'Edit Page' if section.page_path else 'AddPage' }} — зберегти і відкрити сторінку</button>
+<label>Положення малюнка <select name="image_position"><option value="left">Зліва</option><option value="right" {{ 'selected' if section.image_position|default('left') == 'right' else '' }}>Справа</option></select></label>
                         <div class="edit-field-label">Малюнок</div>
                         {{ image_picker(section.ImageUrl) }}
                     </div>
@@ -166,6 +172,9 @@
                             </select>
                         </label>
                         <label>Заголовок <input name="title" value="{{ card.Title }}" required></label>
+                        <label>Посилання заголовка (необов’язково) <input name="title_url" value="{{ card.title_url|default('') }}" placeholder="/services/pirsing або https://…"></label>
+                        <button type="submit" name="page_action" value="open">{{ 'Edit Page' if card.page_path else 'AddPage' }} — зберегти і відкрити сторінку</button>
+
                         <div class="edit-field-label">Малюнок</div>
                         {{ image_picker(card.ImageUrl) }}
                         <div class="price-editor" data-price-editor>

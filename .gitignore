@@ -361,3 +361,5 @@ healthchecksdb
 /static/*.png
 /static/service_images
 /.venv
+# Generated website logo
+!/static/lady-logo-original.png

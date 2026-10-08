@@ -31,7 +31,8 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
-import utils.myfunct as mf
+import Utils.myfunct as mf
+import Utils.page_content as pc
 
 try:
     import pymysql
@@ -47,7 +48,8 @@ except Exception:
 #Ver = "LadySite v0.8.18" #редагування послуг
 #Ver = "LadySite v0.8.19" #адмінка зручніше
 #Ver = "LadySite v0.88.21" #редагування цін і адмінки
-Ver = "LadySite v0.90.02 (2026-07-06)" #додали включення/виключення сайту!
+#Ver = "LadySite v0.90.02 (2026-07-06)" #додали включення/виключення сайту!
+Ver = "LadySite v0.91.04 (2026-10-08)" #редактор блоків, сторінки послуг, глобальний HTML-код
 
 
 HOST = "localhost" if os.name == "nt" else "0.0.0.0"
@@ -496,6 +498,10 @@ def load_service_sections(include_inactive: bool = False) -> list[dict[str, Any]
             """
         )
         cards = cur.fetchall()
+    metadata = pc.read_content().get("services", {})
+    for kind, rows in (("section", sections), ("card", cards)):
+        for row in rows:
+            row.update(metadata.get(f"{kind}-{row['Id']}", {}))
     by_section: dict[int, list[dict[str, Any]]] = {}
     for card in cards:
         price_lines = [line.strip() for line in str(card.get("PriceText") or "").splitlines() if line.strip()]
@@ -895,6 +901,7 @@ def scheduler_job(force_cleanup: bool = False) -> None:
 
 @app.context_processor
 def inject_globals():
+    session.setdefault("content_csrf", uuid.uuid4().hex)
     user = None
     try:
         user = current_user()
@@ -905,6 +912,8 @@ def inject_globals():
     except Exception:
         site_maintenance = False
     return {
+        "global_code": pc.read_content().get("global_code", {}),
+        "content_csrf": session["content_csrf"],
         "app_version": Ver,
         "visit_count": total_visit_count,
         "appointment_count": total_appointment_count,
@@ -981,7 +990,9 @@ def total_appointment_count() -> int:
 def index():
     config = load_config()
     online_enabled = config.get("ONLINE_APPOINTMENT_ENABLED", "1").strip().lower() not in {"0", "false", "no", "off"}
-    return render_template("index.html", config=config, online_enabled=online_enabled, active_page="home")
+    return render_template("index.html", config=config, online_enabled=online_enabled, active_page="home",
+                           page=pc.read_content()["pages"]["/"], page_path="/",
+                           manager_view=can_manage_services(current_user()) and request.args.get("preview") != "public")
 
 
 @app.route("/services")
@@ -1032,6 +1043,11 @@ def service_section_create():
         flash("Недостатньо прав для редагування послуг.", "error")
         return redirect(url_for("services"))
     title = request.form.get("title", "").strip()
+    try:
+        pc.safe_url(request.form.get("title_url", ""))
+    except ValueError as ex:
+        flash(str(ex), "error")
+        return redirect(url_for("services") + "#services-admin")
     description = request.form.get("description", "").strip()
     image_url = service_image_from_request()
     if not title:
@@ -1044,6 +1060,8 @@ def service_section_create():
             "INSERT INTO ServiceSections (Title, Description, ImageUrl, SortOrder) VALUES (%s, %s, %s, %s)",
             (title, description or None, image_url or None, sort_order),
         )
+        item_id = cur.lastrowid
+    pc.save_service_metadata("section", item_id, title, description, request.form)
     log_user_event(f'додав розділ "{title}"')
     flash("Розділ додано.", "success")
     return redirect(url_for("services"))
@@ -1059,6 +1077,11 @@ def service_card_create():
         return redirect(url_for("services"))
     section_id = parse_int(request.form.get("section_id", "0"), 0, 0, 999999999)
     title = request.form.get("title", "").strip()
+    try:
+        pc.safe_url(request.form.get("title_url", ""))
+    except ValueError as ex:
+        flash(str(ex), "error")
+        return redirect(url_for("services") + "#services-admin")
     description = request.form.get("description", "").strip()
     price = normalize_price_text(request.form.get("price", ""))
     image_url = service_image_from_request()
@@ -1078,6 +1101,8 @@ def service_card_create():
             """,
             (section_id, title, description or None, price, image_url or None, sort_order),
         )
+        item_id = cur.lastrowid
+    pc.save_service_metadata("card", item_id, title, description, request.form)
     log_user_event(f'додав картку "{title}" в розділ "{section_title}"')
     flash("Картку послуги додано.", "success")
     return redirect(url_for("services"))
@@ -1098,10 +1123,17 @@ def service_item_edit(kind: str, item_id: int):
     if not title:
         flash("Назва обов'язкова.", "error")
         return redirect(url_for("services") + "#services-admin")
+    try:
+        pc.safe_url(request.form.get("title_url", ""))
+    except ValueError as ex:
+        flash(str(ex), "error")
+        return redirect(url_for("services") + "#services-admin")
     with db_cursor(commit=True) as cur:
         if kind == "section":
             cur.execute("SELECT ImageUrl FROM ServiceSections WHERE Id=%s", (item_id,))
             current = cur.fetchone()
+            if not current:
+                return "Розділ не знайдено", 404
             image_url = service_image_from_request(current["ImageUrl"] if current else "")
             cur.execute(
                 "UPDATE ServiceSections SET Title=%s, Description=%s, ImageUrl=%s WHERE Id=%s",
@@ -1116,6 +1148,8 @@ def service_item_edit(kind: str, item_id: int):
                 return redirect(url_for("services") + "#services-admin")
             cur.execute("SELECT SectionId, SortOrder, ImageUrl FROM ServiceCards WHERE Id=%s", (item_id,))
             current_card = cur.fetchone()
+            if not current_card:
+                return "Картку не знайдено", 404
             sort_order = current_card["SortOrder"] if current_card else 100
             image_url = service_image_from_request(current_card.get("ImageUrl", "") if current_card else "")
             if current_card and int(current_card["SectionId"]) != section_id:
@@ -1133,7 +1167,11 @@ def service_item_edit(kind: str, item_id: int):
         else:
             flash("Невідомий тип елемента.", "error")
             return redirect(url_for("services") + "#services-admin")
+    page_path = pc.save_service_metadata(kind, item_id, title, description, request.form)
     log_user_event(log_text)
+    if page_path:
+        flash("Зміни послуги збережено. Сторінку відкрито для редагування.", "success")
+        return redirect(page_path + "#page-editor")
     flash("Зміни збережено.", "success")
     return redirect(url_for("services") + "#services-admin")
 
@@ -1242,7 +1280,11 @@ def service_item_update(kind: str, item_id: int):
         else:
             flash("Невідома дія.", "error")
             return redirect(url_for("services") + "#services-admin")
+    page_path = pc.save_service_metadata(kind, item_id, title, description, request.form)
     log_user_event(log_text)
+    if page_path:
+        flash("Зміни послуги збережено. Сторінку відкрито для редагування.", "success")
+        return redirect(page_path + "#page-editor")
     flash("Зміни збережено.", "success")
     return redirect(url_for("services") + "#services-admin")
 
@@ -1646,6 +1688,90 @@ def logs_download_range():
             current += timedelta(days=1)
     mem.seek(0)
     return send_file(mem, as_attachment=True, download_name=f"LadySite_logs_{start_raw}_{end_raw}.zip", mimetype="application/zip")
+
+
+@app.route("/services/<slug>")
+def content_page(slug):
+    path = "/services/" + slug
+    content = pc.read_content()
+    page = content.get("pages", {}).get(path)
+    if page is None:
+        return "Сторінку не знайдено", 404
+    manager_view = can_manage_services(current_user()) and request.args.get("preview") != "public"
+    source = page.get("source")
+    if source and not manager_view:
+        kind, item_id = source.split("-", 1)
+        table = "ServiceSections" if kind == "section" else "ServiceCards"
+        with db_cursor() as cur:
+            if kind == "section":
+                cur.execute("SELECT Id FROM ServiceSections WHERE Id=%s AND IsActive=TRUE", (item_id,))
+            else:
+                cur.execute("SELECT c.Id FROM ServiceCards c JOIN ServiceSections s ON s.Id=c.SectionId WHERE c.Id=%s AND c.IsActive=TRUE AND s.IsActive=TRUE", (item_id,))
+            if not cur.fetchone():
+                return "Сторінку не знайдено", 404
+    return render_template("content_page.html", page=page, page_path=path,
+                           manager_view=manager_view, active_page="services")
+
+
+@app.route("/content/save", methods=["POST"])
+def content_save():
+    user = require_user()
+    if not isinstance(user, dict):
+        return user
+    if not can_manage_services(user):
+        return "Недостатньо прав", 403
+    if not session.get("content_csrf") or request.form.get("csrf") != session["content_csrf"]:
+        return {"error": "Оновіть сторінку та повторіть збереження."}, 400
+    path = request.form.get("page_path", "")
+    if path not in pc.read_content().get("pages", {}):
+        return "Сторінку не знайдено", 404
+    try:
+        blocks = pc.normalize_blocks(json.loads(request.form.get("blocks", "[]")))
+        title = request.form.get("page_title", "").strip()[:250]
+        if not title:
+            raise ValueError("Назва сторінки обов’язкова.")
+        def change(content):
+            content["pages"][path].update(title=title, blocks=blocks)
+        pc.update_content(change)
+    except (ValueError, TypeError, KeyError) as ex:
+        return {"error": str(ex)}, 400
+    log_action("page_update", path)
+    return {"ok": True, "url": path}
+
+
+@app.route("/content/image", methods=["POST"])
+def content_image():
+    user = require_user()
+    if not isinstance(user, dict):
+        return user
+    if not can_manage_services(user):
+        return "Недостатньо прав", 403
+    if not session.get("content_csrf") or request.form.get("csrf") != session["content_csrf"]:
+        return {"error": "Оновіть сторінку та повторіть завантаження."}, 400
+    image = uploaded_service_image_url()
+    if not image:
+        return {"error": "Оберіть файл PNG, JPEG, WebP або GIF."}, 400
+    return {"url": image}
+
+
+@app.route("/settings/code", methods=["GET", "POST"])
+def site_code_settings():
+    user = require_admin()
+    if not isinstance(user, dict):
+        return user
+    session.setdefault("code_csrf", uuid.uuid4().hex)
+    if request.method == "POST":
+        if request.form.get("csrf") != session["code_csrf"]:
+            return "Оновіть сторінку та повторіть збереження", 400
+        code = {key: request.form.get(key, "") for key in ("head", "body_end")}
+        if any(len(value) > 100000 for value in code.values()):
+            return "Код перевищує 100 000 символів", 400
+        pc.update_content(lambda content: content.update(global_code=code))
+        log_action("site_code_update", "head, body_end")
+        flash("Код для всіх сторінок збережено.", "success")
+        return redirect(url_for("site_code_settings"))
+    return render_template("site_code.html", code=pc.read_content().get("global_code", {}),
+                           csrf=session["code_csrf"], active_page="settings")
 
 
 try:
