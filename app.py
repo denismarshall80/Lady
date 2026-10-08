@@ -51,7 +51,9 @@ except Exception:
 #Ver = "LadySite v0.90.02 (2026-07-06)" #додали включення/виключення сайту!
 #Ver = "LadySite v0.91.04 (2026-10-08)" #редактор блоків, сторінки послуг, глобальний HTML-код
 #Ver = "LadySite v0.91.05 (2026-10-08)" #згортання редактора, нотатки блоків, назва вкладки, футер, малюнки без обрізання
-Ver = "LadySite v0.92.01 (2026-10-08)" #переходи до розділів з урахуванням висоти закріпленого меню
+#Ver = "LadySite v0.92.01 (2026-10-08)" #переходи до розділів з урахуванням висоти закріпленого меню
+#Ver = "LadySite v0.92.02 (2026-10-08)" #компактний футер, версія зліва, оновлення кешу стилів
+Ver = "LadySite v0.93.01 (2026-10-08)" #короткі лічильники футера, приховування записів при вимкненому онлайн-записі
 
 
 HOST = "localhost" if os.name == "nt" else "0.0.0.0"
@@ -910,9 +912,12 @@ def inject_globals():
     except Exception:
         user = None
     try:
-        site_maintenance = config_flag(load_config(), "SITE_MAINTENANCE_ENABLED")
+        global_config = load_config()
+        site_maintenance = config_flag(global_config, "SITE_MAINTENANCE_ENABLED")
+        footer_online_enabled = global_config.get("ONLINE_APPOINTMENT_ENABLED", "1").strip().lower() not in {"0", "false", "no", "off"}
     except Exception:
         site_maintenance = False
+        footer_online_enabled = False
     return {
         "global_code": pc.read_content().get("global_code", {}),
         "content_csrf": session["content_csrf"],
@@ -923,6 +928,7 @@ def inject_globals():
         "is_admin": is_admin(user),
         "can_manage_services": can_manage_services(user),
         "site_maintenance": site_maintenance,
+        "footer_online_enabled": footer_online_enabled,
     }
 
 

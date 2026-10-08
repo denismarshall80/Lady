@@ -809,12 +809,15 @@ th { background: #fff0e6; font-size: 17px; }
     gap: 20px;
     flex-wrap: wrap;
     align-items: center;
-    padding: 14px 24px;
+    padding: 4px 12px;
     border-top: 1px solid var(--line);
     background: #f7efe7;
     color: var(--muted);
     flex-shrink: 0;
+    font-size: 12px;
+    line-height: 1.4;
 }
+.footer-version { order: -1; margin-right: auto; white-space: nowrap; }
 .footer-stats {
     margin-left: auto;
     text-align: right;

@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{% if site_maintenance|default(false) %}Сайт на обслуговуванні{% else %}Центр краси і здоров'я ЛЕДІ{% endif %}{% endblock %}</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='lady-logo-original.png') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='lady.css') }}">
-    <script src="{{ url_for('static', filename='lady.js') }}" defer></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='lady.css', v=app_version) }}">
+    <script src="{{ url_for('static', filename='lady.js', v=app_version) }}" defer></script>
     {{ global_code.head|default('')|safe }}
 </head>
 <body class="{{ 'admin-page' if active_page in ['admin', 'visits', 'settings', 'users', 'logs'] else '' }}">
@@ -82,7 +82,7 @@
         <span>Тел.: +38 093 299-59-21</span>
         {% endif %}
         {% if can_manage_services %}
-        <span class="footer-stats">Сайт відвідало: {{ visit_count() }} чоловіка&nbsp;&nbsp;&nbsp; Записалось: {{ appointment_count() }} чоловік</span>
+        <span class="footer-stats">Відвідало: {{ visit_count() }}{% if footer_online_enabled %}&nbsp;&nbsp;&nbsp; Записалось: {{ appointment_count() }}{% endif %}</span>
         {% endif %}
     </footer>
     {% endif %}
