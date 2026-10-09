@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = root.querySelector('[data-page-form]');
     const list = root.querySelector('[data-block-list]');
     const status = root.querySelector('[data-page-status]');
+    const siteList = root.querySelector('[data-site-block-list]');
+    const siteBlocks = JSON.parse(root.querySelector('[data-site-block-data]').textContent);
+    const siteBackground = JSON.parse(root.querySelector('[data-site-background-data]').textContent);
     let blocks = JSON.parse(root.querySelector('[data-page-data]').textContent);
     const logoText = JSON.parse(root.querySelector('[data-logotext-data]').textContent);
     const expanded = new WeakMap();
@@ -22,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let uploads = 0;
     const layouts = {'text-image':'Інформація зліва + малюнок справа', 'image-text':'Малюнок зліва + інформація справа', text:'Інформація на всю ширину', image:'Малюнок на всю ширину', columns:'Колонки: малюнок + інформація знизу'};
     const emptyElement = (size = 18) => ({text:'', url:'', font:'Arial', size, bold:false, italic:false, underline:false, align:'left', vertical:'top'});
-    const emptyItem = () => ({name:'', image:'', alt:'', image_mode:'normal', image_align:'center', image_vertical:'center', title:emptyElement(28), text:emptyElement(), button:emptyElement()});
     const markDirty = () => { dirty = true; revision++; status.textContent = 'Є незбережені зміни.'; };
     function node(tag, text, cls) {
         const result = document.createElement(tag);
@@ -58,9 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
         parent.append(wrapper);
         return input;
     }
-    function elementEditor(parent, label, object, skipText = false) {
-        const details = disclosure(object, 'element', 'element-editor');
-        details.append(node('summary', label));
+    function elementEditor(parent, label, object, skipText = false, inline = false) {
+        const details = inline ? node('div', '', 'node-value-editor') : disclosure(object, 'element', 'element-editor');
+        if (!inline) details.append(node('summary', label));
         const grid = node('div', '', 'element-fields');
         if (!skipText) {
             const text = field(grid, 'Текст (необов’язково)', object, 'text', null, 'textarea');
@@ -140,99 +142,155 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         return label;
     }
-    function render() {
+    const kinds = {group:'Ноду', heading:'Заголовок усього блоку', image:'Малюнок', title:'Заголовок інформації', text:'Основний текст', button:'Кнопка з надписом і посиланням', auto:'Елемент з автонаповненням', carousel:'Карусель', animation:'Анімація', map:'Мапа', social:'Соціальні мережі', background:'Фон блоку'};
+    const effects = {none:'Без анімації', random:'Випадкова', ShortBackLighting:'ShortBackLighting — підсвічування', Flowers:'Flowers — квіточки', Sparkles:'Sparkles — іскри', SoftPulse:'SoftPulse — м’який пульс', Rainbow:'Rainbow — веселковий контур'};
+    function makeNode(kind, layout = 'text-image') {
+        if (kind === 'auto') {
+            const image = makeNode('image');
+            const info = {kind:'group', nodes:['title','text','button'].map(kind => makeNode(kind))};
+            return {kind:'group', name:'Елемент з автонаповненням', nodes:layout === 'text-image' ? [info,image] : [image,info]};
+        }
+        if (kind === 'group' || kind === 'carousel') return {kind, nodes:[]};
+        if (kind === 'background') return {kind, value:{color:'',image:'',mode:'tile',align:'center',vertical:'top',attachment:'scroll'}};
+        if (kind === 'map') return {kind, url:'', title:'Мапа салону'};
+        if (kind === 'social') return {kind, value:emptyElement()};
+        if (kind === 'animation') return {kind, effect:'random'};
+        if (kind === 'image') return {kind, image:'', alt:'', image_mode:'normal', image_align:'center', image_vertical:'center'};
+        return {kind, value:emptyElement(kind === 'heading' ? 32 : kind === 'title' ? 28 : 18)};
+    }
+    // Convert only in editor memory; persisted content changes only on explicit Save.
+    [...blocks,...siteBlocks].forEach(block => {
+        if (!block.nodes) {
+            block.nodes = [];
+            if (block.heading?.text) block.nodes.push({kind:'heading', value:block.heading});
+            block.items.forEach(item => {
+                const image = {kind:'image', image:item.image, alt:item.alt, image_mode:item.image_mode, image_align:item.image_align, image_vertical:item.image_vertical};
+                const info = {kind:'group', nodes:['title','text','button'].map(kind => ({kind, value:item[kind]}))};
+                const children = block.layout === 'text' ? info.nodes : block.layout === 'image' ? [image] : block.layout === 'text-image' ? [info,image] : [image,info];
+                block.nodes.push({kind:'group', name:item.name, nodes:children});
+            });
+        }
+        if (block.background) {
+            block.nodes.push({kind:'background', value:block.background});
+            delete block.background;
+        }
+    });
+    function addControls(parent, items, carousel = false, layout = 'text-image') {
+        const row = node('div', '', 'node-add-row');
+        const select = node('select');
+        select.setAttribute('aria-label', 'Що додати');
+        Object.entries(carousel ? {image:'Малюнок'} : kinds).forEach(([value, label]) => {
+            const option = node('option', label); option.value = value; select.append(option);
+        });
+        row.append(button('Додати', () => {
+            if (items.length >= 100) { status.textContent = 'Максимум 100 нод на рівні.'; return; }
+            items.push(makeNode(select.value,layout)); markDirty(); render();
+        }), select);
+        parent.append(row);
+    }
+    function imageEditor(parent, item) {
+        const grid = node('div', '', 'element-fields');
+        const imageInput = field(grid, 'Малюнок: URL або /static/…', item, 'image');
+        field(grid, 'Опис малюнка (alt)', item, 'alt');
+        field(grid, 'Режим малюнка', item, 'image_mode', {normal:'Повністю', stretch:'Розтягнути', tile:'Замостити', cover:'Заповнити з обрізанням'});
+        field(grid, 'По горизонталі', item, 'image_align', {left:'Зліва', center:'По центру', right:'Справа'});
+        field(grid, 'По вертикалі', item, 'image_vertical', {top:'Вгорі', center:'По центру', bottom:'Внизу'});
+        uploadImage(grid,item,imageInput);
+        parent.append(grid);
+    }
+    function uploadImage(grid, item, imageInput) {
+        const upload = node('input'); upload.type = 'file'; upload.accept = 'image/png,image/jpeg,image/webp,image/gif';
+        const label = node('label', 'Завантажити малюнок'); label.append(upload); grid.append(label);
+        upload.addEventListener('change', async () => {
+            if (!upload.files.length) return;
+            const data = new FormData(); data.append('image_file', upload.files[0]); data.append('csrf', form.querySelector('[name="csrf"]').value);
+            uploads++; upload.disabled = true;
+            try {
+                const response = await fetch('/content/image', {method:'POST', body:data});
+                if (response.redirected) throw new Error('Сесія завершилася. Увійдіть знову.');
+                const result = await response.json(); if (!response.ok) throw new Error(result.error || 'Помилка завантаження');
+                item.image = result.url; imageInput.value = result.url; markDirty();
+            } catch (error) { status.textContent = error.message; }
+            finally { uploads--; upload.disabled = false; }
+        });
+    }
+    function backgroundEditor(parent, object) {
+        const grid = node('div', '', 'element-fields');
+        field(grid,'Колір (#RRGGBB або transparent; порожньо — стандартний)',object,'color');
+        const input = field(grid,'Малюнок фону: URL або /static/…',object,'image');
+        field(grid,'Режим фону',object,'mode',{tile:'Замостити — повторювати фрагмент', cover:'Заповнити з обрізанням', contain:'Повністю', stretch:'Розтягнути', normal:'Оригінальний розмір'});
+        field(grid,'По горизонталі',object,'align',{left:'Зліва',center:'По центру',right:'Справа'});
+        field(grid,'По вертикалі',object,'vertical',{top:'Вгорі',center:'По центру',bottom:'Внизу'});
+        field(grid,'Прокрутка фону',object,'attachment',{scroll:'Разом зі сторінкою',fixed:'Нерухомий'});
+        uploadImage(grid,object,input); parent.append(grid);
+    }
+    function renderNodes(parent, items, depth = 0) {
+        items.forEach((item, index) => {
+            const panel = disclosure(item, 'item', 'item-editor');
+            const summary = node('summary');
+            const header = node('span', '', 'item-header');
+            const name = itemName(item, index);
+            if (!item.name) name.textContent = kinds[item.kind];
+            header.append(name);
+            const actions = node('span', '', 'item-actions');
+            actions.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); });
+            actions.append(button('↑', () => reorder(items,index,-1)), button('↓', () => reorder(items,index,1)),
+                button('Копіювати', () => { items.splice(index+1,0,structuredClone(item)); markDirty(); render(); }),
+                button('Видалити', () => { items.splice(index,1); markDirty(); render(); }));
+            header.append(actions); summary.append(header); panel.append(summary);
+            if (item.kind === 'group' || item.kind === 'carousel') {
+                renderNodes(panel, item.nodes, depth+1);
+                if (depth < 5) addControls(panel, item.nodes, item.kind === 'carousel');
+            } else if (item.kind === 'image') imageEditor(panel,item);
+            else if (item.kind === 'background') backgroundEditor(panel,item.value);
+            else if (item.kind === 'map') { field(panel,'URL вбудованої Google-мапи (src, без iframe)',item,'url'); field(panel,'Опис мапи',item,'title'); }
+            else if (item.kind === 'social') {
+                field(panel,'Розташування посилань',item.value,'align',{left:'Зліва',center:'По центру',right:'Справа'});
+                const link = node('a','Редагувати соціальні посилання у налаштуваннях'); link.href = '/settings?tab=contacts'; link.target = '_blank'; link.rel = 'noopener'; panel.append(link);
+            }
+            else if (item.kind === 'animation') field(panel,'Контурна анімація всього блоку',item,'effect',effects);
+            else elementEditor(panel,kinds[item.kind],item.value,false,true);
+            parent.append(panel);
+        });
+    }
+    function renderList(list, blocks) {
         list.replaceChildren();
         blocks.forEach((block, index) => {
             const wrapper = node('div', '', 'block-editor-wrap');
             const panel = disclosure(block, 'block', 'block-editor');
-            const summary = node('summary');
-            summary.append(node('span', `Блок ${index + 1}`));
-            const note = node('input', '', 'block-note');
-            note.type = 'text';
-            note.placeholder = 'Нотатка про блок';
-            note.setAttribute('aria-label', `Нотатка про блок ${index + 1}`);
-            note.value = block.note ?? '';
+            const summary = node('summary'); summary.append(node('span', `Блок ${index + 1}`));
+            const note = node('input', '', 'block-note'); note.type = 'text'; note.placeholder = 'Нотатка про блок'; note.value = block.note ?? '';
+            note.setAttribute('aria-label', `Нотатка про блок ${index+1}`);
             note.addEventListener('click', event => event.stopPropagation());
-            ['keydown', 'keypress', 'keyup'].forEach(type => {
-                note.addEventListener(type, event => {
-                    event.stopPropagation();
-                    if (event.key === 'Enter') event.preventDefault();
-                });
-            });
+            note.addEventListener('keydown', event => { event.stopPropagation(); if (event.key === 'Enter') event.preventDefault(); });
             note.addEventListener('input', () => { block.note = note.value; markDirty(); });
-            panel.append(summary);
-            const controls = node('div', '', 'block-toolbar');
-            controls.append(button('↑ Вище', () => reorder(blocks, index, -1)), button('↓ Нижче', () => reorder(blocks, index, 1)),
-                button('Копіювати', () => { blocks.splice(index + 1, 0, structuredClone(block)); markDirty(); render(); }),
-                button('Видалити', () => { if (confirm('Видалити блок?')) { blocks.splice(index, 1); markDirty(); render(); } }, 'danger'));
-            field(controls, 'Показувати блок', block, 'enabled', null, 'checkbox');
-            panel.append(controls);
-            const layout = field(panel, 'Тип блоку', block, 'layout', layouts);
-            layout.addEventListener('change', render);
-            elementEditor(panel, 'Заголовок усього блоку', block.heading);
-            block.items.forEach((item, itemIndex) => {
-                const itemPanel = disclosure(item, 'item', 'item-editor');
-                const itemSummary = node('summary');
-                const header = node('span', '', 'item-header');
-                header.append(itemName(item, itemIndex));
-                const toolbar = node('span', '', 'item-actions');
-                toolbar.addEventListener('click', event => event.stopPropagation());
-                toolbar.append(
-                    button('↑', () => reorder(block.items, itemIndex, -1)), button('↓', () => reorder(block.items, itemIndex, 1)),
-                    button('Видалити елемент', () => { if (confirm('Видалити елемент?')) { block.items.splice(itemIndex, 1); markDirty(); render(); } }));
-                header.append(toolbar);
-                itemSummary.append(header);
-                itemPanel.append(itemSummary);
-                if (block.layout !== 'text') {
-                    const imagePanel = disclosure(item, 'image', 'element-editor image-editor');
-                    imagePanel.append(node('summary', 'Малюнок'));
-                    itemPanel.append(imagePanel);
-                    const imageInput = field(imagePanel, 'Малюнок: URL або /static/…', item, 'image');
-                    field(imagePanel, 'Опис малюнка (alt)', item, 'alt');
-                    item.image_mode ??= 'normal';
-                    item.image_align ??= 'center';
-                    item.image_vertical ??= 'center';
-                    field(imagePanel, 'Режим відображення малюнка', item, 'image_mode', {normal:'Нормальний — повністю, зі збереженням пропорцій', stretch:'Розтягнути — на всю область', tile:'Замостити — повторювати малюнок', cover:'Заповнити з обрізанням — зі збереженням пропорцій'});
-                    field(imagePanel, 'Малюнок по горизонталі', item, 'image_align', {left:'Зліва', center:'По центру', right:'Справа'});
-                    field(imagePanel, 'Малюнок по вертикалі', item, 'image_vertical', {top:'Вгорі', center:'По центру', bottom:'Внизу'});
-                    const upload = node('input');
-                    upload.type = 'file'; upload.accept = 'image/png,image/jpeg,image/webp,image/gif';
-                    const uploadLabel = node('label', 'Завантажити малюнок файлом');
-                    uploadLabel.append(upload); imagePanel.append(uploadLabel);
-                    upload.addEventListener('change', async () => {
-                        if (!upload.files.length) return;
-                        const data = new FormData(); data.append('image_file', upload.files[0]);
-                        data.append('csrf', form.querySelector('[name="csrf"]').value);
-                        uploads++; upload.disabled = true; status.textContent = 'Завантаження малюнка…';
-                        try {
-                            const response = await fetch('/content/image', {method:'POST', body:data});
-                            if (response.redirected) throw new Error('Сесія завершилася. Увійдіть знову.');
-                            const result = await response.json();
-                            if (!response.ok) throw new Error(result.error || 'Не вдалося завантажити малюнок');
-                            item.image = result.url; imageInput.value = result.url; markDirty();
-                        } catch (error) { status.textContent = error.message; }
-                        finally { uploads--; upload.disabled = false; }
-                    });
-                }
-                if (block.layout !== 'image') {
-                    elementEditor(itemPanel, 'Заголовок інформації', item.title);
-                    elementEditor(itemPanel, 'Основний текст', item.text);
-                    elementEditor(itemPanel, 'Кнопка з написом і посиланням', item.button);
-                }
-                panel.append(itemPanel);
-            });
-            panel.append(button(block.layout === 'columns' ? 'Додати колонку' : 'Додати елемент', () => {
-                if (block.items.length >= 12) { status.textContent = 'Максимум 12 елементів у блоці.'; return; }
-                block.items.push(emptyItem()); markDirty(); render();
-            }));
-            wrapper.append(panel, note);
-            list.append(wrapper);
+            summary.append(note);
+            const controls = node('span', '', 'block-toolbar');
+            controls.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); });
+            controls.append(button('↑ Вище', () => reorder(blocks,index,-1)), button('↓ Нижче', () => reorder(blocks,index,1)),
+                button('Копіювати', () => { blocks.splice(index+1,0,structuredClone(block)); markDirty(); render(); }),
+                button('Видалити', () => { if (confirm('Видалити блок?')) { blocks.splice(index,1); markDirty(); render(); } },'danger'));
+            // Let the checkbox keep its native checked state inside the summary.
+            const enabled = node('label','Показувати блок'); const check = node('input'); check.type = 'checkbox'; check.checked = block.enabled;
+            check.addEventListener('click', event => event.stopPropagation());
+            check.addEventListener('change', () => { block.enabled = check.checked; markDirty(); });
+            enabled.addEventListener('click', event => event.stopPropagation()); enabled.append(check);
+            summary.append(controls,enabled); panel.append(summary);
+            field(panel,'Тип блоку',block,'layout',layouts);
+            renderNodes(panel,block.nodes); addControls(panel,block.nodes,false,block.layout);
+            wrapper.append(panel); list.append(wrapper);
         });
     }
+    function render() { renderList(list,blocks); renderList(siteList,siteBlocks); }
     root.querySelector('[data-block-add]').addEventListener('click', () => {
         if (blocks.length >= 100) { status.textContent = 'Максимум 100 блоків.'; return; }
-        blocks.push({note:'', layout:'text-image', heading:emptyElement(32), enabled:true, items:[emptyItem()]});
+        blocks.push({note:'', layout:'text-image', enabled:true, nodes:[], items:[]});
         markDirty(); render(); list.lastElementChild.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+    root.querySelector('[data-site-block-add]').addEventListener('click', () => {
+        if (siteBlocks.length >= 100) { status.textContent = 'Максимум 100 нижніх блоків.'; return; }
+        siteBlocks.push({note:'',layout:'text',enabled:true,nodes:[],items:[]});
+        markDirty(); render(); siteList.lastElementChild.scrollIntoView({behavior:'smooth',block:'start'});
     });
     form.addEventListener('submit', async event => {
         event.preventDefault();
@@ -240,6 +298,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = new FormData(form); data.append('blocks', JSON.stringify(blocks));
         const savedRevision = revision;
         data.append('logotext', JSON.stringify(logoText));
+        data.append('site_blocks',JSON.stringify(siteBlocks));
+        data.append('site_background',JSON.stringify(siteBackground));
         const submit = form.querySelector('[type="submit"]');
         submit.disabled = true;
         status.textContent = 'Збереження…';
@@ -260,6 +320,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!content || !current) throw new Error('preview');
                 const offset = root.getBoundingClientRect().top;
                 current.replaceWith(content);
+                const newSite = documentPreview.querySelector('.site-blocks');
+                const currentSite = document.querySelector('.site-blocks');
+                if (newSite && currentSite) currentSite.replaceWith(newSite);
+                document.body.setAttribute('style',documentPreview.body.getAttribute('style') || '');
+                window.initContentEffects?.();
                 const brand = document.querySelector('.brand');
                 const updatedBrand = documentPreview.querySelector('.brand');
                 if (brand && updatedBrand) brand.replaceWith(updatedBrand);
@@ -274,8 +339,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('beforeunload', event => {
         if (dirty) { event.preventDefault(); event.returnValue = ''; }
     });
+    form.querySelector('[name="page_title"]').addEventListener('input', markDirty);
     const logoEditor = root.querySelector('[data-logotext-editor]');
     field(logoEditor, 'logotext — текст біля логотипа', logoText, 'text');
     elementEditor(logoEditor, 'Шрифт і оформлення logotext', logoText, true);
+    backgroundEditor(root.querySelector('[data-site-background-editor]'),siteBackground);
     render();
 });

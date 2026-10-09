@@ -1,0 +1,4 @@
+{% macro background_style(bg) -%}
+{% if bg.color %}background-color:{{ bg.color }};{% endif %}
+{% if bg.image %}background-image:url({{ bg.image|tojson|forceescape }});background-repeat:{{ 'repeat' if bg.mode == 'tile' else 'no-repeat' }};background-size:{{ 'cover' if bg.mode == 'cover' else 'contain' if bg.mode == 'contain' else '100% 100%' if bg.mode == 'stretch' else 'auto' }};background-position:{{ bg.align }} {{ bg.vertical }};background-attachment:{{ bg.attachment }};{% endif %}
+{%- endmacro %}

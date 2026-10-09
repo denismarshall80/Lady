@@ -1,3 +1,4 @@
+{% from 'background_style.html' import background_style %}
 {% macro show_element(element, tag='p', button=false) %}
 {% if element.text %}
 <div class="content-element vertical-{{ element.vertical }}" style="text-align:{{ element.align }};font-family:'{{ element.font }}',sans-serif;font-size:{{ element.size }}px;font-weight:{{ '700' if element.bold else '400' }};font-style:{{ 'italic' if element.italic else 'normal' }};text-decoration:{{ 'underline' if element.underline else 'none' }}">
@@ -5,8 +6,32 @@
 </div>
 {% endif %}
 {% endmacro %}
-<div class="content-blocks">
+{% macro show_nodes(nodes) %}
+{% for n in nodes %}
+{% if n.kind == 'group' and has_visible_nodes(n.nodes) %}<div class="content-node-group">{{ show_nodes(n.nodes) }}</div>
+{% elif n.kind in ['heading','title','text','button'] %}{{ show_element(n.value, 'h2' if n.kind in ['heading','title'] else 'div' if n.kind == 'button' else 'p', n.kind == 'button') }}
+{% elif n.kind == 'image' and n.image %}
+{% set position = (n.image_align|default('center')) ~ ' ' ~ (n.image_vertical|default('center')) %}
+{% if n.image_mode == 'tile' %}<div class="content-image image-mode-tile" role="img" aria-label="{{ n.alt }}" style="background-image:url({{ n.image|tojson|forceescape }});background-position:{{ position }}"></div>
+{% else %}<img class="content-image image-mode-{{ n.image_mode|default('normal') }}" src="{{ n.image }}" alt="{{ n.alt }}" loading="lazy" style="object-position:{{ position }}">{% endif %}
+{% elif n.kind == 'carousel' %}
+{% set slides = n.nodes|selectattr('image')|list %}
+{% if slides %}<div class="content-carousel" role="region" aria-label="Карусель малюнків">
+<div class="carousel-slides">{% for slide in slides %}<div class="carousel-slide" {% if not loop.first %}hidden{% endif %}>{{ show_nodes([slide]) }}</div>{% endfor %}</div>
+{% if slides|length > 1 %}<div class="carousel-controls"><button type="button" data-carousel-step="-1" aria-label="Попередній малюнок">←</button><span aria-live="polite" data-carousel-count>1 / {{ slides|length }}</span><button type="button" data-carousel-step="1" aria-label="Наступний малюнок">→</button></div>{% endif %}
+</div>{% endif %}
+{% elif n.kind == 'map' and n.url %}<iframe class="content-map" src="{{ n.url }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="{{ n.title }}"></iframe>
+{% elif n.kind == 'social' %}<div class="content-social" style="text-align:{{ n.value.align }}">{% for key, label in [('telegram','Telegram'),('facebook','Facebook'),('instagram','Instagram'),('tiktok','TikTok'),('youtube','YouTube')] %}{% if site_contacts[key] %}<a href="{{ site_contacts[key] }}" target="_blank" rel="noopener">{{ label }}</a>{% endif %}{% endfor %}</div>
+{% elif n.kind == 'animation' %}<span hidden data-block-effect="{{ n.effect }}"></span>
+{% endif %}
+{% endfor %}
+{% endmacro %}
+<div class="content-blocks {{ blocks_class|default('') }}">
 {% for block in page.blocks if block.enabled %}
+{% if block.nodes is defined %}
+{% set rendered %}{{ show_nodes(block.nodes) }}{% endset %}
+{% if has_visible_nodes(block.nodes) %}<section class="content-block" style="{{ background_style(block_background(block)) }}"><div class="content-nodes nodes-{{ block.layout }}">{{ rendered }}</div></section>{% endif %}
+{% else %}
 {% set visible = namespace(rows=[]) %}
 {% for item in block['items'] %}
     {% if (block.layout == 'image' and item.image) or (block.layout == 'text' and (item.title.text or item.text.text or item.button.text)) or (block.layout not in ['image', 'text'] and (item.image or item.title.text or item.text.text or item.button.text)) %}
@@ -14,7 +39,7 @@
     {% endif %}
 {% endfor %}
 {% if block.heading.text or visible.rows %}
-<section class="content-block">
+<section class="content-block" style="{{ background_style(block_background(block)) }}">
     {{ show_element(block.heading, 'h2') }}
     <div class="content-layout layout-{{ block.layout }}" {% if block.layout == 'columns' %}style="--columns:{{ visible.rows|length or 1 }}"{% endif %}>
     {% for item in visible.rows %}
@@ -39,6 +64,7 @@
     {% endfor %}
     </div>
 </section>
+{% endif %}
 {% endif %}
 {% endfor %}
 </div>

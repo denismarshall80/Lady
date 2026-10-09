@@ -107,6 +107,84 @@ class ContentTests(unittest.TestCase):
         self.assertEqual((item['image_mode'], item['image_align'], item['image_vertical']),
                          ('normal', 'center', 'center'))
 
+    def test_nodes_order_carousel_empty_and_delete_persist(self):
+        nodes = [{'kind':'text', 'value':{'text':'Перший текст'}},
+                 {'kind':'heading', 'value':{'text':'Заголовок після тексту'}},
+                 {'kind':'carousel', 'nodes':[{'kind':'image','image':'/static/one.png'},
+                                              {'kind':'image','image':'/static/two.png'}]},
+                 {'kind':'animation','effect':'Flowers'}]
+        def save(nodes):
+            return self.client.post('/content/save', data={
+                'csrf':'test-csrf','page_path':'/','page_title':'Ноди',
+                'blocks':json.dumps([{'layout':'text-image','nodes':nodes}])})
+        self.assertEqual(save(nodes).status_code, 200)
+        self.assertEqual(pc.read_content()['pages']['/']['blocks'][0]['nodes'][1]['kind'], 'heading')
+        html = self.client.get('/?preview=public').get_data(as_text=True)
+        self.assertLess(html.index('Перший текст'), html.index('Заголовок після тексту'))
+        self.assertIn('data-carousel-step="1"', html)
+        self.assertIn('data-block-effect="Flowers"', html)
+        self.assertEqual(save([{'kind':'group','nodes':[]}]).status_code, 200)
+        html = self.client.get('/?preview=public').get_data(as_text=True)
+        self.assertNotIn('content-node-group', html.split('content-blocks site-blocks')[0])
+        self.assertEqual(save([]).status_code, 200)
+        self.assertEqual(pc.read_content()['pages']['/']['blocks'][0]['nodes'], [])
+        self.assertNotIn('Заголовок після тексту', self.client.get('/?preview=public').get_data(as_text=True))
+
+    def test_contacts_save_order_and_permissions(self):
+        self.assertEqual(self.client.post('/settings/contacts',data={}).status_code,400)
+        values = {'csrf':'test-csrf','address':'Адреса для тесту','comment':'У дворі',
+                  'hours':'Пн: 10–18\nВт: вихідний','phone':'123',
+                  'instagram':'https://instagram.com/test','map_embed_url':'https://www.google.com/maps?q=test&output=embed'}
+        self.assertEqual(self.client.post('/settings/contacts',data=values).status_code,302)
+        self.assertEqual(pc.read_content()['contacts']['hours'],values['hours'])
+        html = self.client.get('/?preview=public').get_data(as_text=True)
+        self.assertLess(html.index('Адреса для тесту'),html.index('Контакти:'))
+        self.assertIn('У дворі',html)
+        self.assertIn('https://instagram.com/test',html)
+        self.assertEqual(self.client.get('/settings?tab=contacts').status_code,200)
+        self.user = {'Role':'manager'}
+        self.assertEqual(self.client.post('/settings/contacts',data=values).status_code,302)
+        values['instagram'] = 'javascript:alert(1)'
+        self.user = {'Role':'admin'}
+        self.assertEqual(self.client.post('/settings/contacts',data=values).status_code,400)
+
+    def test_shared_blocks_background_and_editor_last(self):
+        html = self.client.get('/').get_data(as_text=True)
+        self.assertLess(html.index('content-blocks site-blocks'), html.index('id="page-editor"'))
+        self.assertIn('ознайомлювальних цілей', html)
+        shared = pc.site_blocks(pc.read_content(), {'MAP_URL':'https://maps.google.com/',
+                                                   'MAP_EMBED_URL':'https://www.google.com/maps?q=test&output=embed'})
+        shared[0]['nodes'][1]['nodes'][0]['nodes'][0]['value']['text'] = 'Нова адреса'
+        shared[0]['nodes'][1]['nodes'][0]['nodes'][3]['value']['text'] = 'Пн: 11–19'
+        shared[1]['nodes'].append({'kind':'text','value':{'text':'Нові контакти'}})
+        shared[2]['nodes'][0]['value']['text'] = 'Власний текст унизу'
+        shared[2]['nodes'].append({'kind':'background','value':{'color':'#abcdef','image':'/static/pattern.png','mode':'tile'}})
+        form = {'csrf':'test-csrf','page_path':'/','page_title':'Головна','blocks':'[]',
+                'site_blocks':json.dumps(shared),
+                'site_background':json.dumps({'image':'/static/site-pattern.png','mode':'tile'})}
+        self.assertEqual(self.client.post('/content/save',data=form).status_code,200)
+        html = self.client.get('/?preview=public').get_data(as_text=True)
+        for value in ('Нова адреса','Пн: 11–19','Нові контакти','Власний текст унизу','/static/site-pattern.png','background-repeat:repeat','background-color:#abcdef'):
+            self.assertIn(value, html)
+        self.assertNotIn('id="page-editor"', html)
+        self.assertNotIn('ознайомлювальних цілей', html)
+        self.assertEqual(pc.read_content()['site_background']['mode'],'tile')
+        form['site_blocks'] = '[]'
+        self.assertEqual(self.client.post('/content/save',data=form).status_code,200)
+        self.assertEqual(pc.site_blocks(pc.read_content(),{}),[])
+        html = self.client.get('/').get_data(as_text=True)
+        self.assertNotIn('Нова адреса',html)
+        self.assertNotIn('Власний текст унизу',html)
+
+    def test_background_rejects_css_and_script_injection_atomically(self):
+        for raw in ({'color':'red;background:red'}, {'image':'javascript:alert(1)'}, {'color':'#12345'}):
+            with self.subTest(raw=raw):
+                response = self.client.post('/content/save',data={
+                    'csrf':'test-csrf','page_path':'/','page_title':'Зміна','blocks':'[]',
+                    'site_background':json.dumps(raw)})
+                self.assertEqual(response.status_code,400)
+                self.assertFalse(pc.CONTENT_PATH.exists())
+
     def test_invalid_save_and_permissions(self):
         for data in ['not JSON', '{}', '[{"layout":"unknown"}]', '[{"layout":"text","items":[{"text":{"url":"javascript:alert(1)"}}]}]']:
             response = self.client.post('/content/save', data={'csrf':'test-csrf','page_path':'/','page_title':'Тест','blocks':data})

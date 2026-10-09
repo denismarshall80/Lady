@@ -21,17 +21,4 @@
     <p>У нас можна дізнатися про індивідуальні устілки, ортопедичне взуття, товари для дітей і дорослих, професійний масаж, реабілітацію, медичний пірсинг та італійську медичну позолоту.</p>
 </section>
 
-{% if not is_admin %}
-<section class="contacts-map">
-    <div class="contact-card">
-        <p class="eyebrow">Адреса</p>
-        <h2>м. Кам'янець-Подільський, вул. Лесі Українки, 41</h2>
-        <p>На території дитячої поліклініки.</p>
-        <p><strong>Графік:</strong> Пн-Пт 09:00 - 17:00, Сб 09:00 - 13:00</p>
-        <p><strong>Телефон:</strong> +38 093 299-59-21</p>
-        <a class="button primary" href="{{ config.MAP_URL }}" target="_blank" rel="noopener">Відкрити в Google Maps</a>
-    </div>
-    <iframe src="{{ config.MAP_EMBED_URL }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Карта ЛЕДІ"></iframe>
-</section>
-{% endif %}
 {% endblock %}

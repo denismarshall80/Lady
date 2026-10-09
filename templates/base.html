@@ -1,3 +1,4 @@
+{% from 'background_style.html' import background_style %}
 <!doctype html>
 <html lang="uk">
 <head>
@@ -7,9 +8,10 @@
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='lady-logo-original.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='lady.css', v=app_version) }}">
     <script src="{{ url_for('static', filename='lady.js', v=app_version) }}" defer></script>
+    <script src="{{ url_for('static', filename='content_effects.js', v=app_version) }}" defer></script>
     {{ global_code.head|default('')|safe }}
 </head>
-<body class="{{ 'admin-page' if active_page in ['admin', 'visits', 'settings', 'users', 'logs', 'profile'] else '' }} {% block body_class %}{% endblock %}">
+<body style="{{ background_style(site_background) }}" class="{{ 'admin-page' if active_page in ['admin', 'visits', 'settings', 'users', 'logs', 'profile'] else '' }} {% block body_class %}{% endblock %}">
     {% set hide_public_shell = maintenance_mode|default(false) or (site_maintenance|default(false) and not user) %}
     {% set alerts = get_flashed_messages(with_categories=true) %}
     {% set logo = page.logotext if page is defined and page.logotext is defined else site_logotext %}
@@ -67,17 +69,14 @@
     {% if hide_public_shell %}{% include 'menu_alerts.html' %}{% endif %}
     <main>
         {% block content %}{% endblock %}
+        {% if not hide_public_shell and active_page not in ['admin','visits','settings','users','logs','profile','login'] %}
+        {% with page={'blocks': site_blocks}, blocks_class='site-blocks' %}{% include 'page_blocks.html' %}{% endwith %}
+        {% endif %}
+        {% if manager_view|default(false) and page is defined and page_path is defined %}{% include 'page_editor.html' %}{% endif %}
     </main>
     {% if not hide_public_shell %}
     <footer class="footer">
         {% if can_manage_services %}<span class="footer-version">{{ app_version }}</span>{% endif %}
-        {% if not site_maintenance|default(false) %}
-        <strong>ЛЕДІ</strong>
-        {% endif %}
-        {% if not is_admin %}
-        <span>Кам'янець-Подільський, вул. Лесі Українки, 41</span>
-        <span>Тел.: +38 093 299-59-21</span>
-        {% endif %}
         {% if can_manage_services %}
         <span class="footer-stats">Відвідало: {{ visit_count() }}{% if footer_online_enabled %}&nbsp;&nbsp;&nbsp; Записалось: {{ appointment_count() }}{% endif %}</span>
         {% endif %}

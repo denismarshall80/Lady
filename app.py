@@ -43,7 +43,7 @@ except Exception:
 #Ver = "LadySite v0.92.02 (2026-10-08)" #переходи до розділів з урахуванням висоти закріпленого меню #компактний футер, версія зліва, оновлення кешу стилів
 #Ver = "LadySite v0.93.02 (2026-10-08)" #короткі лічильники футера, приховування записів при вимкненому онлайн-записі #кнопка вставки метатега Google AdSense у налаштуваннях HTML-коду
 #Ver = "LadySite v0.94.06 (2026-10-08)" #пробіли в нотатках не розгортають блоки, оновлення кешу редактора; окрема вкладка HTML для скриптів і метатегів; прибрано кнопку вставки метатега AdSense; алерти в меню, logotext, одна кнопка налаштувань; єдиний CSV-журнал, експорт і очищення; однакові вкладки налаштувань і прокрутка всередині секції; /profile
-Ver = "LadySite v0.95.01 (2026-10-09)" #режими й положення малюнків; збереження сторінки без згортання редактора та втрати позиції #керування елементами в заголовку; згорнуті налаштування малюнка; перейменування елемента довгим натисканням
+#Ver = "LadySite v0.95.03 (2026-10-09)" #режими й положення малюнків; збереження сторінки без згортання редактора та втрати позиції #керування елементами в заголовку; згорнуті налаштування малюнка; перейменування елемента довгим натисканням  #компактний редактор нод; каруселі, контурні анімації, контакти й адреса з графіком #редаговані нижні блоки; редактор після всього вмісту; фон сайту й окремих блоків
 
 
 HOST = "localhost" if os.name == "nt" else "0.0.0.0"
@@ -902,8 +902,11 @@ def inject_globals():
     content = pc.read_content()
     return {
         "global_code": content.get("global_code", {}),
+        "site_contacts": pc.contact_settings(content, {"MAP_URL": DEFAULT_MAP_URL, "MAP_EMBED_URL": DEFAULT_MAP_EMBED_URL, **global_config}),
         "alert_max_width": parse_int(global_config.get("ALERT_MAX_WIDTH", "240"), 240, 40, 2000),
         "site_logotext": content.get("pages", {}).get("/", {}).get("logotext", pc.element({"text": "" if is_admin(user) else "Центр краси і здоров'я “ЛЕДІ”", "size": 18, "bold": True})),
+        "site_blocks": pc.site_blocks(content, {"MAP_URL": DEFAULT_MAP_URL, "MAP_EMBED_URL": DEFAULT_MAP_EMBED_URL, **global_config}),
+        "site_background": content.get("site_background", pc.background({})),
         "content_csrf": session["content_csrf"],
         "app_version": Ver,
         "visit_count": total_visit_count,
@@ -916,7 +919,7 @@ def inject_globals():
     }
 
 
-app.jinja_env.globals.update(user_display_name=user_display_name, avatar_initials=avatar_initials)
+app.jinja_env.globals.update(user_display_name=user_display_name, avatar_initials=avatar_initials, has_visible_nodes=pc.has_visible_nodes, block_background=pc.block_background)
 
 
 @app.before_request
@@ -1574,8 +1577,6 @@ def settings():
         return user
     config = load_config()
     active_tab = request.args.get("tab", "maintenance")
-    if active_tab == "contacts":
-        active_tab = "maintenance"
     if request.method == "POST":
         action = request.form.get("action", "save")
         form_config = config.copy()
@@ -1795,11 +1796,17 @@ def content_save():
         return "Сторінку не знайдено", 404
     try:
         blocks = pc.normalize_blocks(json.loads(request.form.get("blocks", "[]")))
+        shared_blocks = pc.normalize_blocks(json.loads(request.form["site_blocks"])) if "site_blocks" in request.form else None
+        site_background = pc.background(json.loads(request.form["site_background"])) if "site_background" in request.form else None
         title = request.form.get("page_title", "").strip()[:250]
         if not title:
             raise ValueError("Назва сторінки обов’язкова.")
         def change(content):
             content["pages"][path].update(title=title, blocks=blocks)
+            if shared_blocks is not None:
+                content["site_blocks"] = shared_blocks
+            if site_background is not None:
+                content["site_background"] = site_background
             if "logotext" in request.form:
                 content["pages"][path]["logotext"] = pc.element(json.loads(request.form["logotext"]))
         pc.update_content(change)
@@ -1822,6 +1829,28 @@ def content_image():
     if not image:
         return {"error": "Оберіть файл PNG, JPEG, WebP або GIF."}, 400
     return {"url": image}
+
+
+@app.route("/settings/contacts", methods=["POST"])
+def site_contacts_settings():
+    user = require_admin()
+    if not isinstance(user, dict):
+        return user
+    if not session.get("content_csrf") or request.form.get("csrf") != session["content_csrf"]:
+        return "Оновіть сторінку та повторіть збереження", 400
+    try:
+        values = pc.contact_settings(pc.read_content(), load_config())
+        values.update({key: request.form[key] for key in pc.CONTACT_DEFAULTS if key in request.form})
+        for key in ("telegram", "facebook", "instagram", "tiktok", "youtube", "map_url", "map_embed_url"):
+            values[key] = pc.safe_url(request.form.get(key, values.get(key, "")))
+            if values[key] and not values[key].startswith(("https://", "http://")):
+                raise ValueError("Вкажіть посилання http:// або https://.")
+        pc.update_content(lambda content: content.update(contacts=values))
+    except ValueError as ex:
+        return str(ex), 400
+    log_action("site_contacts_update", "contacts, address, hours, social links")
+    flash("Контакти збережено.", "success")
+    return redirect(url_for("settings", tab="contacts"))
 
 
 @app.route("/settings/code", methods=["GET", "POST"])
