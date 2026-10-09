@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let uploads = 0;
     const layouts = {'text-image':'Інформація зліва + малюнок справа', 'image-text':'Малюнок зліва + інформація справа', text:'Інформація на всю ширину', image:'Малюнок на всю ширину', columns:'Колонки: малюнок + інформація знизу'};
     const emptyElement = (size = 18) => ({text:'', url:'', font:'Arial', size, bold:false, italic:false, underline:false, align:'left', vertical:'top'});
-    const emptyItem = () => ({image:'', alt:'', image_mode:'normal', image_align:'center', image_vertical:'center', title:emptyElement(28), text:emptyElement(), button:emptyElement()});
+    const emptyItem = () => ({name:'', image:'', alt:'', image_mode:'normal', image_align:'center', image_vertical:'center', title:emptyElement(28), text:emptyElement(), button:emptyElement()});
     const markDirty = () => { dirty = true; revision++; status.textContent = 'Є незбережені зміни.'; };
     function node(tag, text, cls) {
         const result = document.createElement(tag);
@@ -85,6 +85,61 @@ document.addEventListener('DOMContentLoaded', () => {
         [items[index], items[next]] = [items[next], items[index]];
         markDirty(); render();
     }
+    function itemName(item, index) {
+        const label = node('span', item.name || `Елемент ${index + 1}`, 'item-name');
+        label.tabIndex = 0;
+        label.title = 'Утримуйте назву 1,5 секунди або натисніть F2, щоб перейменувати';
+        let timer, origin, editing = false, suppressClick = false;
+        const cancel = () => { clearTimeout(timer); timer = null; };
+        function edit() {
+            cancel();
+            if (editing) return;
+            editing = true;
+            suppressClick = true;
+            const input = node('input', '', 'item-name-input');
+            input.type = 'text';
+            input.value = item.name || `Елемент ${index + 1}`;
+            input.setAttribute('aria-label', 'Назва елемента');
+            label.replaceChildren(input);
+            function finish(save) {
+                if (!editing) return;
+                editing = false;
+                if (save && input.value !== (item.name || `Елемент ${index + 1}`)) {
+                    item.name = input.value;
+                    markDirty();
+                }
+                label.textContent = item.name || `Елемент ${index + 1}`;
+            }
+            input.addEventListener('blur', () => finish(true));
+            input.addEventListener('keydown', event => {
+                event.stopPropagation();
+                if (event.key === 'Enter' || event.key === 'Escape') {
+                    event.preventDefault(); finish(event.key === 'Enter');
+                }
+            });
+            input.focus(); input.select();
+        }
+        label.addEventListener('pointerdown', event => {
+            if (editing || event.button !== 0) return;
+            suppressClick = false;
+            origin = {x:event.clientX, y:event.clientY};
+            timer = setTimeout(edit, 1500);
+        });
+        label.addEventListener('pointermove', event => {
+            if (origin && Math.hypot(event.clientX - origin.x, event.clientY - origin.y) > 8) cancel();
+        });
+        ['pointerup', 'pointercancel', 'pointerleave'].forEach(type => label.addEventListener(type, cancel));
+        label.addEventListener('click', event => {
+            if (editing || suppressClick) {
+                event.preventDefault(); event.stopPropagation(); suppressClick = false;
+            }
+        });
+        label.addEventListener('contextmenu', event => { cancel(); event.preventDefault(); });
+        label.addEventListener('keydown', event => {
+            if (!editing && event.key === 'F2') { event.preventDefault(); event.stopPropagation(); edit(); }
+        });
+        return label;
+    }
     function render() {
         list.replaceChildren();
         blocks.forEach((block, index) => {
@@ -117,25 +172,33 @@ document.addEventListener('DOMContentLoaded', () => {
             elementEditor(panel, 'Заголовок усього блоку', block.heading);
             block.items.forEach((item, itemIndex) => {
                 const itemPanel = disclosure(item, 'item', 'item-editor');
-                itemPanel.append(node('summary', `Елемент ${itemIndex + 1}`));
-                const toolbar = node('div', '', 'block-toolbar');
+                const itemSummary = node('summary');
+                const header = node('span', '', 'item-header');
+                header.append(itemName(item, itemIndex));
+                const toolbar = node('span', '', 'item-actions');
+                toolbar.addEventListener('click', event => event.stopPropagation());
                 toolbar.append(
                     button('↑', () => reorder(block.items, itemIndex, -1)), button('↓', () => reorder(block.items, itemIndex, 1)),
                     button('Видалити елемент', () => { if (confirm('Видалити елемент?')) { block.items.splice(itemIndex, 1); markDirty(); render(); } }));
-                itemPanel.append(toolbar);
+                header.append(toolbar);
+                itemSummary.append(header);
+                itemPanel.append(itemSummary);
                 if (block.layout !== 'text') {
-                    const imageInput = field(itemPanel, 'Малюнок: URL або /static/…', item, 'image');
-                    field(itemPanel, 'Опис малюнка (alt)', item, 'alt');
+                    const imagePanel = disclosure(item, 'image', 'element-editor image-editor');
+                    imagePanel.append(node('summary', 'Малюнок'));
+                    itemPanel.append(imagePanel);
+                    const imageInput = field(imagePanel, 'Малюнок: URL або /static/…', item, 'image');
+                    field(imagePanel, 'Опис малюнка (alt)', item, 'alt');
                     item.image_mode ??= 'normal';
                     item.image_align ??= 'center';
                     item.image_vertical ??= 'center';
-                    field(itemPanel, 'Режим відображення малюнка', item, 'image_mode', {normal:'Нормальний — повністю, зі збереженням пропорцій', stretch:'Розтягнути — на всю область', tile:'Замостити — повторювати малюнок', cover:'Заповнити з обрізанням — зі збереженням пропорцій'});
-                    field(itemPanel, 'Малюнок по горизонталі', item, 'image_align', {left:'Зліва', center:'По центру', right:'Справа'});
-                    field(itemPanel, 'Малюнок по вертикалі', item, 'image_vertical', {top:'Вгорі', center:'По центру', bottom:'Внизу'});
+                    field(imagePanel, 'Режим відображення малюнка', item, 'image_mode', {normal:'Нормальний — повністю, зі збереженням пропорцій', stretch:'Розтягнути — на всю область', tile:'Замостити — повторювати малюнок', cover:'Заповнити з обрізанням — зі збереженням пропорцій'});
+                    field(imagePanel, 'Малюнок по горизонталі', item, 'image_align', {left:'Зліва', center:'По центру', right:'Справа'});
+                    field(imagePanel, 'Малюнок по вертикалі', item, 'image_vertical', {top:'Вгорі', center:'По центру', bottom:'Внизу'});
                     const upload = node('input');
                     upload.type = 'file'; upload.accept = 'image/png,image/jpeg,image/webp,image/gif';
                     const uploadLabel = node('label', 'Завантажити малюнок файлом');
-                    uploadLabel.append(upload); itemPanel.append(uploadLabel);
+                    uploadLabel.append(upload); imagePanel.append(uploadLabel);
                     upload.addEventListener('change', async () => {
                         if (!upload.files.length) return;
                         const data = new FormData(); data.append('image_file', upload.files[0]);

@@ -13,22 +13,9 @@ from datetime import datetime, timedelta
 from email.message import EmailMessage
 from pathlib import Path
 from typing import Any
-
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask import (
-    Flask,
-    Response,
-    flash,
-    g,
-    has_request_context,
-    redirect,
-    render_template,
-    request,
-    send_file,
-    session,
-    url_for,
-)
+from flask import (Flask, Response, flash, g,has_request_context,redirect,render_template,request,send_file,session,url_for)
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
@@ -56,7 +43,7 @@ except Exception:
 #Ver = "LadySite v0.92.02 (2026-10-08)" #переходи до розділів з урахуванням висоти закріпленого меню #компактний футер, версія зліва, оновлення кешу стилів
 #Ver = "LadySite v0.93.02 (2026-10-08)" #короткі лічильники футера, приховування записів при вимкненому онлайн-записі #кнопка вставки метатега Google AdSense у налаштуваннях HTML-коду
 #Ver = "LadySite v0.94.06 (2026-10-08)" #пробіли в нотатках не розгортають блоки, оновлення кешу редактора; окрема вкладка HTML для скриптів і метатегів; прибрано кнопку вставки метатега AdSense; алерти в меню, logotext, одна кнопка налаштувань; єдиний CSV-журнал, експорт і очищення; однакові вкладки налаштувань і прокрутка всередині секції; /profile
-Ver = "LadySite v0.95.00 (2026-10-09)" #режими й положення малюнків; збереження сторінки без згортання редактора та втрати позиції
+Ver = "LadySite v0.95.01 (2026-10-09)" #режими й положення малюнків; збереження сторінки без згортання редактора та втрати позиції #керування елементами в заголовку; згорнуті налаштування малюнка; перейменування елемента довгим натисканням
 
 
 HOST = "localhost" if os.name == "nt" else "0.0.0.0"
@@ -81,13 +68,7 @@ mf.CreateDir(SERVICE_IMAGE_DIR)
 app = Flask(__name__)
 app.secret_key = os.environ.get("LADY_SITE_SECRET", "lady-site-local-secret-change-me")
 scheduler = BackgroundScheduler(daemon=True)
-runtime_state = {
-    "schema_ready": False,
-    "schema_error": "",
-    "last_log_clear": datetime.min,
-    "last_appointments_cleanup": datetime.min,
-    "next_report_send": datetime.min,
-}
+runtime_state = {"schema_ready": False,    "schema_error": "",    "last_log_clear": datetime.min,    "last_appointments_cleanup": datetime.min,    "next_report_send": datetime.min,}
 
 
 def _strip_inline_comment(value: str) -> str:

@@ -42,6 +42,15 @@ html { scroll-padding-top: var(--anchor-offset, 12px); }
 .block-note { position: absolute; top: 18px; left: 96px; width: min(520px, calc(100% - 116px)); font-weight: normal; }
 .block-editor:not([open]) > summary { margin-bottom: 0; }
 .item-editor > summary { cursor: pointer; font-weight: bold; }
+.item-header { display: inline-flex; align-items: center; justify-content: space-between; gap: 12px; width: calc(100% - 20px); vertical-align: middle; }
+.item-name { min-width: 0; overflow-wrap: anywhere; user-select: none; }
+.item-name-input { min-width: 100px; width: 100%; font: inherit; }
+.item-actions { display: inline-flex; gap: 8px; flex-shrink: 0; }
+.item-actions button { padding: 6px 10px; }
+@media (max-width: 540px) {
+    .item-header { flex-wrap: wrap; }
+    .item-actions { flex-wrap: wrap; }
+}
 .block-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
 .block-toolbar label, .element-style-options label { display: flex; gap: 8px; align-items: center; }
 .block-toolbar input[type=checkbox], .element-style-options input { width: auto; }

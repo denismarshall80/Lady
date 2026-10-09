@@ -106,7 +106,7 @@ def normalize_blocks(raw):
             image = safe_url(item.get('image'))
             if image and not (image.startswith('/') or urlsplit(image).scheme in {'http', 'https'}):
                 raise ValueError('Малюнок має бути URL або локальним шляхом /static/…')
-            normalized['items'].append({'image': image, 'alt': str(item.get('alt', ''))[:500],
+            normalized['items'].append({'name': str(item.get('name', '')), 'image': image, 'alt': str(item.get('alt', ''))[:500],
                 'image_mode': item.get('image_mode') if item.get('image_mode') in IMAGE_MODES else 'normal',
                 'image_align': item.get('image_align') if item.get('image_align') in {'left', 'center', 'right'} else 'center',
                 'image_vertical': item.get('image_vertical') if item.get('image_vertical') in {'top', 'center', 'bottom'} else 'center',
