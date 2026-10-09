@@ -8,7 +8,7 @@
 {% endmacro %}
 {% macro show_nodes(nodes) %}
 {% for n in nodes %}
-{% if n.kind == 'group' and has_visible_nodes(n.nodes) %}<div class="content-node-group">{{ show_nodes(n.nodes) }}</div>
+{% if n.kind == 'group' and has_visible_nodes(n.nodes) %}<div class="content-node-group{% if n.nodes|length > 1 and n.nodes|map(attribute='kind')|unique|list == ['image'] %} content-image-gallery{% endif %}">{{ show_nodes(n.nodes) }}</div>
 {% elif n.kind in ['heading','title','text','button'] %}{{ show_element(n.value, 'h2' if n.kind in ['heading','title'] else 'div' if n.kind == 'button' else 'p', n.kind == 'button') }}
 {% elif n.kind == 'image' and n.image %}
 {% set position = (n.image_align|default('center')) ~ ' ' ~ (n.image_vertical|default('center')) %}

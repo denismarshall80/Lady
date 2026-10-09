@@ -1004,3 +1004,8 @@ th { background: #fff0e6; font-size: 17px; }
 .content-social a { display:inline-block; margin:0 12px 6px 0; }
 .site-blocks .content-element { flex:0 0 auto; }
 .site-blocks .content-node-group { align-content:start; }
+.content-nodes > .content-image-gallery { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.content-image-gallery .content-image { height:240px; }
+@media (max-width:760px) {
+    .content-nodes > .content-image-gallery { grid-template-columns:minmax(0,1fr); }
+}

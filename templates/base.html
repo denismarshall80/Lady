@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{% if site_maintenance|default(false) %}Сайт на обслуговуванні{% else %}Центр краси і здоров'я ЛЕДІ{% endif %}{% endblock %}</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='lady-logo-original.png') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='lady.css', v=app_version) }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='lady.css', v=app_version ~ '-about-block-1') }}">
     <script src="{{ url_for('static', filename='lady.js', v=app_version) }}" defer></script>
     <script src="{{ url_for('static', filename='content_effects.js', v=app_version) }}" defer></script>
     {{ global_code.head|default('')|safe }}
@@ -27,9 +27,6 @@
             {% if not is_admin %}
             <nav class="nav nav-left">
                 <a class="{{ 'active' if active_page == 'services' else '' }}" href="{{ url_for('services') }}">Послуги і ціни</a>
-                {% if not site_maintenance|default(false) %}
-                <a class="{{ 'active' if active_page == 'about' else '' }}" href="{{ url_for('about') }}">Про нас</a>
-                {% endif %}
             </nav>
             {% endif %}
         </div>
