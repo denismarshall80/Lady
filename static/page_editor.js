@@ -13,11 +13,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const list = root.querySelector('[data-block-list]');
     const status = root.querySelector('[data-page-status]');
+    const cancelButton = root.querySelector('[data-page-cancel]');
+    let saving = false;
+    let savedState;
+    function setStatus(message, state = 'error') { status.textContent = message; status.dataset.state = state; }
+    function syncActions() { cancelButton.disabled = saving || uploads > 0; }
+    function editorState() {
+        return structuredClone({blocks, siteBlocks, siteBackground, logoText, pageTitle:form.querySelector('[name="page_title"]').value});
+    }
     const siteList = root.querySelector('[data-site-block-list]');
-    const siteBlocks = JSON.parse(root.querySelector('[data-site-block-data]').textContent);
-    const siteBackground = JSON.parse(root.querySelector('[data-site-background-data]').textContent);
+    let siteBlocks = JSON.parse(root.querySelector('[data-site-block-data]').textContent);
+    let siteBackground = JSON.parse(root.querySelector('[data-site-background-data]').textContent);
     let blocks = JSON.parse(root.querySelector('[data-page-data]').textContent);
-    const logoText = JSON.parse(root.querySelector('[data-logotext-data]').textContent);
+    let logoText = JSON.parse(root.querySelector('[data-logotext-data]').textContent);
     const expanded = new WeakMap();
     function disclosure(object, key, cls) {
         const panel = node('details', '', cls);
@@ -34,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let uploads = 0;
     const layouts = {'text-image':'Інформація зліва + малюнок справа', 'image-text':'Малюнок зліва + інформація справа', text:'Інформація на всю ширину', image:'Малюнок на всю ширину', columns:'Колонки: малюнок + інформація знизу'};
     const emptyElement = (size = 18) => ({text:'', url:'', font:'Arial', size, bold:false, italic:false, underline:false, align:'left', vertical:'top'});
-    const markDirty = () => { dirty = true; revision++; status.textContent = 'Є незбережені зміни.'; };
+    const markDirty = () => { dirty = true; revision++; setStatus('Є незбережені зміни.', 'dirty'); };
     function node(tag, text, cls) {
         const result = document.createElement(tag);
         if (text) result.textContent = text;
@@ -192,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const option = node('option', label); option.value = value; select.append(option);
         });
         row.append(button('Додати', () => {
-            if (items.length >= 100) { status.textContent = 'Максимум 100 нод на рівні.'; return; }
+            if (items.length >= 100) { setStatus('Максимум 100 нод на рівні.'); return; }
             items.push(makeNode(select.value,layout)); markDirty(); render();
         }), select);
         parent.append(row);
@@ -213,14 +221,14 @@ document.addEventListener('DOMContentLoaded', () => {
         upload.addEventListener('change', async () => {
             if (!upload.files.length) return;
             const data = new FormData(); data.append('image_file', upload.files[0]); data.append('csrf', form.querySelector('[name="csrf"]').value);
-            uploads++; upload.disabled = true;
+            uploads++; upload.disabled = true; syncActions();
             try {
                 const response = await fetch('/content/image', {method:'POST', body:data});
                 if (response.redirected) throw new Error('Сесія завершилася. Увійдіть знову.');
                 const result = await response.json(); if (!response.ok) throw new Error(result.error || 'Помилка завантаження');
                 item.image = result.url; imageInput.value = result.url; markDirty();
-            } catch (error) { status.textContent = error.message; }
-            finally { uploads--; upload.disabled = false; }
+            } catch (error) { setStatus(error.message); }
+            finally { uploads--; upload.disabled = false; syncActions(); }
         });
     }
     function backgroundEditor(parent, object) {
@@ -292,33 +300,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function render() { renderList(list,blocks); renderList(siteList,siteBlocks); }
     root.querySelector('[data-block-add]').addEventListener('click', () => {
-        if (blocks.length >= 100) { status.textContent = 'Максимум 100 блоків.'; return; }
+        if (blocks.length >= 100) { setStatus('Максимум 100 блоків.'); return; }
         blocks.push({note:'', layout:'text-image', enabled:true, nodes:[], items:[]});
         markDirty(); render(); list.lastElementChild.scrollIntoView({behavior:'smooth', block:'start'});
     });
     root.querySelector('[data-site-block-add]').addEventListener('click', () => {
-        if (siteBlocks.length >= 100) { status.textContent = 'Максимум 100 нижніх блоків.'; return; }
+        if (siteBlocks.length >= 100) { setStatus('Максимум 100 нижніх блоків.'); return; }
         siteBlocks.push({note:'',layout:'text',enabled:true,nodes:[],items:[]});
         markDirty(); render(); siteList.lastElementChild.scrollIntoView({behavior:'smooth',block:'start'});
     });
     form.addEventListener('submit', async event => {
         event.preventDefault();
-        if (uploads) { status.textContent = 'Дочекайтеся завантаження малюнків.'; return; }
-        const data = new FormData(form); data.append('blocks', JSON.stringify(blocks));
+        if (uploads) { setStatus('Дочекайтеся завантаження малюнків.'); return; }
+        if (saving) return;
+        const submittedState = editorState();
+        const data = new FormData(form); data.append('blocks', JSON.stringify(submittedState.blocks));
         const savedRevision = revision;
-        data.append('logotext', JSON.stringify(logoText));
-        data.append('site_blocks',JSON.stringify(siteBlocks));
-        data.append('site_background',JSON.stringify(siteBackground));
+        data.append('logotext', JSON.stringify(submittedState.logoText));
+        data.append('site_blocks',JSON.stringify(submittedState.siteBlocks));
+        data.append('site_background',JSON.stringify(submittedState.siteBackground));
         const submit = form.querySelector('[type="submit"]');
-        submit.disabled = true;
-        status.textContent = 'Збереження…';
+        saving = true; submit.disabled = true; syncActions();
+        setStatus('Збереження…','saving');
         try {
             const response = await fetch(form.action, {method:'POST', body:data});
             if (response.redirected) throw new Error('Сесія завершилася. Увійдіть знову.');
             const result = await response.json();
             if (!response.ok) throw new Error(result.error || 'Не вдалося зберегти сторінку');
+            savedState = submittedState;
             dirty = revision !== savedRevision;
-            status.textContent = dirty ? 'Збережено. Є нові незбережені зміни.' : 'Сторінку збережено.';
+            setStatus(dirty ? 'Збережено. Є нові незбережені зміни.' : 'Зміни збережено.', dirty ? 'dirty' : 'success');
             // Refresh the public preview without replacing any editor controls.
             try {
                 const preview = await fetch(result.url + '?preview=public', {cache:'no-store'});
@@ -342,16 +353,29 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch {
                 status.textContent += ' Перегляд не оновився; відкрийте «Перегляд як клієнт».';
             }
-        } catch (error) { status.textContent = error.message; }
-        finally { submit.disabled = false; }
+        } catch (error) { setStatus(error.message); }
+        finally { saving = false; submit.disabled = false; syncActions(); }
     });
     window.addEventListener('beforeunload', event => {
         if (dirty) { event.preventDefault(); event.returnValue = ''; }
     });
     form.querySelector('[name="page_title"]').addEventListener('input', markDirty);
-    const logoEditor = root.querySelector('[data-logotext-editor]');
-    field(logoEditor, 'logotext — текст біля логотипа', logoText, 'text');
-    elementEditor(logoEditor, 'Шрифт і оформлення logotext', logoText, true);
-    backgroundEditor(root.querySelector('[data-site-background-editor]'),siteBackground);
-    render();
+    function renderPageFields() {
+        const logoEditor = root.querySelector('[data-logotext-editor]');
+        logoEditor.replaceChildren();
+        field(logoEditor, 'logotext — текст біля логотипа', logoText, 'text');
+        elementEditor(logoEditor, 'Шрифт і оформлення logotext', logoText, true);
+        const bgEditor = root.querySelector('[data-site-background-editor]');
+        bgEditor.replaceChildren(); backgroundEditor(bgEditor,siteBackground);
+    }
+    cancelButton.addEventListener('click', () => {
+        if (saving || uploads || !savedState) return;
+        const restored = structuredClone(savedState);
+        blocks = restored.blocks; siteBlocks = restored.siteBlocks;
+        siteBackground = restored.siteBackground; logoText = restored.logoText;
+        form.querySelector('[name="page_title"]').value = restored.pageTitle;
+        revision++; dirty = false;
+        renderPageFields(); render(); setStatus('Зміни відмінено.','success');
+    });
+    renderPageFields(); render(); savedState = editorState();
 });

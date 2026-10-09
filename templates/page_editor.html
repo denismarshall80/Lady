@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="{{ url_for('static', filename='page_editor.css', v=app_version ~ '-collapse-1') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='page_editor.css', v=app_version ~ '-actions-1') }}">
 <details class="services-admin" id="page-editor" data-page-editor>
     <summary class="page-editor-toggle">Редагування сторінки блоками</summary>
     <div class="page-editor-content">
@@ -10,7 +10,7 @@
         <label>Назва сторінки (заголовок вкладки браузера) <input name="page_title" value="{{ page.title }}" required maxlength="250"></label>
         <div data-logotext-editor></div>
         </details>
-        <p>Порожні заголовки, текст, кнопки й малюнки не показуються. Зміни публікуються після натискання «Зберегти сторінку».</p>
+        <p>Порожні заголовки, текст, кнопки й малюнки не показуються. Зміни публікуються після натискання «Зберегти зміни».</p>
         <details class="logo-editor"><summary>Фон сайту</summary><div data-site-background-editor></div></details>
         <h3>Блоки цієї сторінки</h3>
         <div data-block-list></div>
@@ -19,15 +19,17 @@
         <p>Спільні для всіх публічних сторінок. Адреса, графік, контакти й будь-який текст редагуються, переміщуються та видаляються як звичайні блоки.</p>
         <div data-site-block-list></div>
         <button type="button" data-site-block-add>Додати нижній блок</button>
-        <div class="form-actions">
-            <button type="submit" class="primary">Зберегти сторінку</button>
+        <hr class="page-editor-divider">
+        <div class="page-editor-actions">
+            <button type="submit" class="page-editor-save">Зберегти зміни</button>
+            <button type="button" class="danger" data-page-cancel>Відмінити зміни</button>
+            <span role="status" aria-live="polite" data-page-status></span>
         </div>
-        <p role="status" data-page-status></p>
     </form>
     </div>
     <script type="application/json" data-site-block-data>{{ site_blocks|tojson }}</script>
     <script type="application/json" data-site-background-data>{{ site_background|tojson }}</script>
     <script type="application/json" data-page-data>{{ page.blocks|tojson }}</script>
     <script type="application/json" data-logotext-data>{{ page.logotext|default(site_logotext)|tojson }}</script>
-    <script src="{{ url_for('static', filename='page_editor.js', v=app_version ~ '-collapse-1') }}" defer></script>
+    <script src="{{ url_for('static', filename='page_editor.js', v=app_version ~ '-actions-1') }}" defer></script>
 </details>

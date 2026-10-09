@@ -4,3 +4,13 @@
 #page-editor > .page-editor-toggle { padding:3px 10px; font-size:11px; line-height:16px; color:var(--muted); cursor:pointer; }
 #page-editor > .page-editor-toggle:focus-visible { outline:2px solid var(--rose); outline-offset:2px; }
 #page-editor > .page-editor-content { padding:12px 18px 18px; }
+.page-editor-divider { border:0; border-top:1px solid var(--line); margin:16px 0 12px; }
+.page-editor-actions { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
+#page-editor .page-editor-save { background:#0f7f4a; border-color:#0f7f4a; color:white; }
+#page-editor .page-editor-save:hover { background:#0b653a; }
+.page-editor-actions [data-page-status] { color:#b42318; font-size:13px; }
+.page-editor-actions [data-page-status][data-state=success] { color:#0f7f4a; }
+.page-editor-actions [data-page-status][data-state=saving] { color:var(--muted); }
+#page-editor select, #page-editor label { min-width:0; max-width:100%; }
+#page-editor .editor-heading h2 { flex-shrink:1; max-width:100%; }
+#page-editor .node-add-row select { flex:1; min-width:0; }
