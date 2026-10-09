@@ -2,6 +2,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const root = document.querySelector('[data-page-editor]');
     if (!root) return;
     const form = root.querySelector('[data-page-form]');
+    const collapseKey = 'lady.page-editor.open:' + form.querySelector('[name="page_path"]').value;
+    try { root.open = location.hash === '#page-editor' || localStorage.getItem(collapseKey) === '1'; }
+    catch { root.open = location.hash === '#page-editor'; }
+    root.addEventListener('toggle', () => {
+        try { localStorage.setItem(collapseKey, root.open ? '1' : '0'); } catch {}
+    });
+    window.addEventListener('hashchange', () => {
+        if (location.hash === '#page-editor') root.open = true;
+    });
     const list = root.querySelector('[data-block-list]');
     const status = root.querySelector('[data-page-status]');
     const siteList = root.querySelector('[data-site-block-list]');
