@@ -19,7 +19,15 @@
     <div class="content-layout layout-{{ block.layout }}" {% if block.layout == 'columns' %}style="--columns:{{ visible.rows|length or 1 }}"{% endif %}>
     {% for item in visible.rows %}
         <article class="content-item">
-        {% if block.layout != 'text' and item.image %}<img class="content-image" src="{{ item.image }}" alt="{{ item.alt }}" loading="lazy">{% endif %}
+        {% if block.layout != 'text' and item.image %}
+        {% set mode = item.image_mode|default('normal') %}
+        {% set position = (item.image_align|default('center')) ~ ' ' ~ (item.image_vertical|default('center')) %}
+        {% if mode == 'tile' %}
+        <div class="content-image image-mode-tile" role="img" aria-label="{{ item.alt }}" style="background-image:url({{ item.image|tojson|forceescape }});background-position:{{ position }}"></div>
+        {% else %}
+        <img class="content-image image-mode-{{ mode }}" src="{{ item.image }}" alt="{{ item.alt }}" loading="lazy" style="object-position:{{ position }}">
+        {% endif %}
+        {% endif %}
         {% if block.layout != 'image' %}
         <div class="content-info">
             {{ show_element(item.title, 'h2') }}

@@ -21,6 +21,10 @@ html { scroll-padding-top: var(--anchor-offset, 12px); }
 .content-image { display: block; width: 100%; height: 340px; object-fit: contain; border-radius: 8px; }
 .layout-image .content-image { height: auto; }
 .layout-columns .content-image { height: 240px; }
+.content-image.image-mode-stretch { object-fit: fill; }
+.content-image.image-mode-cover { object-fit: cover; }
+.content-image.image-mode-tile { background-repeat: repeat; }
+.layout-image .content-image:is(.image-mode-stretch, .image-mode-cover, .image-mode-tile) { height: 340px; }
 .content-info { display: flex; flex-direction: column; min-height: 280px; gap: 12px; }
 .content-element { display: flex; flex: 1; min-width: 0; }
 .vertical-top { align-items: flex-start; }

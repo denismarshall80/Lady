@@ -12,6 +12,7 @@ CONTENT_PATH = ROOT / 'DATA' / 'pages.json'
 DEFAULT_CODE = '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2294227136369675" crossorigin="anonymous"></script>'
 FONTS = {'Arial', 'Georgia', 'Verdana', 'Tahoma', 'Times New Roman'}
 LAYOUTS = {'text-image', 'image-text', 'text', 'image', 'columns'}
+IMAGE_MODES = {'normal', 'stretch', 'tile', 'cover'}
 
 
 def read_content():
@@ -106,6 +107,9 @@ def normalize_blocks(raw):
             if image and not (image.startswith('/') or urlsplit(image).scheme in {'http', 'https'}):
                 raise ValueError('Малюнок має бути URL або локальним шляхом /static/…')
             normalized['items'].append({'image': image, 'alt': str(item.get('alt', ''))[:500],
+                'image_mode': item.get('image_mode') if item.get('image_mode') in IMAGE_MODES else 'normal',
+                'image_align': item.get('image_align') if item.get('image_align') in {'left', 'center', 'right'} else 'center',
+                'image_vertical': item.get('image_vertical') if item.get('image_vertical') in {'top', 'center', 'bottom'} else 'center',
                 **{key: element(item.get(key, {})) for key in ('title', 'text', 'button')}})
         blocks.append(normalized)
     return blocks

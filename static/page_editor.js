@@ -18,11 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return panel;
     }
     let dirty = false;
+    let revision = 0;
     let uploads = 0;
     const layouts = {'text-image':'Інформація зліва + малюнок справа', 'image-text':'Малюнок зліва + інформація справа', text:'Інформація на всю ширину', image:'Малюнок на всю ширину', columns:'Колонки: малюнок + інформація знизу'};
     const emptyElement = (size = 18) => ({text:'', url:'', font:'Arial', size, bold:false, italic:false, underline:false, align:'left', vertical:'top'});
-    const emptyItem = () => ({image:'', alt:'', title:emptyElement(28), text:emptyElement(), button:emptyElement()});
-    const markDirty = () => { dirty = true; status.textContent = 'Є незбережені зміни.'; };
+    const emptyItem = () => ({image:'', alt:'', image_mode:'normal', image_align:'center', image_vertical:'center', title:emptyElement(28), text:emptyElement(), button:emptyElement()});
+    const markDirty = () => { dirty = true; revision++; status.textContent = 'Є незбережені зміни.'; };
     function node(tag, text, cls) {
         const result = document.createElement(tag);
         if (text) result.textContent = text;
@@ -125,6 +126,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (block.layout !== 'text') {
                     const imageInput = field(itemPanel, 'Малюнок: URL або /static/…', item, 'image');
                     field(itemPanel, 'Опис малюнка (alt)', item, 'alt');
+                    item.image_mode ??= 'normal';
+                    item.image_align ??= 'center';
+                    item.image_vertical ??= 'center';
+                    field(itemPanel, 'Режим відображення малюнка', item, 'image_mode', {normal:'Нормальний — повністю, зі збереженням пропорцій', stretch:'Розтягнути — на всю область', tile:'Замостити — повторювати малюнок', cover:'Заповнити з обрізанням — зі збереженням пропорцій'});
+                    field(itemPanel, 'Малюнок по горизонталі', item, 'image_align', {left:'Зліва', center:'По центру', right:'Справа'});
+                    field(itemPanel, 'Малюнок по вертикалі', item, 'image_vertical', {top:'Вгорі', center:'По центру', bottom:'Внизу'});
                     const upload = node('input');
                     upload.type = 'file'; upload.accept = 'image/png,image/jpeg,image/webp,image/gif';
                     const uploadLabel = node('label', 'Завантажити малюнок файлом');
@@ -168,6 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         if (uploads) { status.textContent = 'Дочекайтеся завантаження малюнків.'; return; }
         const data = new FormData(form); data.append('blocks', JSON.stringify(blocks));
+        const savedRevision = revision;
         data.append('logotext', JSON.stringify(logoText));
         const submit = form.querySelector('[type="submit"]');
         submit.disabled = true;
@@ -177,10 +185,28 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.redirected) throw new Error('Сесія завершилася. Увійдіть знову.');
             const result = await response.json();
             if (!response.ok) throw new Error(result.error || 'Не вдалося зберегти сторінку');
-            dirty = false;
-            history.replaceState(null, '', result.url + '#page-editor');
-            window.location.reload();
-        } catch (error) { status.textContent = error.message; submit.disabled = false; }
+            dirty = revision !== savedRevision;
+            status.textContent = dirty ? 'Збережено. Є нові незбережені зміни.' : 'Сторінку збережено.';
+            // Refresh the public preview without replacing any editor controls.
+            try {
+                const preview = await fetch(result.url + '?preview=public', {cache:'no-store'});
+                if (!preview.ok || preview.redirected) throw new Error('preview');
+                const documentPreview = new DOMParser().parseFromString(await preview.text(), 'text/html');
+                const content = documentPreview.querySelector('.content-blocks');
+                const current = document.querySelector('.content-blocks');
+                if (!content || !current) throw new Error('preview');
+                const offset = root.getBoundingClientRect().top;
+                current.replaceWith(content);
+                const brand = document.querySelector('.brand');
+                const updatedBrand = documentPreview.querySelector('.brand');
+                if (brand && updatedBrand) brand.replaceWith(updatedBrand);
+                document.title = documentPreview.title;
+                window.scrollBy({top:root.getBoundingClientRect().top - offset, behavior:'instant'});
+            } catch {
+                status.textContent += ' Перегляд не оновився; відкрийте «Перегляд як клієнт».';
+            }
+        } catch (error) { status.textContent = error.message; }
+        finally { submit.disabled = false; }
     });
     window.addEventListener('beforeunload', event => {
         if (dirty) { event.preventDefault(); event.returnValue = ''; }

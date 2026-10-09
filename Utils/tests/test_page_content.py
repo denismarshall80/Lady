@@ -82,6 +82,31 @@ class ContentTests(unittest.TestCase):
         self.assertNotIn('Консультація і підбір', html)
         self.assertEqual(pc.read_content()['pages']['/']['blocks'], [])
 
+    def test_image_modes_save_reload_and_render(self):
+        for mode in ('normal', 'stretch', 'tile', 'cover'):
+            with self.subTest(mode=mode):
+                blocks = [{'layout': 'text-image', 'items': [{
+                    'image': '/static/test.png', 'alt': 'Малюнок',
+                    'image_mode': mode, 'image_align': 'right', 'image_vertical': 'top'}]}]
+                response = self.client.post('/content/save', data={
+                    'csrf': 'test-csrf', 'page_path': '/', 'page_title': 'Тест',
+                    'blocks': json.dumps(blocks)})
+                self.assertEqual(response.status_code, 200)
+                item = pc.read_content()['pages']['/']['blocks'][0]['items'][0]
+                self.assertEqual((item['image_mode'], item['image_align'], item['image_vertical']),
+                                 (mode, 'right', 'top'))
+                html = self.client.get('/?preview=public').get_data(as_text=True)
+                self.assertIn('image-mode-' + mode, html)
+                self.assertIn('background-position:right top' if mode == 'tile' else 'object-position:right top', html)
+                if mode == 'tile':
+                    self.assertIn('role="img" aria-label="Малюнок"', html)
+                    self.assertIn('background-image:url(', html)
+
+    def test_legacy_image_defaults(self):
+        item = pc.normalize_blocks([{'layout': 'image', 'items': [{'image': '/static/test.png'}]}])[0]['items'][0]
+        self.assertEqual((item['image_mode'], item['image_align'], item['image_vertical']),
+                         ('normal', 'center', 'center'))
+
     def test_invalid_save_and_permissions(self):
         for data in ['not JSON', '{}', '[{"layout":"unknown"}]', '[{"layout":"text","items":[{"text":{"url":"javascript:alert(1)"}}]}]']:
             response = self.client.post('/content/save', data={'csrf':'test-csrf','page_path':'/','page_title':'Тест','blocks':data})
