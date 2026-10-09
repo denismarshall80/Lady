@@ -76,7 +76,7 @@ html { scroll-padding-top: var(--anchor-offset, 12px); }
 body {
     margin: 0;
     min-height: 100vh;
-    padding-bottom: var(--footer-height, 0px);
+    padding-bottom: calc(var(--footer-height, 0px) + var(--editor-action-height, 0px));
     display: flex;
     flex-direction: column;
     font-family: Arial, Helvetica, sans-serif;
@@ -1015,3 +1015,15 @@ th { background: #fff0e6; font-size: 17px; }
 .content-social .social-icon { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; margin:0; border-radius:3px; background:#777; color:white; text-decoration:none; }
 .content-social .social-icon:hover { background:#1877f2; }
 .social-icon svg { width:22px; height:22px; fill:currentColor; }
+
+.content-nodes .content-node-group.content-explicit-columns { display:grid; grid-template-columns:repeat(var(--node-columns),minmax(0,1fr)); gap:24px; }
+.content-explicit-columns > .content-node-group { display:flex; flex-direction:column; }
+.content-social .social-heading { margin:0 0 12px; }
+.lady-dialog { width:min(440px,calc(100% - 32px)); padding:32px 28px 24px; border:1px solid var(--line); border-radius:16px; box-shadow:0 18px 70px #0004; color:var(--ink); }
+.lady-dialog::backdrop { background:#0006; }
+.lady-dialog h2 { margin:4px 0 24px; padding-right:20px; font-size:20px; line-height:1.5; }
+.lady-dialog .dialog-close { position:absolute; right:10px; top:8px; min-height:32px; padding:0 8px; border:0; background:transparent; font-size:28px; }
+.dialog-actions { display:flex; justify-content:center; gap:14px; }
+.dialog-actions .dialog-yes { min-width:120px; background:#0f7f4a; border-color:#0f7f4a; color:white; }
+.dialog-actions .dialog-no { min-width:92px; background:#b42318; border-color:#b42318; color:white; }
+@media(max-width:760px) { .content-nodes .content-node-group.content-explicit-columns { grid-template-columns:minmax(0,1fr); } }

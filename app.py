@@ -44,7 +44,8 @@ except Exception:
 #Ver = "LadySite v0.93.02 (2026-10-08)" #короткі лічильники футера, приховування записів при вимкненому онлайн-записі #кнопка вставки метатега Google AdSense у налаштуваннях HTML-коду
 #Ver = "LadySite v0.94.06 (2026-10-08)" #пробіли в нотатках не розгортають блоки, оновлення кешу редактора; окрема вкладка HTML для скриптів і метатегів; прибрано кнопку вставки метатега AdSense; алерти в меню, logotext, одна кнопка налаштувань; єдиний CSV-журнал, експорт і очищення; однакові вкладки налаштувань і прокрутка всередині секції; /profile
 # Ver = "LadySite v0.95.05 (2026-10-09)" #режими й положення малюнків; збереження сторінки без згортання редактора та втрати позиції #керування елементами в заголовку; згорнуті налаштування малюнка; перейменування елемента довгим натисканням  #компактний редактор нод; каруселі, контурні анімації, контакти й адреса з графіком #редаговані нижні блоки; редактор після всього вмісту; фон сайту й окремих блоків
-Ver = "LadySite v0.95.06 (2026-10-09)" #висота тексту та кнопок; Facebook-іконка й посилання у нижньому блоці
+# Ver = "LadySite v0.95.06 (2026-10-09)" #висота тексту та кнопок; Facebook-іконка й посилання у нижньому блоці
+Ver = "LadySite v0.95.07 (2026-10-09)" #публічний футер; період відвідувачів; діалоги, колонки й панель редактора
 
 
 HOST = "localhost" if os.name == "nt" else "0.0.0.0"
@@ -113,6 +114,8 @@ def load_config() -> dict[str, str]:
         "ONLINE_APPOINTMENT_ENABLED": "1",
         "SITE_MAINTENANCE_ENABLED": "0",
         "ALERT_MAX_WIDTH": "240",
+        "VISITOR_PERIOD_VALUE": "7",
+        "VISITOR_PERIOD_UNIT": "days",
         "SERVICES_PAGE_INTRO": "Тут розділи і напрямки, якими займається наш центр.",
         "SERVICE_CONTENT_VERSION": "",
         "MAP_URL": DEFAULT_MAP_URL,
@@ -156,6 +159,8 @@ def save_config(config: dict[str, str]) -> None:
         "MAP_URL",
         "MAP_EMBED_URL",
         "ALERT_MAX_WIDTH",
+        "VISITOR_PERIOD_VALUE",
+        "VISITOR_PERIOD_UNIT",
     ]
     lines = ["# LadySite configuration", "", "# MySQL"]
     for key in order[:5]:
@@ -911,6 +916,7 @@ def inject_globals():
         "content_csrf": session["content_csrf"],
         "app_version": Ver,
         "visit_count": total_visit_count,
+        "visitor_period_label": visitor_period_label(global_config),
         "appointment_count": total_appointment_count,
         "user": user,
         "is_admin": is_admin(user),
@@ -958,12 +964,25 @@ def set_visit_cookie(response: Response):
     return response
 
 
+def visitor_period(config):
+    unit = 'months' if config.get('VISITOR_PERIOD_UNIT') == 'months' else 'days'
+    value = parse_int(config.get('VISITOR_PERIOD_VALUE', '7'), 7, 1, 120 if unit == 'months' else 3650)
+    return value, unit
+
+
+def visitor_period_label(config):
+    value, unit = visitor_period(config)
+    return f"за останні {value} {'міс.' if unit == 'months' else 'дн.'}"
+
+
 def total_visit_count() -> int:
     try:
         if not runtime_state["schema_ready"]:
             ensure_schema()
         with db_cursor() as cur:
-            cur.execute("SELECT COUNT(DISTINCT VisitorKey) AS cnt FROM PageVisits")
+            value, unit = visitor_period(load_config())
+            interval = 'MONTH' if unit == 'months' else 'DAY'
+            cur.execute(f"SELECT COUNT(DISTINCT VisitorKey) AS cnt FROM PageVisits WHERE CreatedAt >= DATE_SUB(NOW(), INTERVAL %s {interval}) AND CreatedAt <= NOW()", (value,))
             return int(cur.fetchone()["cnt"])
     except Exception as ex:
         mf.tolog(f"total_visit_count() failed: {ex}")
@@ -1578,6 +1597,8 @@ def settings():
         return user
     config = load_config()
     active_tab = request.args.get("tab", "maintenance")
+    if active_tab == "contacts":
+        active_tab = "maintenance"
     if request.method == "POST":
         action = request.form.get("action", "save")
         form_config = config.copy()

@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const activeInput = root.querySelector('[name="active_tab"]');
                 if (activeInput) activeInput.value = target;
                 if (root.hasAttribute('data-settings-tabs')) {
-                    root.querySelector('.settings-save-inline').setAttribute('form', target === 'html' ? 'settings-html-form' : target === 'contacts' ? 'settings-contacts-form' : 'settings-config-form');
+                    root.querySelector('.settings-save-inline').setAttribute('form', target === 'html' ? 'settings-html-form' : 'settings-config-form');
                     root.querySelector('.settings-panel-scroll').scrollTop = 0;
                 }
             });

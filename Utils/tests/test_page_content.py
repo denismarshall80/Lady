@@ -52,6 +52,51 @@ class ContentTests(unittest.TestCase):
         self.path_patch.stop()
         self.temp.cleanup()
 
+    def test_public_footer_hides_appointments_when_enabled(self):
+        self.user = None
+        self.module.load_config = lambda: {'ONLINE_APPOINTMENT_ENABLED':'1', 'VISITOR_PERIOD_VALUE':'7', 'VISITOR_PERIOD_UNIT':'days'}
+        self.module.total_appointment_count = Mock(side_effect=AssertionError('Public footer must not query appointments'))
+        self.module.get_service_data = lambda: []
+        html = self.client.get('/?preview=public').get_data(as_text=True)
+        self.assertIn('footer-version', html)
+        self.assertIn('Відвідало за останні 7 дн.:', html)
+        self.assertNotIn('Записалось:', html)
+
+    def test_visitor_period_query(self):
+        from contextlib import nullcontext
+        # Restore the real counting function in this isolated module only.
+        source = (ROOT / 'app.py').read_text(encoding='utf-8')
+        start = source.index('def total_visit_count()')
+        end = source.index('def total_appointment_count()', start)
+        scope = dict(self.module.__dict__)
+        cursor = Mock()
+        cursor.fetchone.return_value = {'cnt': 12}
+        scope['db_cursor'] = lambda: nullcontext(cursor)
+        scope['runtime_state'] = {'schema_ready':True}
+        for unit, sql_unit, value in [('days','DAY','7'), ('months','MONTH','2')]:
+            scope['load_config'] = lambda: {'VISITOR_PERIOD_UNIT':unit, 'VISITOR_PERIOD_VALUE':value}
+            exec(source[start:end], scope)
+            self.assertEqual(scope['total_visit_count'](), 12)
+            sql, params = cursor.execute.call_args.args
+            self.assertIn('CreatedAt >= DATE_SUB(NOW(), INTERVAL %s ' + sql_unit + ')', sql)
+            self.assertEqual(params, (int(value),))
+
+    def test_contact_columns_preserve_content_and_custom_groups(self):
+        original = {'site_blocks':[{'layout':'text', 'nodes':[
+            {'kind':'heading','value':{'text':'Контакти:'}},
+            {'kind':'text','name':'Телефон','value':{'text':'123'}},
+            {'kind':'social','value':{'align':'left'}},
+            {'kind':'text','value':{'text':'Мій текст'}}]}]}
+        result = pc.site_blocks(original, {})
+        group = result[0]['nodes'][0]
+        self.assertEqual(group['columns'], 2)
+        self.assertEqual(group['nodes'][0]['nodes'][1]['value']['text'], '123')
+        self.assertEqual(group['nodes'][1]['nodes'][0]['kind'], 'social')
+        self.assertEqual(result[0]['nodes'][1]['value']['text'], 'Мій текст')
+        self.assertEqual(original['site_blocks'][0]['nodes'][0]['kind'], 'heading')
+        saved = pc.normalize_blocks(result)
+        self.assertEqual(pc.site_blocks({'site_blocks':saved}, {}), saved)
+
     def test_home_appointment_and_editor(self):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)

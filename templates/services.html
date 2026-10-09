@@ -211,7 +211,7 @@
                         <form method="post" action="{{ url_for('service_item_update', kind='section', item_id=section.Id) }}">
                             <button class="icon-button" title="{{ 'Приховати' if section.IsActive else 'Показати' }}" name="action" value="{{ 'hide' if section.IsActive else 'show' }}">{{ '○' if section.IsActive else '●' }}</button>
                             <button class="icon-button edit-action" type="button" title="Редагувати" data-service-edit-open="section-{{ section.Id }}">✎</button>
-                            <button class="icon-button danger" title="Видалити" name="action" value="delete" onclick="return confirm('Видалити розділ і його картки?')">×</button>
+                            <button class="icon-button danger" title="Видалити" name="action" value="delete" data-confirm="Видалити розділ і його картки?">×</button>
                         </form>
                     </td>
                 </tr>
@@ -226,7 +226,7 @@
                         <form method="post" action="{{ url_for('service_item_update', kind='card', item_id=card.Id) }}">
                             <button class="icon-button" title="{{ 'Приховати' if card.IsActive else 'Показати' }}" name="action" value="{{ 'hide' if card.IsActive else 'show' }}">{{ '○' if card.IsActive else '●' }}</button>
                             <button class="icon-button edit-action" type="button" title="Редагувати" data-service-edit-open="card-{{ card.Id }}">✎</button>
-                            <button class="icon-button danger" title="Видалити" name="action" value="delete" onclick="return confirm('Видалити картку?')">×</button>
+                            <button class="icon-button danger" title="Видалити" name="action" value="delete" data-confirm="Видалити картку?">×</button>
                         </form>
                     </td>
                 </tr>

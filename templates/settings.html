@@ -12,7 +12,6 @@
     <input type="hidden" name="active_tab" value="{{ active_tab }}">
 </form>
 <form method="post" action="{{ url_for('site_code_settings') }}" id="settings-html-form" hidden></form>
-<form method="post" action="{{ url_for('site_contacts_settings') }}" id="settings-contacts-form" hidden><input name="csrf" value="{{ content_csrf }}" type="hidden"></form>
     <div class="settings-tabs" role="tablist" aria-label="Розділи налаштувань">
         <button class="settings-tab {{ 'is-active' if active_tab == 'maintenance' else '' }}" type="button" data-tab-target="maintenance">Обслуговування</button>
         <button class="settings-tab {{ 'is-active' if active_tab == 'mysql' else '' }}" type="button" data-tab-target="mysql">MySQL</button>
@@ -20,16 +19,14 @@
         <button class="settings-tab {{ 'is-active' if active_tab == 'tg' else '' }}" type="button" data-tab-target="tg">TG</button>
         <button class="settings-tab {{ 'is-active' if active_tab == 'html' else '' }}" type="button" data-tab-target="html">HTML</button>
         <button class="settings-tab {{ 'is-active' if active_tab == 'alert' else '' }}" type="button" data-tab-target="alert">Alert</button>
-        <button class="settings-tab {{ 'is-active' if active_tab == 'contacts' else '' }}" type="button" data-tab-target="contacts">Контакти</button>
-        <button class="primary settings-save-inline" name="action" value="save" type="submit" form="{{ 'settings-html-form' if active_tab == 'html' else 'settings-contacts-form' if active_tab == 'contacts' else 'settings-config-form' }}">Зберегти налаштування</button>
+        <button class="primary settings-save-inline" name="action" value="save" type="submit" form="{{ 'settings-html-form' if active_tab == 'html' else 'settings-config-form' }}">Зберегти налаштування</button>
     </div>
     <div class="settings-panel-scroll">
-    <section class="settings-group settings-panel {{ 'is-active' if active_tab == 'contacts' else '' }}" data-tab-panel="contacts">
-        <h2>Контакти</h2>
-        <p>Контакти та Facebook редагуються в нижніх блоках конструктора сторінки.</p>
-    </section>
+
     <section class="settings-group settings-panel {{ 'is-active' if active_tab == 'maintenance' else '' }}" data-tab-panel="maintenance">
         <h2>Обслуговування</h2>
+        <label>Період підрахунку відвідувачів <input form="settings-config-form" name="cfg_VISITOR_PERIOD_VALUE" type="number" min="1" max="3650" value="{{ config.VISITOR_PERIOD_VALUE|default('7') }}"></label>
+        <label>Одиниця періоду <select form="settings-config-form" name="cfg_VISITOR_PERIOD_UNIT"><option value="days" {{ 'selected' if config.VISITOR_PERIOD_UNIT != 'months' else '' }}>Дні</option><option value="months" {{ 'selected' if config.VISITOR_PERIOD_UNIT == 'months' else '' }}>Місяці</option></select></label>
         <label class="checkbox-line">
             <input form="settings-config-form" type="checkbox" name="cfg_SITE_MAINTENANCE_ENABLED" value="1" {{ 'checked' if config.SITE_MAINTENANCE_ENABLED == '1' else '' }}>
             Сайт на обслуговуванні і тимчасово не працює!

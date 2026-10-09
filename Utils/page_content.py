@@ -57,6 +57,7 @@ def normalize_nodes(raw, depth=0):
         value = {'kind': kind, 'name': str(node.get('name', ''))}
         if kind == 'group':
             value['nodes'] = normalize_nodes(node.get('nodes', []), depth + 1)
+            value['columns'] = max(1, min(4, int(node.get('columns', 1))))
         elif kind in {'heading', 'title', 'text', 'button'}:
             value['value'] = element(node.get('value', {}))
         elif kind == 'image':
@@ -263,6 +264,21 @@ DISCLAIMER = ("Інформація, розміщена на сайті, при�
               "Якщо у вас виникла проблема зі здоров'ям, зверніться до сімейного лікаря.")
 
 
+def arrange_contact_columns(block):
+    nodes = block.get('nodes', [])
+    socials = [n for n in nodes if n['kind'] == 'social']
+    if not socials or not any(n['kind'] == 'heading' and n['value'].get('text', '').strip() == 'Контакти:' for n in nodes):
+        return
+    contacts = [n for n in nodes if n['kind'] in {'heading', 'title', 'text', 'button'} and (n['kind'] == 'heading' or n.get('name') in {'Телефон', 'Email'})]
+    if not contacts:
+        return
+    selected = contacts + socials
+    remainder = [n for n in nodes if n not in selected]
+    block['nodes'] = [{'kind':'group', 'name':'Контакти та соціальні мережі', 'columns':2, 'nodes':[
+        {'kind':'group', 'name':'Ліва колонка', 'nodes':contacts},
+        {'kind':'group', 'name':'Права колонка', 'nodes':socials}]}] + remainder
+
+
 def site_blocks(content, config):
     # Missing key is the one-time legacy fallback; an explicit empty list stays empty.
     if 'site_blocks' in content:
@@ -278,6 +294,7 @@ def site_blocks(content, config):
                         node['links']['facebook'] = CONTACT_DEFAULTS['facebook']
         for block in blocks:
             migrate(block.get('nodes', []))
+            arrange_contact_columns(block)
         return blocks
     contacts = contact_settings(content, config)
     def text(kind, value, name='', **style):
@@ -303,4 +320,5 @@ def site_blocks(content, config):
     footer = {'note':'Контакти', 'layout':'text', 'background':{'color':'#f7efe7'}, 'nodes':contact_nodes}
     disclaimer = {'note':'Інформація для відвідувачів', 'layout':'text', 'nodes':[
         text('text', DISCLAIMER, name='Інформація для відвідувачів', align='center', size=14)]}
+    arrange_contact_columns(footer)
     return normalize_blocks([address, footer, disclaimer])
