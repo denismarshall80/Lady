@@ -21,7 +21,13 @@
 {% if slides|length > 1 %}<div class="carousel-controls"><button type="button" data-carousel-step="-1" aria-label="Попередній малюнок">←</button><span aria-live="polite" data-carousel-count>1 / {{ slides|length }}</span><button type="button" data-carousel-step="1" aria-label="Наступний малюнок">→</button></div>{% endif %}
 </div>{% endif %}
 {% elif n.kind == 'map' and n.url %}<iframe class="content-map" src="{{ n.url }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="{{ n.title }}"></iframe>
-{% elif n.kind == 'social' %}<div class="content-social" style="text-align:{{ n.value.align }}">{% for key, label in [('telegram','Telegram'),('facebook','Facebook'),('instagram','Instagram'),('tiktok','TikTok'),('youtube','YouTube')] %}{% if site_contacts[key] %}<a href="{{ site_contacts[key] }}" target="_blank" rel="noopener">{{ label }}</a>{% endif %}{% endfor %}</div>
+{% elif n.kind == 'social' %}
+<div class="content-social" style="text-align:{{ n.value.align }}">
+<p class="social-heading">{{ n.value.text or 'Ми у соціальних мережах' }}</p>
+{% set links = n.links if n.links is defined else site_contacts %}
+{% for key, label in [('telegram','Telegram'),('facebook','Facebook'),('instagram','Instagram'),('tiktok','TikTok'),('youtube','YouTube')] %}{% if links[key] %}
+<a class="social-icon" href="{{ links[key] }}" target="_blank" rel="noopener noreferrer" aria-label="{{ label }}" title="{{ label }}">{% if key == 'facebook' %}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 22v-9h3l.5-4H14V7c0-1.2.4-2 2-2h2V1.4A26 26 0 0 0 15 1c-3 0-5 1.8-5 5v3H7v4h3v9z"/></svg>{% else %}<span aria-hidden="true">{{ label[0] }}</span>{% endif %}</a>
+{% endif %}{% endfor %}</div>
 {% elif n.kind == 'animation' %}<span hidden data-block-effect="{{ n.effect }}"></span>
 {% endif %}
 {% endfor %}

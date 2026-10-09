@@ -1,4 +1,5 @@
 """File-backed page map. Reads on every request; serialized atomic updates."""
+import copy
 import json
 import os
 import re
@@ -78,6 +79,8 @@ def normalize_nodes(raw, depth=0):
             value['value'] = background(node.get('value', {}))
         elif kind == 'social':
             value['value'] = element(node.get('value', {}))
+            if 'links' in node:
+                value['links'] = {key: safe_url(node['links'].get(key, '')) for key in ('telegram', 'facebook', 'instagram', 'tiktok', 'youtube')}
         else:
             effect = node.get('effect', 'random')
             value['effect'] = effect if effect in ANIMATIONS else 'none'
@@ -228,7 +231,7 @@ CONTACT_DEFAULTS = {
     'comment': 'На території дитячої поліклініки.',
     'phone': '+38 093 299-59-21', 'email': '',
     'hours': 'Пн–Пт: 09:00–17:00\nСб: 09:00–13:00\nНд: вихідний',
-    'telegram': '', 'facebook': '', 'instagram': '', 'tiktok': '', 'youtube': '',
+    'telegram': '', 'facebook': 'https://www.facebook.com/profile.php?id=61581148067506', 'instagram': '', 'tiktok': '', 'youtube': '',
     'note': 'Інформація про салон поступово доповнюється.'
 }
 
@@ -263,7 +266,19 @@ DISCLAIMER = ("Інформація, розміщена на сайті, при�
 def site_blocks(content, config):
     # Missing key is the one-time legacy fallback; an explicit empty list stays empty.
     if 'site_blocks' in content:
-        return content['site_blocks']
+        blocks = copy.deepcopy(content['site_blocks'])
+        contacts = contact_settings(content, config)
+        def migrate(nodes):
+            for node in nodes:
+                if node['kind'] == 'group':
+                    migrate(node['nodes'])
+                elif node['kind'] == 'social' and 'links' not in node:
+                    node['links'] = {key: contacts[key] for key in ('telegram', 'facebook', 'instagram', 'tiktok', 'youtube')}
+                    if not node['links']['facebook']:
+                        node['links']['facebook'] = CONTACT_DEFAULTS['facebook']
+        for block in blocks:
+            migrate(block.get('nodes', []))
+        return blocks
     contacts = contact_settings(content, config)
     def text(kind, value, name='', **style):
         return {'kind': kind, 'name': name, 'value': {'text': value, **style}}
@@ -282,7 +297,7 @@ def site_blocks(content, config):
         contact_nodes.append(text('text', contacts['phone'], name='Телефон', url='tel:' + contacts['phone'].replace(' ', '')))
     if contacts['email']:
         contact_nodes.append(text('text', contacts['email'], name='Email', url='mailto:' + contacts['email']))
-    contact_nodes.append({'kind':'social', 'value': {'align':'left'}})
+    contact_nodes.append({'kind':'social', 'value': {'text':'Ми у соціальних мережах', 'align':'left'}})
     if contacts['note']:
         contact_nodes.append(text('text', contacts['note'], name='Примітка контактів', size=14))
     footer = {'note':'Контакти', 'layout':'text', 'background':{'color':'#f7efe7'}, 'nodes':contact_nodes}

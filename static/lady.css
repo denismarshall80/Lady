@@ -26,12 +26,12 @@ html { scroll-padding-top: var(--anchor-offset, 12px); }
 .content-image.image-mode-tile { background-repeat: repeat; }
 .layout-image .content-image:is(.image-mode-stretch, .image-mode-cover, .image-mode-tile) { height: 340px; }
 .content-info { display: flex; flex-direction: column; min-height: 280px; gap: 12px; }
-.content-element { display: flex; flex: 1; min-width: 0; }
+.content-element { display: flex; flex: 1 0 auto; min-width: 0; }
 .vertical-top { align-items: flex-start; }
 .vertical-center { align-items: center; }
 .vertical-bottom { align-items: flex-end; }
 .content-text { width: 100%; font: inherit; margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-.content-text .button { font: inherit; }
+.content-text .button { display: inline-flex; align-items: center; font: inherit; white-space: normal; }
 .content-block > .content-element { margin-bottom: 18px; }
 .content-link { text-decoration: inherit; }
 .block-editor { margin: 18px 0; padding: 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--soft); scroll-margin-top: 100px; }
@@ -1009,3 +1009,9 @@ th { background: #fff0e6; font-size: 17px; }
 @media (max-width:760px) {
     .content-nodes > .content-image-gallery { grid-template-columns:minmax(0,1fr); }
 }
+
+/* Text keeps its intrinsic height before spare column space is distributed. */
+.content-nodes .content-element { flex: 1 0 auto; }
+.content-social .social-icon { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; margin:0; border-radius:3px; background:#777; color:white; text-decoration:none; }
+.content-social .social-icon:hover { background:#1877f2; }
+.social-icon svg { width:22px; height:22px; fill:currentColor; }

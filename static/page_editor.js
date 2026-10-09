@@ -263,7 +263,9 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (item.kind === 'map') { field(panel,'URL вбудованої Google-мапи (src, без iframe)',item,'url'); field(panel,'Опис мапи',item,'title'); }
             else if (item.kind === 'social') {
                 field(panel,'Розташування посилань',item.value,'align',{left:'Зліва',center:'По центру',right:'Справа'});
-                const link = node('a','Редагувати соціальні посилання у налаштуваннях'); link.href = '/settings?tab=contacts'; link.target = '_blank'; link.rel = 'noopener'; panel.append(link);
+                field(panel,'Заголовок',item.value,'text');
+                if (!item.links) item.links = {facebook:'https://www.facebook.com/profile.php?id=61581148067506'};
+                field(panel,'Facebook — посилання',item.links,'facebook');
             }
             else if (item.kind === 'animation') field(panel,'Контурна анімація всього блоку',item,'effect',effects);
             else elementEditor(panel,kinds[item.kind],item.value,false,true);

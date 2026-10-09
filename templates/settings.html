@@ -25,11 +25,8 @@
     </div>
     <div class="settings-panel-scroll">
     <section class="settings-group settings-panel {{ 'is-active' if active_tab == 'contacts' else '' }}" data-tab-panel="contacts">
-        <h2>Соціальні мережі</h2>
-        <p>Адреса, графік роботи та контактні тексти редагуються в нижніх блоках конструктора сторінки.</p>
-        {% for key, label in [('telegram','Telegram'),('facebook','Facebook'),('instagram','Instagram'),('tiktok','TikTok'),('youtube','YouTube')] %}
-        <label>{{ label }}<input form="settings-contacts-form" name="{{ key }}" value="{{ site_contacts[key] }}"></label>
-        {% endfor %}
+        <h2>Контакти</h2>
+        <p>Контакти та Facebook редагуються в нижніх блоках конструктора сторінки.</p>
     </section>
     <section class="settings-group settings-panel {{ 'is-active' if active_tab == 'maintenance' else '' }}" data-tab-panel="maintenance">
         <h2>Обслуговування</h2>
