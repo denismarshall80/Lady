@@ -8,6 +8,7 @@ import re
 import smtplib
 import uuid
 import zipfile
+from xml.etree import ElementTree as ET
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from email.message import EmailMessage
@@ -45,7 +46,10 @@ except Exception:
 #Ver = "LadySite v0.94.06 (2026-10-08)" #пробіли в нотатках не розгортають блоки, оновлення кешу редактора; окрема вкладка HTML для скриптів і метатегів; прибрано кнопку вставки метатега AdSense; алерти в меню, logotext, одна кнопка налаштувань; єдиний CSV-журнал, експорт і очищення; однакові вкладки налаштувань і прокрутка всередині секції; /profile
 # Ver = "LadySite v0.95.05 (2026-10-09)" #режими й положення малюнків; збереження сторінки без згортання редактора та втрати позиції #керування елементами в заголовку; згорнуті налаштування малюнка; перейменування елемента довгим натисканням  #компактний редактор нод; каруселі, контурні анімації, контакти й адреса з графіком #редаговані нижні блоки; редактор після всього вмісту; фон сайту й окремих блоків
 # Ver = "LadySite v0.95.06 (2026-10-09)" #висота тексту та кнопок; Facebook-іконка й посилання у нижньому блоці
-Ver = "LadySite v0.95.07 (2026-10-09)" #публічний футер; період відвідувачів; діалоги, колонки й панель редактора
+#Ver = "LadySite v0.95.07 (2026-10-09)" #публічний футер; період відвідувачів; діалоги, колонки й панель редактора
+#Ver = "LadySite v0.96.01 (2026-10-10)" #поточні календарні періоди та загальна кількість відвідувачів
+#Ver = "LadySite v0.97 (2026-10-13)" #robots.txt та автоматична карта сайту sitemap.xml
+Ver = "LadySite v1.00 (2026-10-26)" #публічний маршрут ads.txt для AdSense
 
 
 HOST = "localhost" if os.name == "nt" else "0.0.0.0"
@@ -116,6 +120,8 @@ def load_config() -> dict[str, str]:
         "ALERT_MAX_WIDTH": "240",
         "VISITOR_PERIOD_VALUE": "7",
         "VISITOR_PERIOD_UNIT": "days",
+        "VISITOR_CURRENT_ENABLED": "0",
+        "VISITOR_CURRENT_PERIOD": "month",
         "SERVICES_PAGE_INTRO": "Тут розділи і напрямки, якими займається наш центр.",
         "SERVICE_CONTENT_VERSION": "",
         "MAP_URL": DEFAULT_MAP_URL,
@@ -161,6 +167,8 @@ def save_config(config: dict[str, str]) -> None:
         "ALERT_MAX_WIDTH",
         "VISITOR_PERIOD_VALUE",
         "VISITOR_PERIOD_UNIT",
+        "VISITOR_CURRENT_ENABLED",
+        "VISITOR_CURRENT_PERIOD",
     ]
     lines = ["# LadySite configuration", "", "# MySQL"]
     for key in order[:5]:
@@ -916,6 +924,7 @@ def inject_globals():
         "content_csrf": session["content_csrf"],
         "app_version": Ver,
         "visit_count": total_visit_count,
+        "visit_count_all": all_time_visit_count,
         "visitor_period_label": visitor_period_label(global_config),
         "appointment_count": total_appointment_count,
         "user": user,
@@ -931,7 +940,7 @@ app.jinja_env.globals.update(user_display_name=user_display_name, avatar_initial
 
 @app.before_request
 def show_maintenance_for_non_admins():
-    if request.endpoint in {"static", "login", "logout"}:
+    if request.endpoint in {"static", "login", "logout", "robots_txt", "sitemap_xml", "ads_txt"}:
         return None
     config = load_config()
     if not config_flag(config, "SITE_MAINTENANCE_ENABLED"):
@@ -970,7 +979,23 @@ def visitor_period(config):
     return value, unit
 
 
-def visitor_period_label(config):
+def visitor_current_period(config):
+    period = config.get('VISITOR_CURRENT_PERIOD', 'month')
+    return period if period in {'day', 'week', 'month', 'year', 'ten_days'} else 'month'
+
+
+def visitor_period_label(config, now=None):
+    if config_flag(config, 'VISITOR_CURRENT_ENABLED'):
+        now = now or datetime.now()
+        period = visitor_current_period(config)
+        if period == 'month':
+            months = ('Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень',
+                      'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень')
+            return f'за {months[now.month - 1]}'
+        if period == 'year':
+            return f'за {now.year} рік'
+        return {'day': 'за сьогодні', 'week': 'за поточний тиждень',
+                'ten_days': 'за поточні 10 днів'}[period]
     value, unit = visitor_period(config)
     return f"за останні {value} {'міс.' if unit == 'months' else 'дн.'}"
 
@@ -980,12 +1005,36 @@ def total_visit_count() -> int:
         if not runtime_state["schema_ready"]:
             ensure_schema()
         with db_cursor() as cur:
-            value, unit = visitor_period(load_config())
-            interval = 'MONTH' if unit == 'months' else 'DAY'
-            cur.execute(f"SELECT COUNT(DISTINCT VisitorKey) AS cnt FROM PageVisits WHERE CreatedAt >= DATE_SUB(NOW(), INTERVAL %s {interval}) AND CreatedAt <= NOW()", (value,))
+            config = load_config()
+            if config_flag(config, 'VISITOR_CURRENT_ENABLED'):
+                # Use the same database clock as PageVisits.CreatedAt and NOW().
+                start = {
+                    'day': 'CURDATE()',
+                    'week': 'DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)',
+                    'month': "DATE_FORMAT(CURDATE(), '%Y-%m-01')",
+                    'year': "DATE_FORMAT(CURDATE(), '%Y-01-01')",
+                    'ten_days': 'DATE_SUB(CURDATE(), INTERVAL (DAYOFMONTH(CURDATE()) - 1 - LEAST(20, FLOOR((DAYOFMONTH(CURDATE()) - 1) / 10) * 10)) DAY)',
+                }[visitor_current_period(config)]
+                cur.execute(f"SELECT COUNT(DISTINCT VisitorKey) AS cnt FROM PageVisits WHERE CreatedAt >= {start} AND CreatedAt <= NOW()")
+            else:
+                value, unit = visitor_period(config)
+                interval = 'MONTH' if unit == 'months' else 'DAY'
+                cur.execute(f"SELECT COUNT(DISTINCT VisitorKey) AS cnt FROM PageVisits WHERE CreatedAt >= DATE_SUB(NOW(), INTERVAL %s {interval}) AND CreatedAt <= NOW()", (value,))
             return int(cur.fetchone()["cnt"])
     except Exception as ex:
         mf.tolog(f"total_visit_count() failed: {ex}")
+        return 0
+
+
+def all_time_visit_count() -> int:
+    try:
+        if not runtime_state["schema_ready"]:
+            ensure_schema()
+        with db_cursor() as cur:
+            cur.execute("SELECT COUNT(DISTINCT VisitorKey) AS cnt FROM PageVisits WHERE CreatedAt <= NOW()")
+            return int(cur.fetchone()["cnt"])
+    except Exception as ex:
+        mf.tolog(f"all_time_visit_count() failed: {ex}")
         return 0
 
 
@@ -999,6 +1048,41 @@ def total_appointment_count() -> int:
     except Exception as ex:
         mf.tolog(f"total_appointment_count() failed: {ex}")
         return 0
+
+
+@app.route("/ads.txt")
+def ads_txt():
+    return send_file(Path(PPath, "ads.txt"), mimetype="text/plain")
+
+
+@app.route("/robots.txt")
+def robots_txt():
+    rules = Path(PPath, "robots.txt").read_text(encoding="utf-8")
+    return Response(rules.rstrip() + "\n\nSitemap: " + url_for("sitemap_xml", _external=True) + "\n",
+                    mimetype="text/plain")
+
+
+@app.route("/sitemap.xml")
+def sitemap_xml():
+    pages = pc.read_content().get("pages", {})
+    active_sources = set()
+    if any(page.get("source") for page in pages.values()):
+        with db_cursor() as cur:
+            cur.execute("SELECT Id FROM ServiceSections WHERE IsActive=TRUE")
+            active_sources.update("section-" + str(row["Id"]) for row in cur.fetchall())
+            cur.execute("SELECT c.Id FROM ServiceCards c JOIN ServiceSections s ON s.Id=c.SectionId WHERE c.IsActive=TRUE AND s.IsActive=TRUE")
+            active_sources.update("card-" + str(row["Id"]) for row in cur.fetchall())
+    urls = [url_for(endpoint, _external=True) for endpoint in ("index", "services", "about")]
+    for path, page in sorted(pages.items()):
+        if not path.startswith("/services/") or "/" in path[len("/services/"):] or not path[len("/services/"):]:
+            continue
+        if page.get("source") and page["source"] not in active_sources:
+            continue
+        urls.append(url_for("content_page", slug=path[len("/services/"):], _external=True))
+    root = ET.Element("urlset", xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
+    for location in dict.fromkeys(urls):
+        ET.SubElement(ET.SubElement(root, "url"), "loc").text = location
+    return Response(ET.tostring(root, encoding="utf-8", xml_declaration=True), mimetype="application/xml")
 
 
 @app.route("/")
@@ -1603,6 +1687,7 @@ def settings():
         action = request.form.get("action", "save")
         form_config = config.copy()
         form_config["SITE_MAINTENANCE_ENABLED"] = "1" if "cfg_SITE_MAINTENANCE_ENABLED" in request.form else "0"
+        form_config["VISITOR_CURRENT_ENABLED"] = "1" if "cfg_VISITOR_CURRENT_ENABLED" in request.form else "0"
         for key in list(form_config.keys()):
             field = f"cfg_{key}"
             if field in request.form:

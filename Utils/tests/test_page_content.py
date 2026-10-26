@@ -42,6 +42,7 @@ class ContentTests(unittest.TestCase):
         self.module.log_action = lambda *args: None
         self.module.log_user_event = lambda *args: None
         self.module.total_visit_count = lambda: 0
+        self.module.all_time_visit_count = lambda: 0
         self.module.total_appointment_count = lambda: 0
         self.module.db_cursor = Mock(side_effect=AssertionError('Real database access is forbidden'))
         self.client = self.module.app.test_client()
@@ -80,6 +81,57 @@ class ContentTests(unittest.TestCase):
             sql, params = cursor.execute.call_args.args
             self.assertIn('CreatedAt >= DATE_SUB(NOW(), INTERVAL %s ' + sql_unit + ')', sql)
             self.assertEqual(params, (int(value),))
+
+    def test_current_visitor_queries_and_all_time(self):
+        from contextlib import nullcontext
+        source = (ROOT / 'app.py').read_text(encoding='utf-8')
+        scope = dict(self.module.__dict__)
+        cursor = Mock()
+        cursor.fetchone.return_value = {'cnt': 10}
+        scope['db_cursor'] = lambda: nullcontext(cursor)
+        scope['runtime_state'] = {'schema_ready': True}
+        start = source.index('def total_visit_count()')
+        end = source.index('def total_appointment_count()', start)
+        exec(source[start:end], scope)
+        for period, expression in [
+            ('month', "DATE_FORMAT(CURDATE(), '%Y-%m-01')"),
+            ('week', 'WEEKDAY(CURDATE())'),
+            ('year', "DATE_FORMAT(CURDATE(), '%Y-01-01')"),
+            ('ten_days', 'LEAST(20,'), ('day', 'CreatedAt >= CURDATE()'),
+            ('invalid', "DATE_FORMAT(CURDATE(), '%Y-%m-01')"),
+        ]:
+            scope['load_config'] = lambda: {'VISITOR_CURRENT_ENABLED': '1', 'VISITOR_CURRENT_PERIOD': period}
+            self.assertEqual(scope['total_visit_count'](), 10)
+            sql = cursor.execute.call_args.args[0]
+            self.assertIn(expression, sql)
+            self.assertIn('CreatedAt <= NOW()', sql)
+            self.assertIn('COUNT(DISTINCT VisitorKey)', sql)
+        cursor.fetchone.return_value = {'cnt': 100}
+        self.assertEqual(scope['all_time_visit_count'](), 100)
+        self.assertNotIn('CreatedAt >=', cursor.execute.call_args.args[0])
+
+    def test_current_footer_and_settings_save(self):
+        from datetime import datetime
+        config = {'VISITOR_CURRENT_ENABLED': '1', 'VISITOR_CURRENT_PERIOD': 'month',
+                  'VISITOR_PERIOD_VALUE': '7', 'VISITOR_PERIOD_UNIT': 'days'}
+        self.module.load_config = lambda: config.copy()
+        self.assertEqual(self.module.visitor_period_label(config, datetime(2026, 8, 31)), 'за Серпень')
+        self.module.total_visit_count = lambda: 10
+        self.module.all_time_visit_count = lambda: 100
+        html = self.client.get('/?preview=public').get_data(as_text=True)
+        self.assertIn(': 10/100', html)
+        html = self.client.get('/settings').get_data(as_text=True)
+        self.assertIn('Показувати відвідування за поточний:', html)
+        with patch.object(self.module, 'save_config') as save:
+            response = self.client.post('/settings', data={
+                'cfg_VISITOR_CURRENT_ENABLED': '1', 'cfg_VISITOR_CURRENT_PERIOD': 'week'})
+            self.assertEqual(response.status_code, 302)
+            self.assertEqual(save.call_args.args[0]['VISITOR_CURRENT_PERIOD'], 'week')
+            self.assertEqual(save.call_args.args[0]['VISITOR_CURRENT_ENABLED'], '1')
+            self.client.post('/settings', data={'cfg_VISITOR_CURRENT_PERIOD': 'month'})
+            saved = save.call_args.args[0]
+            self.assertEqual(saved['VISITOR_CURRENT_ENABLED'], '0')
+            self.assertEqual(saved['VISITOR_PERIOD_VALUE'], '7')
 
     def test_contact_columns_preserve_content_and_custom_groups(self):
         original = {'site_blocks':[{'layout':'text', 'nodes':[

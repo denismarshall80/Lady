@@ -25,6 +25,7 @@ class JournalTests(unittest.TestCase):
         self.module.load_config = lambda: {'ONLINE_APPOINTMENT_ENABLED': '0'}
         self.module.current_user = lambda: {'Login': 'denis', 'Role': 'admin'}
         self.module.total_visit_count = lambda: 0
+        self.module.all_time_visit_count = lambda: 0
         self.module.total_appointment_count = lambda: 0
         self.module.record_page_visit = lambda: None
         self.client = self.module.app.test_client()

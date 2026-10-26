@@ -21,6 +21,7 @@ class ProfileTests(unittest.TestCase):
         self.module.log_action = Mock()
         self.module.record_page_visit = lambda: None
         self.module.total_visit_count = lambda: 0
+        self.module.all_time_visit_count = lambda: 0
         self.module.total_appointment_count = lambda: 0
         self.cursor = Mock()
         self.cursor.fetchone.return_value = {**self.user, 'Pass': self.module.generate_password_hash('old-password')}

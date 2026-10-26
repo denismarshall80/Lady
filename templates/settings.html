@@ -28,6 +28,18 @@
         <label>Період підрахунку відвідувачів <input form="settings-config-form" name="cfg_VISITOR_PERIOD_VALUE" type="number" min="1" max="3650" value="{{ config.VISITOR_PERIOD_VALUE|default('7') }}"></label>
         <label>Одиниця періоду <select form="settings-config-form" name="cfg_VISITOR_PERIOD_UNIT"><option value="days" {{ 'selected' if config.VISITOR_PERIOD_UNIT != 'months' else '' }}>Дні</option><option value="months" {{ 'selected' if config.VISITOR_PERIOD_UNIT == 'months' else '' }}>Місяці</option></select></label>
         <label class="checkbox-line">
+            <input form="settings-config-form" type="checkbox" name="cfg_VISITOR_CURRENT_ENABLED" value="1" {{ 'checked' if config.VISITOR_CURRENT_ENABLED == '1' else '' }}>
+            Показувати відвідування за поточний:
+        </label>
+        <label>Поточний період
+            <select form="settings-config-form" name="cfg_VISITOR_CURRENT_PERIOD">
+                {% for value, label in [('month', 'Місяць'), ('week', 'Тиждень'), ('year', 'Рік'), ('ten_days', '10 днів'), ('day', 'День')] %}
+                <option value="{{ value }}" {{ 'selected' if config.VISITOR_CURRENT_PERIOD|default('month') == value else '' }}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <p>Увімкнено: від початку поточного періоду до сьогодні. Тиждень — з понеділка; 10 днів — з 1, 11 або 21 числа до кінця місяця. Вимкнено: за останню вказану кількість днів або місяців. Лічильник: за період / за весь час.</p>
+        <label class="checkbox-line">
             <input form="settings-config-form" type="checkbox" name="cfg_SITE_MAINTENANCE_ENABLED" value="1" {{ 'checked' if config.SITE_MAINTENANCE_ENABLED == '1' else '' }}>
             Сайт на обслуговуванні і тимчасово не працює!
         </label>
