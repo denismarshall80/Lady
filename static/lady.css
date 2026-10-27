@@ -1,3 +1,8 @@
+/* Hide the hosting banner, including when it is inserted after page load. */
+#waifly-banner {
+    display: none !important;
+}
+
 :root {
     --ink: #26201f;
     --muted: #6f6562;
@@ -840,9 +845,9 @@ th { background: #fff0e6; font-size: 17px; }
     left: 0;
     right: 0;
     z-index: 20;
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 8px;
     align-items: center;
     padding: 4px 12px;
     border-top: 1px solid var(--line);
@@ -852,11 +857,25 @@ th { background: #fff0e6; font-size: 17px; }
     font-size: 12px;
     line-height: 1.4;
 }
-.footer-version { order: -1; margin-right: auto; white-space: nowrap; }
+.footer-version { grid-column: 2; text-align: center; white-space: nowrap; }
 .footer-stats {
-    margin-left: auto;
+    grid-column: 3;
     text-align: right;
 }
+.barb-rating { display: flex; justify-content: center; margin: 20px 0; }
+.services-without-menu { grid-template-columns: minmax(0, 1fr); }
+.services-content > .content-blocks { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.services-content > .content-blocks > .content-block { grid-column: 1 / -1; }
+.services-content > .content-blocks > .service-card-block { grid-column: auto; padding: 14px; }
+.services-content .content-image { height: 180px; }
+.barb-rating img { display: block; max-width: 100%; height: auto; }
+.service-menu-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 8px; margin-bottom: 12px; align-items: end; }
+.service-menu-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+.users-settings-screen { height: auto; overflow: auto; }
+.users-settings-screen main { display: block; overflow: visible; }
+.log-custom-range { display: flex; gap: 12px; }
+.log-custom-range[hidden] { display: none; }
+.log-filename { font-size: 14px; overflow-wrap: anywhere; }
 .admin-page {
     font-size: 15px;
 }
@@ -925,9 +944,22 @@ th { background: #fff0e6; font-size: 17px; }
 
 @media (max-width: 900px) {
     body { font-size: 17px; }
-    .topbar { position: static; align-items: flex-start; flex-direction: column; }
+    .topbar { position: static; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 8px; padding: 8px 12px; }
     .topbar-left { align-items: flex-start; flex-direction: column; }
-    .nav-center { justify-content: flex-start; }
+    .topbar-left { grid-column: 1; grid-row: 1; }
+    .topbar .user-menu, .topbar > .nav-right { grid-column: 2; grid-row: 1; }
+    .topbar .nav-center { grid-column: 1 / -1; grid-row: 2; justify-content: flex-start; }
+    .topbar .menu-alerts { grid-column: 1 / -1; grid-row: 3; }
+    .topbar .menu-alerts:empty { display: none; }
+    .brand { min-width: 0; }
+    .brand img { width: 48px; height: 44px; }
+    .brand-text { max-width: 100%; }
+    .topbar-user-name { display: none; }
+    .user-menu-trigger { padding: 6px; }
+    .footer { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .footer-version, .footer-stats { grid-column: 1; text-align: center; }
+    .service-menu-row { grid-template-columns: minmax(0, 1fr); }
+    .services-content > .content-blocks { grid-template-columns: minmax(0, 1fr); }
     .nav-right { margin-left: 0; justify-content: flex-start; }
     .nav { justify-content: flex-start; }
     .hero, .intro-band, .about-hero, .appointment-form, .settings-form, .user-create, .logs-grid,

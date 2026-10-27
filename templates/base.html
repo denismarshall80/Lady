@@ -37,11 +37,9 @@
             <a class="{{ 'active' if active_page == 'home' else '' }}" href="{{ url_for('index') }}">Головна</a>
             <a class="{{ 'active' if active_page == 'services' else '' }}" href="{{ url_for('services') }}">Послуги і ціни</a>
             {% endif %}
-            <a class="{{ 'active' if active_page == 'admin' else '' }}" href="{{ url_for('admin_appointments') }}">Записи</a>
-            <a class="{{ 'active' if active_page == 'visits' else '' }}" href="{{ url_for('visit_stats') }}">Відвідини сайту</a>
+            {% if footer_online_enabled %}<a class="{{ 'active' if active_page == 'admin' else '' }}" href="{{ url_for('admin_appointments') }}">Записи</a>{% endif %}
             {% if is_admin %}
             <a class="{{ 'active' if active_page == 'settings' else '' }}" href="{{ url_for('settings') }}">Налаштування</a>
-            <a class="{{ 'active' if active_page == 'users' else '' }}" href="{{ url_for('users') }}">Користувачі</a>
             <a class="{{ 'active' if active_page == 'logs' else '' }}" href="{{ url_for('logs') }}">Журнал</a>
             {% endif %}
         </nav>
@@ -70,12 +68,15 @@
         {% if not hide_public_shell and active_page not in ['admin','visits','settings','users','logs','profile','login'] %}
         {% with page={'blocks': site_blocks}, blocks_class='site-blocks' %}{% include 'page_blocks.html' %}{% endwith %}
         {% endif %}
+        {% if not hide_public_shell and active_page in ['home', 'services', 'about'] %}
+        <div class="barb-rating"><a href="https://barb.ua/uk/kamenets-podolskiy/salon/ledi"><img src="https://barb.ua/p/225522-light-r-wd.svg" alt="Рейтинг на Barb.ua" width="250" height="60" referrerpolicy="unsafe-url" loading="lazy"></a></div>
+        {% endif %}
         {% if manager_view|default(false) and page is defined and page_path is defined %}{% include 'page_editor.html' %}{% endif %}
     </main>
     {% if not hide_public_shell %}
     <footer class="footer">
         <span class="footer-version">{{ app_version }}</span>
-        <span class="footer-stats" title="Унікальні відвідувачі: за обраний період / за весь час">Відвідало {{ visitor_period_label }}: {{ visit_count() }}/{{ visit_count_all() }}{% if can_manage_services and footer_online_enabled %}&nbsp;&nbsp;&nbsp; Записалось: {{ appointment_count() }}{% endif %}</span>
+        <span class="footer-stats" title="Унікальні відвідувачі: за обраний період / за весь час">{% if user %}<a href="{{ url_for('visit_stats') }}">{% endif %}Відвідало {{ visitor_period_label }}: {{ visit_count() }}/{{ visit_count_all() }}{% if user %}</a>{% endif %}{% if can_manage_services and footer_online_enabled %}&nbsp;&nbsp;&nbsp; Записалось: {{ appointment_count() }}{% endif %}</span>
     </footer>
     {% endif %}
     {{ global_code.body_end|default('')|safe }}

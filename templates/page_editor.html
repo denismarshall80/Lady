@@ -12,6 +12,13 @@
         </details>
         <p>Порожні заголовки, текст, кнопки й малюнки не показуються. Зміни публікуються після натискання «Зберегти зміни».</p>
         <details class="logo-editor"><summary>Фон сайту</summary><div data-site-background-editor></div></details>
+        {% if page_path == '/services' %}
+        <h3>Меню послуг</h3>
+        <p>Додавайте пункти та посилання на блоки (#якір), інші сторінки або зовнішні адреси. Якір задається в налаштуваннях блоку нижче.</p>
+        <div data-service-menu-editor></div>
+        <button type="button" data-menu-add>Додати пункт меню</button>
+        <script type="application/json" data-service-menu-data>{{ page.menu|default([])|tojson }}</script>
+        {% endif %}
         <h3>Блоки цієї сторінки</h3>
         <div data-block-list></div>
         <button type="button" data-block-add>Додати блок сторінки</button>

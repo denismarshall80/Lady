@@ -1,0 +1,7 @@
+# SQLite database path, relative to the application directory.
+# Absolute filesystem paths are also accepted.
+SQLITE_PATH=DATA/lady.db
+
+# Other site, SMTP and Telegram settings are added by the application.
+# Online appointments can be disabled without hiding existing records.
+ONLINE_APPOINTMENT_ENABLED=0

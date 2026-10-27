@@ -24,13 +24,9 @@ import Utils.myfunct as mf
 import Utils.page_content as pc
 import Utils.site_log as sl
 
-try:
-    import pymysql
-    from pymysql.cursors import DictCursor
-except Exception:
-    pymysql = None
-    DictCursor = None
-
+import sqlite3
+import calendar
+import Utils.database as database
 
 #Ver = "LadySite v0.5.13" # first build 2024-07-01
 #Ver = "LadySite v0.5.14" #оновили ціни
@@ -49,15 +45,15 @@ except Exception:
 #Ver = "LadySite v0.95.07 (2026-10-09)" #публічний футер; період відвідувачів; діалоги, колонки й панель редактора
 #Ver = "LadySite v0.96.01 (2026-10-10)" #поточні календарні періоди та загальна кількість відвідувачів
 #Ver = "LadySite v0.97 (2026-10-13)" #robots.txt та автоматична карта сайту sitemap.xml
-Ver = "LadySite v1.00 (2026-10-26)" #публічний маршрут ads.txt для AdSense
+#Ver = "LadySite v1.00 (2026-10-26)" #публічний маршрут ads.txt для AdSense
+#Ver = "LadySite v1.00.01 (2026-10-27)" #автоматичне приховування банера waifly
+Ver = "LadySite v1.00.02 (2026-10-27)" #SQLite, JSON-послуги, компактне меню та журнал
 
 
 HOST = "localhost" if os.name == "nt" else "0.0.0.0"
 PORT = 5000
 PPath = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(PPath, "DATA", "LadySite.config")
-DEFAULT_SERVICES_PATH = os.path.join(PPath, "DATA", "default_services.json")
-SERVICE_CONTENT_VERSION = "2026-07-02-price-2"
 VISIT_COOKIE = "lady_visitor"
 VISIT_TRACK_ENDPOINTS = {"index", "services", "about"}
 REPORT_DIR = os.path.join(PPath, "Report")
@@ -96,11 +92,7 @@ def load_config() -> dict[str, str]:
                 config[key.strip()] = _strip_inline_comment(value)
 
     defaults = {
-        "MYSQL_USER": "lady",
-        "MYSQL_PASSWORD": "",
-        "MYSQL_HOST": "mysql-lady.alwaysdata.net",
-        "MYSQL_PORT": "3306",
-        "MYSQL_DATABASE": "lady_db",
+        "SQLITE_PATH": "DATA/lady.db",
         "SMTP_HOST": "",
         "SMTP_PORT": "587",
         "SMTP_USER": "",
@@ -123,7 +115,6 @@ def load_config() -> dict[str, str]:
         "VISITOR_CURRENT_ENABLED": "0",
         "VISITOR_CURRENT_PERIOD": "month",
         "SERVICES_PAGE_INTRO": "Тут розділи і напрямки, якими займається наш центр.",
-        "SERVICE_CONTENT_VERSION": "",
         "MAP_URL": DEFAULT_MAP_URL,
         "MAP_EMBED_URL": DEFAULT_MAP_EMBED_URL,
     }
@@ -139,11 +130,7 @@ def load_config() -> dict[str, str]:
 
 def save_config(config: dict[str, str]) -> None:
     order = [
-        "MYSQL_USER",
-        "MYSQL_PASSWORD",
-        "MYSQL_HOST",
-        "MYSQL_PORT",
-        "MYSQL_DATABASE",
+        "SQLITE_PATH",
         "SMTP_HOST",
         "SMTP_PORT",
         "SMTP_USER",
@@ -161,7 +148,6 @@ def save_config(config: dict[str, str]) -> None:
         "ONLINE_APPOINTMENT_ENABLED",
         "SITE_MAINTENANCE_ENABLED",
         "SERVICES_PAGE_INTRO",
-        "SERVICE_CONTENT_VERSION",
         "MAP_URL",
         "MAP_EMBED_URL",
         "ALERT_MAX_WIDTH",
@@ -170,40 +156,28 @@ def save_config(config: dict[str, str]) -> None:
         "VISITOR_CURRENT_ENABLED",
         "VISITOR_CURRENT_PERIOD",
     ]
-    lines = ["# LadySite configuration", "", "# MySQL"]
-    for key in order[:5]:
+    lines = ["# LadySite configuration", "# SQLite database path, relative to the application directory"]
+    for key in order:
         lines.append(f"{key}={config.get(key, '')}")
-    lines.extend(["", "# SMTP"])
-    for key in order[5:12]:
-        lines.append(f"{key}={config.get(key, '')}")
-    lines.extend(["", "# Telegram"])
-    for key in order[12:14]:
-        lines.append(f"{key}={config.get(key, '')}")
-    lines.extend(["", "# Site"])
-    for key in order[14:]:
-        lines.append(f"{key}={config.get(key, '')}")
+    for key in sorted(set(config) - set(order)):
+        if not key.startswith("MYSQL_"):
+            lines.append(f"{key}={config[key]}")
     with open(CONFIG_PATH, "w", encoding="utf-8") as fh:
         fh.write("\n".join(lines) + "\n")
 
 
+def database_path():
+    path = Path(load_config().get("SQLITE_PATH", "DATA/lady.db"))
+    return path if path.is_absolute() else Path(PPath) / path
+
+
 @contextmanager
 def db_cursor(commit: bool = False):
-    if pymysql is None:
-        raise RuntimeError("PyMySQL не встановлено. Виконайте: pip install -r requirements.txt")
-    config = load_config()
-    conn = pymysql.connect(
-        host=config["MYSQL_HOST"],
-        user=config["MYSQL_USER"],
-        password=config["MYSQL_PASSWORD"],
-        database=config["MYSQL_DATABASE"],
-        port=int(config.get("MYSQL_PORT", "3306") or 3306),
-        charset="utf8mb4",
-        cursorclass=DictCursor,
-        autocommit=False,
-    )
+    conn = database.connect(database_path())
     try:
-        with conn.cursor() as cur:
-            yield cur
+        if commit:
+            conn.execute("BEGIN IMMEDIATE")
+        yield conn.cursor()
         if commit:
             conn.commit()
         else:
@@ -215,116 +189,15 @@ def db_cursor(commit: bool = False):
         conn.close()
 
 
-def mysql_error_code(ex: Exception) -> int | None:
-    if not getattr(ex, "args", None):
-        return None
-    try:
-        return int(ex.args[0])
-    except (TypeError, ValueError):
-        return None
-
-
 def ensure_schema() -> None:
+    if runtime_state["schema_ready"]:
+        return
     try:
-        with db_cursor(commit=True) as cur:
-            cur.execute(
-                """
-                CREATE TABLE IF NOT EXISTS Users (
-                    Login VARCHAR(120) PRIMARY KEY,
-                    FullName VARCHAR(255) NULL,
-                    Email VARCHAR(255) NULL,
-                    AvatarUrl TEXT NULL,
-                    Pass VARCHAR(255) NOT NULL,
-                    Role ENUM('admin','manager') NOT NULL DEFAULT 'manager',
-                    IsBlocked BOOLEAN NOT NULL DEFAULT FALSE,
-                    Last DATETIME NULL,
-                    ActiveSessionId VARCHAR(80) NULL,
-                    CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    UpdatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-                """
-            )
-            cur.execute(
-                """
-                CREATE TABLE IF NOT EXISTS Appointments (
-                    Id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                    VisitAt DATETIME NOT NULL,
-                    ClientName VARCHAR(255) NOT NULL,
-                    VisitPurpose TEXT NOT NULL,
-                    Phone VARCHAR(80) NULL,
-                    Email VARCHAR(255) NULL,
-                    create_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                    SendNow BOOLEAN NOT NULL DEFAULT FALSE,
-                    SendBeforeCl BOOLEAN NOT NULL DEFAULT FALSE,
-                    INDEX idx_visit_at (VisitAt),
-                    INDEX idx_send_now (SendNow),
-                    INDEX idx_send_before (SendBeforeCl)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-                """
-            )
-            cur.execute(
-                """
-                CREATE TABLE IF NOT EXISTS ServiceSections (
-                    Id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                    Title VARCHAR(255) NOT NULL,
-                    Description TEXT NULL,
-                    ImageUrl TEXT NULL,
-                    SortOrder INT NOT NULL DEFAULT 100,
-                    IsActive BOOLEAN NOT NULL DEFAULT TRUE,
-                    CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-                """
-            )
-            cur.execute(
-                """
-                CREATE TABLE IF NOT EXISTS ServiceCards (
-                    Id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                    SectionId BIGINT NOT NULL,
-                    Title VARCHAR(255) NOT NULL,
-                    ShortDescription TEXT NULL,
-                    PriceText VARCHAR(120) NULL,
-                    ImageUrl TEXT NULL,
-                    SortOrder INT NOT NULL DEFAULT 100,
-                    IsActive BOOLEAN NOT NULL DEFAULT TRUE,
-                    CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    INDEX idx_service_cards_section (SectionId)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-                """
-            )
-            cur.execute("SHOW COLUMNS FROM Users LIKE 'AvatarUrl'")
-            if not cur.fetchone():
-                cur.execute("ALTER TABLE Users ADD COLUMN AvatarUrl TEXT NULL")
-            cur.execute("ALTER TABLE ServiceCards MODIFY PriceText TEXT NULL")
-            cur.execute(
-                """
-                CREATE TABLE IF NOT EXISTS PageVisits (
-                    Id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                    VisitorKey CHAR(64) NOT NULL,
-                    Path VARCHAR(255) NOT NULL,
-                    Endpoint VARCHAR(120) NULL,
-                    UserAgent VARCHAR(500) NULL,
-                    CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    INDEX idx_page_visits_created (CreatedAt),
-                    INDEX idx_page_visits_visitor_day (VisitorKey, CreatedAt)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-                """
-            )
-            cur.execute("SELECT COUNT(*) AS cnt FROM Users WHERE Login=%s", ("denis",))
-            if int(cur.fetchone()["cnt"]) == 0:
-                cur.execute(
-                    """
-                    INSERT INTO Users (Login, FullName, Email, Pass, Role, IsBlocked)
-                    VALUES (%s, %s, %s, %s, 'admin', FALSE)
-                    """,
-                    ("denis", "Денис", None, generate_password_hash("DenMar15")),
-                )
-            seed_service_content(cur)
-            config = load_config()
-            if config.get("SERVICE_CONTENT_VERSION") != SERVICE_CONTENT_VERSION:
-                sync_default_service_content(cur)
-                config["SERVICE_CONTENT_VERSION"] = SERVICE_CONTENT_VERSION
-                save_config(config)
+        conn = database.connect(database_path())
+        try:
+            database.initialize(conn)
+        finally:
+            conn.close()
         runtime_state["schema_ready"] = True
         runtime_state["schema_error"] = ""
     except Exception as ex:
@@ -333,185 +206,12 @@ def ensure_schema() -> None:
         mf.tolog(f"ensure_schema() failed: {ex}")
 
 
-def load_default_services() -> list[dict[str, Any]]:
-    try:
-        with open(DEFAULT_SERVICES_PATH, "r", encoding="utf-8") as fh:
-            data = json.load(fh)
-        sections = data.get("sections", [])
-        return sections if isinstance(sections, list) else []
-    except Exception as ex:
-        _report_critical_error("load_default_services() failed", ex)
-        return []
-
-
-def seed_service_content(cur) -> None:
-    cur.execute("SELECT COUNT(*) AS cnt FROM ServiceSections")
-    if int(cur.fetchone()["cnt"]) > 0:
-        return
-    for index, section in enumerate(load_default_services(), start=1):
-        title = str(section.get("title") or "").strip()
-        if not title:
-            continue
-        description = str(section.get("description") or "").strip()
-        image_url = str(section.get("image_url") or "").strip()
-        cur.execute(
-            "INSERT INTO ServiceSections (Title, Description, ImageUrl, SortOrder) VALUES (%s, %s, %s, %s)",
-            (title, description or None, image_url or None, index * 10),
-        )
-        section_id = cur.lastrowid
-        cards = section.get("cards", [])
-        if not isinstance(cards, list):
-            continue
-        for card_index, card in enumerate(cards, start=1):
-            card_title = str(card.get("title") or "").strip()
-            if not card_title:
-                continue
-            cur.execute(
-                """
-                INSERT INTO ServiceCards (SectionId, Title, ShortDescription, PriceText, ImageUrl, SortOrder)
-                VALUES (%s, %s, %s, %s, %s, %s)
-                """,
-                (
-                    section_id,
-                    card_title,
-                    str(card.get("description") or "").strip() or None,
-                    str(card.get("price") or "").strip() or "від ХХ грн",
-                    str(card.get("image_url") or "").strip() or None,
-                    card_index * 10,
-                ),
-            )
-
-
-def sync_default_service_content(cur) -> None:
-    aliases = {
-        "Пірсинг": [
-            "Медичний пірсинг",
-            "Пірсинг вух",
-            "Пірсинг носа",
-            "Пірсинг брови",
-            "Пірсинг язика",
-            "Пірсинг пупка",
-            "Додатково",
-        ],
-        "Прикраси": ["Італійська медична позолота"],
-    }
-    for index, section in enumerate(load_default_services(), start=1):
-        title = str(section.get("title") or "").strip()
-        if not title:
-            continue
-        description = str(section.get("description") or "").strip() or None
-        image_url = str(section.get("image_url") or "").strip() or None
-        lookup_titles = [title, *aliases.get(title, [])]
-        placeholders = ",".join(["%s"] * len(lookup_titles))
-        cur.execute(f"SELECT Id FROM ServiceSections WHERE Title IN ({placeholders}) ORDER BY Id", lookup_titles)
-        rows = cur.fetchall()
-        if rows:
-            section_id = int(rows[0]["Id"])
-            duplicate_section_ids = [int(row["Id"]) for row in rows[1:]]
-            if duplicate_section_ids:
-                duplicate_placeholders = ",".join(["%s"] * len(duplicate_section_ids))
-                cur.execute(
-                    f"UPDATE ServiceCards SET SectionId=%s WHERE SectionId IN ({duplicate_placeholders})",
-                    (section_id, *duplicate_section_ids),
-                )
-                cur.execute(f"DELETE FROM ServiceSections WHERE Id IN ({duplicate_placeholders})", duplicate_section_ids)
-            cur.execute(
-                """
-                UPDATE ServiceSections
-                SET Title=%s, Description=%s, ImageUrl=%s, SortOrder=%s, IsActive=TRUE
-                WHERE Id=%s
-                """,
-                (title, description, image_url, index * 10, section_id),
-            )
-        else:
-            cur.execute(
-                "INSERT INTO ServiceSections (Title, Description, ImageUrl, SortOrder) VALUES (%s, %s, %s, %s)",
-                (title, description, image_url, index * 10),
-            )
-            section_id = int(cur.lastrowid)
-
-        cards = section.get("cards", [])
-        if not isinstance(cards, list):
-            cards = []
-        active_titles: list[str] = []
-        for card_index, card in enumerate(cards, start=1):
-            card_title = str(card.get("title") or "").strip()
-            if not card_title:
-                continue
-            active_titles.append(card_title)
-            card_values = (
-                str(card.get("description") or "").strip() or None,
-                str(card.get("price") or "").strip() or "від ХХ грн",
-                str(card.get("image_url") or "").strip() or None,
-                card_index * 10,
-            )
-            cur.execute("SELECT Id FROM ServiceCards WHERE SectionId=%s AND Title=%s ORDER BY Id", (section_id, card_title))
-            existing_rows = cur.fetchall()
-            if existing_rows:
-                card_id = int(existing_rows[0]["Id"])
-                duplicate_card_ids = [int(row["Id"]) for row in existing_rows[1:]]
-                if duplicate_card_ids:
-                    duplicate_placeholders = ",".join(["%s"] * len(duplicate_card_ids))
-                    cur.execute(f"DELETE FROM ServiceCards WHERE Id IN ({duplicate_placeholders})", duplicate_card_ids)
-                cur.execute(
-                    """
-                    UPDATE ServiceCards
-                    SET ShortDescription=%s, PriceText=%s, ImageUrl=%s, SortOrder=%s, IsActive=TRUE
-                    WHERE Id=%s
-                    """,
-                    (*card_values, card_id),
-                )
-            else:
-                cur.execute(
-                    """
-                    INSERT INTO ServiceCards (SectionId, Title, ShortDescription, PriceText, ImageUrl, SortOrder)
-                    VALUES (%s, %s, %s, %s, %s, %s)
-                    """,
-                    (section_id, card_title, *card_values),
-                )
-        if active_titles:
-            placeholders = ",".join(["%s"] * len(active_titles))
-            cur.execute(
-                f"UPDATE ServiceCards SET IsActive=FALSE WHERE SectionId=%s AND Title NOT IN ({placeholders})",
-                (section_id, *active_titles),
-            )
-
-
-def load_service_sections(include_inactive: bool = False) -> list[dict[str, Any]]:
-    where = "" if include_inactive else "WHERE IsActive=TRUE"
-    with db_cursor() as cur:
-        cur.execute(f"SELECT * FROM ServiceSections {where} ORDER BY SortOrder, Id")
-        sections = cur.fetchall()
-        cur.execute(
-            f"""
-            SELECT c.*
-            FROM ServiceCards c
-            JOIN ServiceSections s ON s.Id=c.SectionId
-            {"WHERE c.IsActive=TRUE" if not include_inactive else ""}
-            ORDER BY c.SortOrder, c.Id
-            """
-        )
-        cards = cur.fetchall()
-    metadata = pc.read_content().get("services", {})
-    for kind, rows in (("section", sections), ("card", cards)):
-        for row in rows:
-            row.update(metadata.get(f"{kind}-{row['Id']}", {}))
-    by_section: dict[int, list[dict[str, Any]]] = {}
-    for card in cards:
-        price_lines = [line.strip() for line in str(card.get("PriceText") or "").splitlines() if line.strip()]
-        card["PriceLines"] = price_lines or [str(card.get("PriceText") or "").strip() or "від ХХ грн"]
-        by_section.setdefault(int(card["SectionId"]), []).append(card)
-    for section in sections:
-        section["Cards"] = by_section.get(int(section["Id"]), [])
-    return sections
-
-
 def current_user() -> dict[str, Any] | None:
     login = session.get("login")
     if not login:
         return None
     with db_cursor() as cur:
-        cur.execute("SELECT Login, FullName, Email, AvatarUrl, Role, IsBlocked, ActiveSessionId FROM Users WHERE Login=%s", (login,))
+        cur.execute("SELECT Login, FullName, Email, AvatarUrl, Role, IsBlocked, ActiveSessionId FROM Users WHERE Login=?", (login,))
         user = cur.fetchone()
     if not user or user.get("IsBlocked"):
         session.clear()
@@ -611,45 +311,6 @@ def parse_date(value: str) -> datetime | None:
         return None
 
 
-def localize_image_url(image_url: str) -> str:
-    image_url = (image_url or "").strip()
-    if not image_url or not image_url.lower().startswith(("http://", "https://")):
-        return image_url
-    try:
-        response = requests.get(image_url, timeout=15)
-        response.raise_for_status()
-        content_type = response.headers.get("Content-Type", "").lower()
-        ext = ".jpg"
-        if "png" in content_type:
-            ext = ".png"
-        elif "webp" in content_type:
-            ext = ".webp"
-        elif "gif" in content_type:
-            ext = ".gif"
-        existing = sorted(Path(SERVICE_IMAGE_DIR).glob("Image_*.*"))
-        next_num = 1
-        if existing:
-            nums = []
-            for path in existing:
-                match = re.search(r"Image_(\d+)", path.stem)
-                if match:
-                    nums.append(int(match.group(1)))
-            next_num = (max(nums) + 1) if nums else 1
-        filename = f"Image_{next_num:05d}{ext}"
-        target = os.path.join(SERVICE_IMAGE_DIR, filename)
-        with open(target, "wb") as fh:
-            fh.write(response.content)
-        return f"/static/service_images/{filename}"
-    except Exception as ex:
-        mf.tolog(f"localize_image_url() failed for {image_url}: {ex}")
-        return image_url
-
-
-def normalize_price_text(price: str) -> str:
-    lines = [line.strip() for line in (price or "").splitlines() if line.strip()]
-    return "\n".join(lines) or "від ХХ грн"
-
-
 def uploaded_service_image_url(field_name: str = "image_file") -> str:
     file = request.files.get(field_name)
     if not file or not file.filename:
@@ -663,18 +324,6 @@ def uploaded_service_image_url(field_name: str = "image_file") -> str:
     target = os.path.join(SERVICE_IMAGE_DIR, filename)
     file.save(target)
     return f"/static/service_images/{filename}"
-
-
-def service_image_from_request(current_url: str = "") -> str:
-    uploaded = uploaded_service_image_url()
-    if uploaded:
-        return uploaded
-    if request.form.get("image_mode", "file") == "file":
-        return current_url
-    image_url = request.form.get("image_url", "").strip()
-    if image_url:
-        return localize_image_url(image_url)
-    return current_url
 
 
 def visitor_key(raw_id: str) -> str:
@@ -699,7 +348,7 @@ def record_page_visit() -> None:
             cur.execute(
                 """
                 INSERT INTO PageVisits (VisitorKey, Path, Endpoint, UserAgent)
-                VALUES (%s, %s, %s, %s)
+                VALUES (?, ?, ?, ?)
                 """,
                 (
                     visitor_key(visitor_id),
@@ -837,7 +486,7 @@ def _send_report_files() -> int:
 def delete_old_appointments(days: int) -> int:
     cutoff = datetime.now() - timedelta(days=max(1, days))
     with db_cursor(commit=True) as cur:
-        cur.execute("DELETE FROM Appointments WHERE VisitAt < %s", (cutoff,))
+        cur.execute("DELETE FROM Appointments WHERE VisitAt < ?", (cutoff,))
         return cur.rowcount
 
 
@@ -856,13 +505,13 @@ def scheduler_job(force_cleanup: bool = False) -> None:
             for row in rows:
                 text = build_appointment_text(row, "Новий запис у центр краси і здоров'я ЛЕДІ")
                 if notify_staff("ЛЕДІ: новий запис", text, config):
-                    cur.execute("UPDATE Appointments SET SendNow=TRUE WHERE Id=%s", (row["Id"],))
+                    cur.execute("UPDATE Appointments SET SendNow=TRUE WHERE Id=?", (row["Id"],))
 
             remind_hours = parse_int(config.get("REMIND_BEFORE_HOURS", "2"), 2, 1, 240)
             cur.execute(
                 """
                 SELECT * FROM Appointments
-                WHERE SendBeforeCl=FALSE AND VisitAt BETWEEN %s AND %s
+                WHERE SendBeforeCl=FALSE AND VisitAt BETWEEN ? AND ?
                 ORDER BY VisitAt
                 LIMIT 50
                 """,
@@ -872,7 +521,7 @@ def scheduler_job(force_cleanup: bool = False) -> None:
             for row in rows:
                 text = build_appointment_text(row, f"Нагадування: клієнт прийде через {remind_hours} год.")
                 if notify_staff("ЛЕДІ: нагадування про клієнта", text, config):
-                    cur.execute("UPDATE Appointments SET SendBeforeCl=TRUE WHERE Id=%s", (row["Id"],))
+                    cur.execute("UPDATE Appointments SET SendBeforeCl=TRUE WHERE Id=?", (row["Id"],))
 
         clear_hours = parse_int(config.get("CLEAR_LOG_HOURS", "12"), 12, 1, 720)
         if force_cleanup or runtime_state["last_log_clear"] + timedelta(hours=clear_hours) <= now:
@@ -1000,26 +649,37 @@ def visitor_period_label(config, now=None):
     return f"за останні {value} {'міс.' if unit == 'months' else 'дн.'}"
 
 
+def visitor_period_start(config, now):
+    midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    if config_flag(config, 'VISITOR_CURRENT_ENABLED'):
+        period = visitor_current_period(config)
+        if period == 'week':
+            return midnight - timedelta(days=now.weekday())
+        if period == 'month':
+            return midnight.replace(day=1)
+        if period == 'year':
+            return midnight.replace(month=1, day=1)
+        if period == 'ten_days':
+            return midnight.replace(day=min(21, ((now.day - 1) // 10) * 10 + 1))
+        return midnight
+    value, unit = visitor_period(config)
+    if unit == 'days':
+        return now - timedelta(days=value)
+    month_index = now.year * 12 + now.month - 1 - value
+    year, month = divmod(month_index, 12)
+    return now.replace(year=year, month=month + 1,
+                       day=min(now.day, calendar.monthrange(year, month + 1)[1]))
+
+
 def total_visit_count() -> int:
     try:
         if not runtime_state["schema_ready"]:
             ensure_schema()
         with db_cursor() as cur:
             config = load_config()
-            if config_flag(config, 'VISITOR_CURRENT_ENABLED'):
-                # Use the same database clock as PageVisits.CreatedAt and NOW().
-                start = {
-                    'day': 'CURDATE()',
-                    'week': 'DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)',
-                    'month': "DATE_FORMAT(CURDATE(), '%Y-%m-01')",
-                    'year': "DATE_FORMAT(CURDATE(), '%Y-01-01')",
-                    'ten_days': 'DATE_SUB(CURDATE(), INTERVAL (DAYOFMONTH(CURDATE()) - 1 - LEAST(20, FLOOR((DAYOFMONTH(CURDATE()) - 1) / 10) * 10)) DAY)',
-                }[visitor_current_period(config)]
-                cur.execute(f"SELECT COUNT(DISTINCT VisitorKey) AS cnt FROM PageVisits WHERE CreatedAt >= {start} AND CreatedAt <= NOW()")
-            else:
-                value, unit = visitor_period(config)
-                interval = 'MONTH' if unit == 'months' else 'DAY'
-                cur.execute(f"SELECT COUNT(DISTINCT VisitorKey) AS cnt FROM PageVisits WHERE CreatedAt >= DATE_SUB(NOW(), INTERVAL %s {interval}) AND CreatedAt <= NOW()", (value,))
+            now = datetime.now()
+            start = visitor_period_start(config, now)
+            cur.execute("SELECT COUNT(DISTINCT VisitorKey) AS cnt FROM PageVisits WHERE CreatedAt >= ? AND CreatedAt <= ?", (start, now))
             return int(cur.fetchone()["cnt"])
     except Exception as ex:
         mf.tolog(f"total_visit_count() failed: {ex}")
@@ -1031,7 +691,7 @@ def all_time_visit_count() -> int:
         if not runtime_state["schema_ready"]:
             ensure_schema()
         with db_cursor() as cur:
-            cur.execute("SELECT COUNT(DISTINCT VisitorKey) AS cnt FROM PageVisits WHERE CreatedAt <= NOW()")
+            cur.execute("SELECT COUNT(DISTINCT VisitorKey) AS cnt FROM PageVisits WHERE CreatedAt <= datetime('now','localtime')")
             return int(cur.fetchone()["cnt"])
     except Exception as ex:
         mf.tolog(f"all_time_visit_count() failed: {ex}")
@@ -1065,13 +725,7 @@ def robots_txt():
 @app.route("/sitemap.xml")
 def sitemap_xml():
     pages = pc.read_content().get("pages", {})
-    active_sources = set()
-    if any(page.get("source") for page in pages.values()):
-        with db_cursor() as cur:
-            cur.execute("SELECT Id FROM ServiceSections WHERE IsActive=TRUE")
-            active_sources.update("section-" + str(row["Id"]) for row in cur.fetchall())
-            cur.execute("SELECT c.Id FROM ServiceCards c JOIN ServiceSections s ON s.Id=c.SectionId WHERE c.IsActive=TRUE AND s.IsActive=TRUE")
-            active_sources.update("card-" + str(row["Id"]) for row in cur.fetchall())
+    active_sources = pc.active_service_sources(pc.read_content())
     urls = [url_for(endpoint, _external=True) for endpoint in ("index", "services", "about")]
     for path, page in sorted(pages.items()):
         if not path.startswith("/services/") or "/" in path[len("/services/"):] or not path[len("/services/"):]:
@@ -1096,296 +750,11 @@ def index():
 
 @app.route("/services")
 def services():
-    preview_public = request.args.get("preview") == "public"
-    manager_view = can_manage_services(current_user()) and not preview_public
-    try:
-        ensure_schema()
-        sections = load_service_sections(include_inactive=manager_view)
-        config = load_config()
-    except Exception as ex:
-        _report_critical_error("services page failed", ex)
-        sections = []
-        config = load_config()
-        flash(f"Послуги тимчасово недоступні: {ex}", "error")
-    return render_template(
-        "services.html",
-        sections=sections,
-        config=config,
-        manager_view=manager_view,
-        active_page="services",
-    )
-
-
-@app.route("/services/intro", methods=["POST"])
-def service_intro_update():
-    user = require_user()
-    if not isinstance(user, dict):
-        return user
-    if not can_manage_services(user):
-        flash("Недостатньо прав для редагування послуг.", "error")
-        return redirect(url_for("services"))
-    intro = request.form.get("services_intro", "").strip()
-    config = load_config()
-    config["SERVICES_PAGE_INTRO"] = intro or "Тут розділи і напрямки, якими займається наш центр."
-    save_config(config)
-    log_action("services_intro_update")
-    flash("Текст сторінки послуг оновлено.", "success")
-    return redirect(url_for("services") + "#services-admin")
-
-
-@app.route("/services/section", methods=["POST"])
-def service_section_create():
-    user = require_user()
-    if not isinstance(user, dict):
-        return user
-    if not can_manage_services(user):
-        flash("Недостатньо прав для редагування послуг.", "error")
-        return redirect(url_for("services"))
-    title = request.form.get("title", "").strip()
-    try:
-        pc.safe_url(request.form.get("title_url", ""))
-    except ValueError as ex:
-        flash(str(ex), "error")
-        return redirect(url_for("services") + "#services-admin")
-    description = request.form.get("description", "").strip()
-    image_url = service_image_from_request()
-    if not title:
-        flash("Назва розділу обов'язкова.", "error")
-        return redirect(url_for("services"))
-    with db_cursor(commit=True) as cur:
-        cur.execute("SELECT COALESCE(MAX(SortOrder), 0) + 10 AS next_order FROM ServiceSections")
-        sort_order = int(cur.fetchone()["next_order"])
-        cur.execute(
-            "INSERT INTO ServiceSections (Title, Description, ImageUrl, SortOrder) VALUES (%s, %s, %s, %s)",
-            (title, description or None, image_url or None, sort_order),
-        )
-        item_id = cur.lastrowid
-    pc.save_service_metadata("section", item_id, title, description, request.form)
-    log_user_event(f'додав розділ "{title}"')
-    flash("Розділ додано.", "success")
-    return redirect(url_for("services"))
-
-
-@app.route("/services/card", methods=["POST"])
-def service_card_create():
-    user = require_user()
-    if not isinstance(user, dict):
-        return user
-    if not can_manage_services(user):
-        flash("Недостатньо прав для редагування послуг.", "error")
-        return redirect(url_for("services"))
-    section_id = parse_int(request.form.get("section_id", "0"), 0, 0, 999999999)
-    title = request.form.get("title", "").strip()
-    try:
-        pc.safe_url(request.form.get("title_url", ""))
-    except ValueError as ex:
-        flash(str(ex), "error")
-        return redirect(url_for("services") + "#services-admin")
-    description = request.form.get("description", "").strip()
-    price = normalize_price_text(request.form.get("price", ""))
-    image_url = service_image_from_request()
-    if not section_id or not title:
-        flash("Оберіть розділ і вкажіть назву картки.", "error")
-        return redirect(url_for("services"))
-    with db_cursor(commit=True) as cur:
-        cur.execute("SELECT Title FROM ServiceSections WHERE Id=%s", (section_id,))
-        section = cur.fetchone()
-        section_title = section["Title"] if section else ""
-        cur.execute("SELECT COALESCE(MAX(SortOrder), 0) + 10 AS next_order FROM ServiceCards WHERE SectionId=%s", (section_id,))
-        sort_order = int(cur.fetchone()["next_order"])
-        cur.execute(
-            """
-            INSERT INTO ServiceCards (SectionId, Title, ShortDescription, PriceText, ImageUrl, SortOrder)
-            VALUES (%s, %s, %s, %s, %s, %s)
-            """,
-            (section_id, title, description or None, price, image_url or None, sort_order),
-        )
-        item_id = cur.lastrowid
-    pc.save_service_metadata("card", item_id, title, description, request.form)
-    log_user_event(f'додав картку "{title}" в розділ "{section_title}"')
-    flash("Картку послуги додано.", "success")
-    return redirect(url_for("services"))
-
-
-@app.route("/services/item/<kind>/<int:item_id>/edit", methods=["POST"])
-def service_item_edit(kind: str, item_id: int):
-    user = require_user()
-    if not isinstance(user, dict):
-        return user
-    if not can_manage_services(user):
-        flash("Недостатньо прав для редагування послуг.", "error")
-        return redirect(url_for("services"))
-    title = request.form.get("title", "").strip()
-    description = request.form.get("description", "").strip()
-    price = normalize_price_text(request.form.get("price", ""))
-    section_id = parse_int(request.form.get("section_id", "0"), 0, 0, 999999999)
-    if not title:
-        flash("Назва обов'язкова.", "error")
-        return redirect(url_for("services") + "#services-admin")
-    try:
-        pc.safe_url(request.form.get("title_url", ""))
-    except ValueError as ex:
-        flash(str(ex), "error")
-        return redirect(url_for("services") + "#services-admin")
-    with db_cursor(commit=True) as cur:
-        if kind == "section":
-            cur.execute("SELECT ImageUrl FROM ServiceSections WHERE Id=%s", (item_id,))
-            current = cur.fetchone()
-            if not current:
-                return "Розділ не знайдено", 404
-            image_url = service_image_from_request(current["ImageUrl"] if current else "")
-            cur.execute(
-                "UPDATE ServiceSections SET Title=%s, Description=%s, ImageUrl=%s WHERE Id=%s",
-                (title, description or None, image_url or None, item_id),
-            )
-            log_text = f'відредагував розділ "{title}"'
-        elif kind == "card":
-            cur.execute("SELECT Title FROM ServiceSections WHERE Id=%s", (section_id,))
-            section = cur.fetchone()
-            if not section:
-                flash("Оберіть розділ для картки.", "error")
-                return redirect(url_for("services") + "#services-admin")
-            cur.execute("SELECT SectionId, SortOrder, ImageUrl FROM ServiceCards WHERE Id=%s", (item_id,))
-            current_card = cur.fetchone()
-            if not current_card:
-                return "Картку не знайдено", 404
-            sort_order = current_card["SortOrder"] if current_card else 100
-            image_url = service_image_from_request(current_card.get("ImageUrl", "") if current_card else "")
-            if current_card and int(current_card["SectionId"]) != section_id:
-                cur.execute("SELECT COALESCE(MAX(SortOrder), 0) + 10 AS next_order FROM ServiceCards WHERE SectionId=%s", (section_id,))
-                sort_order = int(cur.fetchone()["next_order"])
-            cur.execute(
-                """
-                UPDATE ServiceCards
-                SET SectionId=%s, Title=%s, ShortDescription=%s, PriceText=%s, ImageUrl=%s, SortOrder=%s
-                WHERE Id=%s
-                """,
-                (section_id, title, description or None, price, image_url or None, sort_order, item_id),
-            )
-            log_text = f'відредагував картку "{title}" в розділі "{section["Title"]}"'
-        else:
-            flash("Невідомий тип елемента.", "error")
-            return redirect(url_for("services") + "#services-admin")
-    page_path = pc.save_service_metadata(kind, item_id, title, description, request.form)
-    log_user_event(log_text)
-    if page_path:
-        flash("Зміни послуги збережено. Сторінку відкрито для редагування.", "success")
-        return redirect(page_path + "#page-editor")
-    flash("Зміни збережено.", "success")
-    return redirect(url_for("services") + "#services-admin")
-
-
-@app.route("/services/item/<kind>/<int:item_id>/move", methods=["POST"])
-def service_item_move(kind: str, item_id: int):
-    user = require_user()
-    if not isinstance(user, dict):
-        return user
-    if not can_manage_services(user):
-        flash("Недостатньо прав для редагування послуг.", "error")
-        return redirect(url_for("services"))
-    direction = request.form.get("direction", "")
-    if direction not in {"up", "down"}:
-        flash("Невідомий напрямок переміщення.", "error")
-        return redirect(url_for("services") + "#services-admin")
-    with db_cursor(commit=True) as cur:
-        if kind == "section":
-            table = "ServiceSections"
-            scope_sql = ""
-            scope_args: tuple[Any, ...] = ()
-            cur.execute("SELECT Id, Title, SortOrder FROM ServiceSections WHERE Id=%s", (item_id,))
-            current = cur.fetchone()
-            label = "розділ"
-        elif kind == "card":
-            table = "ServiceCards"
-            cur.execute(
-                """
-                SELECT c.Id, c.Title, c.SortOrder, c.SectionId, s.Title AS SectionTitle
-                FROM ServiceCards c
-                JOIN ServiceSections s ON s.Id=c.SectionId
-                WHERE c.Id=%s
-                """,
-                (item_id,),
-            )
-            current = cur.fetchone()
-            scope_sql = "AND SectionId=%s"
-            scope_args = (current["SectionId"],) if current else ()
-            label = "картку"
-        else:
-            flash("Невідомий тип елемента.", "error")
-            return redirect(url_for("services") + "#services-admin")
-        if not current:
-            flash("Елемент не знайдено.", "error")
-            return redirect(url_for("services") + "#services-admin")
-        compare = "<" if direction == "up" else ">"
-        order = "DESC" if direction == "up" else "ASC"
-        cur.execute(
-            f"""
-            SELECT Id, SortOrder FROM {table}
-            WHERE SortOrder {compare} %s {scope_sql}
-            ORDER BY SortOrder {order}, Id {order}
-            LIMIT 1
-            """,
-            (current["SortOrder"], *scope_args),
-        )
-        neighbor = cur.fetchone()
-        if not neighbor:
-            flash("Далі рухати нікуди.", "error")
-            return redirect(url_for("services") + "#services-admin")
-        cur.execute(f"UPDATE {table} SET SortOrder=%s WHERE Id=%s", (neighbor["SortOrder"], current["Id"]))
-        cur.execute(f"UPDATE {table} SET SortOrder=%s WHERE Id=%s", (current["SortOrder"], neighbor["Id"]))
-    log_user_event(f'{"підняв" if direction == "up" else "опустив"} {label} "{current["Title"]}" {"вверх" if direction == "up" else "вниз"}')
-    flash("Порядок оновлено.", "success")
-    return redirect(url_for("services") + "#services-admin")
-
-
-@app.route("/services/item/<kind>/<int:item_id>", methods=["POST"])
-def service_item_update(kind: str, item_id: int):
-    user = require_user()
-    if not isinstance(user, dict):
-        return user
-    if not can_manage_services(user):
-        flash("Недостатньо прав для редагування послуг.", "error")
-        return redirect(url_for("services"))
-    action = request.form.get("action", "")
-    with db_cursor(commit=True) as cur:
-        if kind == "section":
-            table = "ServiceSections"
-        elif kind == "card":
-            table = "ServiceCards"
-        else:
-            flash("Невідомий тип елемента.", "error")
-            return redirect(url_for("services"))
-        if action == "hide":
-            cur.execute(f"UPDATE {table} SET IsActive=FALSE WHERE Id=%s", (item_id,))
-            cur.execute(f"SELECT Title FROM {table} WHERE Id=%s", (item_id,))
-            row = cur.fetchone()
-            log_text = f'приховав {"розділ" if kind == "section" else "картку"} "{row["Title"] if row else item_id}"'
-        elif action == "show":
-            cur.execute(f"UPDATE {table} SET IsActive=TRUE WHERE Id=%s", (item_id,))
-            cur.execute(f"SELECT Title FROM {table} WHERE Id=%s", (item_id,))
-            row = cur.fetchone()
-            log_text = f'показав {"розділ" if kind == "section" else "картку"} "{row["Title"] if row else item_id}"'
-        elif action == "delete":
-            if kind == "section":
-                cur.execute("SELECT Title FROM ServiceSections WHERE Id=%s", (item_id,))
-                row = cur.fetchone()
-                cur.execute("DELETE FROM ServiceCards WHERE SectionId=%s", (item_id,))
-                log_text = f'видалив розділ "{row["Title"] if row else item_id}"'
-            else:
-                cur.execute("SELECT Title FROM ServiceCards WHERE Id=%s", (item_id,))
-                row = cur.fetchone()
-                log_text = f'видалив картку "{row["Title"] if row else item_id}"'
-            cur.execute(f"DELETE FROM {table} WHERE Id=%s", (item_id,))
-        else:
-            flash("Невідома дія.", "error")
-            return redirect(url_for("services") + "#services-admin")
-    page_path = pc.save_service_metadata(kind, item_id, title, description, request.form)
-    log_user_event(log_text)
-    if page_path:
-        flash("Зміни послуги збережено. Сторінку відкрито для редагування.", "success")
-        return redirect(page_path + "#page-editor")
-    flash("Зміни збережено.", "success")
-    return redirect(url_for("services") + "#services-admin")
+    content = pc.read_content()
+    return render_template("services.html", page=content["pages"]["/services"], page_path="/services",
+                           service_sources=pc.active_service_sources(content),
+                           manager_view=can_manage_services(current_user()) and request.args.get("preview") != "public",
+                           active_page="services")
 
 
 @app.route("/about")
@@ -1417,7 +786,7 @@ def appointment_create():
             cur.execute(
                 """
                 INSERT INTO Appointments (VisitAt, ClientName, VisitPurpose, Phone, Email)
-                VALUES (%s, %s, %s, %s, %s)
+                VALUES (?, ?, ?, ?, ?)
                 """,
                 (visit_at, client_name, purpose, phone or None, email or None),
             )
@@ -1437,15 +806,16 @@ def login():
         try:
             ensure_schema()
             with db_cursor(commit=True) as cur:
-                cur.execute("SELECT * FROM Users WHERE Login=%s", (login_value,))
+                cur.execute("SELECT * FROM Users WHERE Login=?", (login_value,))
                 user = cur.fetchone()
                 if user and not user.get("IsBlocked") and check_password_hash(user["Pass"], password):
                     sid = os.urandom(16).hex()
-                    cur.execute("UPDATE Users SET Last=%s, ActiveSessionId=%s WHERE Login=%s", (datetime.now(), sid, login_value))
+                    cur.execute("UPDATE Users SET Last=?, ActiveSessionId=? WHERE Login=?", (datetime.now(), sid, login_value))
                     session["login"] = login_value
                     session["session_id"] = sid
                     log_action("login_success")
-                    return redirect(url_for("admin_appointments"))
+                    target = "admin_appointments" if config_flag(load_config(), "ONLINE_APPOINTMENT_ENABLED", "1") else "index"
+                    return redirect(url_for(target))
             session["login"] = login_value or "anonymous"
             log_action("login_failed")
             session.clear()
@@ -1466,7 +836,7 @@ def logout():
         try:
             with db_cursor(commit=True) as cur:
                 cur.execute(
-                    "UPDATE Users SET ActiveSessionId=NULL WHERE Login=%s AND ActiveSessionId=%s",
+                    "UPDATE Users SET ActiveSessionId=NULL WHERE Login=? AND ActiveSessionId=?",
                     (login_value, sid),
                 )
         except Exception as ex:
@@ -1490,7 +860,7 @@ def profile():
             return redirect(url_for("profile"))
         try:
             with db_cursor(commit=True) as cur:
-                cur.execute("SELECT FullName, Email, AvatarUrl, Pass FROM Users WHERE Login=%s FOR UPDATE", (user["Login"],))
+                cur.execute("SELECT FullName, Email, AvatarUrl, Pass FROM Users WHERE Login=?", (user["Login"],))
                 previous = cur.fetchone()
                 if not previous:
                     return "Користувача не знайдено.", 404
@@ -1508,11 +878,11 @@ def profile():
                     avatar = avatar_upload
                 name = request.form.get("full_name", "")
                 email = request.form.get("email", "")
-                cur.execute("UPDATE Users SET FullName=%s, Email=%s, AvatarUrl=%s WHERE Login=%s",
+                cur.execute("UPDATE Users SET FullName=?, Email=?, AvatarUrl=? WHERE Login=?",
                             (name, email, avatar or None, user["Login"]))
                 new_sid = uuid.uuid4().hex if password else None
                 if password:
-                    cur.execute("UPDATE Users SET Pass=%s, ActiveSessionId=%s WHERE Login=%s",
+                    cur.execute("UPDATE Users SET Pass=?, ActiveSessionId=? WHERE Login=?",
                                 (generate_password_hash(password), new_sid, user["Login"]))
             if new_sid:
                 session["session_id"] = new_sid
@@ -1569,7 +939,7 @@ def admin_appointments():
         ensure_schema()
         with db_cursor() as cur:
             cur.execute(
-                "SELECT * FROM Appointments WHERE VisitAt >= %s AND VisitAt < %s ORDER BY VisitAt",
+                "SELECT * FROM Appointments WHERE VisitAt >= ? AND VisitAt < ? ORDER BY VisitAt",
                 (start, end),
             )
             rows = cur.fetchall()
@@ -1633,7 +1003,7 @@ def visit_stats():
                 """
                 SELECT DATE(CreatedAt) AS VisitDay, COUNT(DISTINCT VisitorKey) AS VisitCount
                 FROM PageVisits
-                WHERE CreatedAt >= %s AND CreatedAt < %s
+                WHERE CreatedAt >= ? AND CreatedAt < ?
                 GROUP BY DATE(CreatedAt)
                 ORDER BY VisitDay
                 """,
@@ -1681,7 +1051,7 @@ def settings():
         return user
     config = load_config()
     active_tab = request.args.get("tab", "maintenance")
-    if active_tab == "contacts":
+    if active_tab not in {"maintenance", "email", "tg", "html", "alert", "users"}:
         active_tab = "maintenance"
     if request.method == "POST":
         action = request.form.get("action", "save")
@@ -1692,20 +1062,9 @@ def settings():
             field = f"cfg_{key}"
             if field in request.form:
                 value = request.form.get(field, "").strip()
-                if key in {"MYSQL_PASSWORD", "SMTP_PASSWORD"} and not value:
+                if key in {"SMTP_PASSWORD"} and not value:
                     continue
                 form_config[key] = value
-        if action == "test_mysql":
-            try:
-                save_config(form_config)
-                ensure_schema()
-                if runtime_state["schema_ready"]:
-                    flash("MySQL підключення працює.", "success")
-                else:
-                    flash(f"MySQL помилка: {runtime_state['schema_error']}", "error")
-            except Exception as ex:
-                flash(f"MySQL помилка: {ex}", "error")
-            return redirect(url_for("settings", tab="mysql"))
         if action == "test_notify":
             save_config(form_config)
             ok = notify_staff("ЛЕДІ: тест повідомлень", "Тестове повідомлення з сайту ЛЕДІ.", form_config)
@@ -1721,12 +1080,19 @@ def settings():
         log_action("settings_update")
         flash("Налаштування збережено.", "success")
         return redirect(url_for("settings", tab=request.form.get("active_tab", "maintenance")))
+    if active_tab == "users":
+        return redirect(url_for("users"))
     session.setdefault("code_csrf", uuid.uuid4().hex)
     return render_template("settings.html", config=config, active_tab=active_tab, active_page="settings",
                            code=pc.read_content().get("global_code", {}), csrf=session["code_csrf"])
 
 
-@app.route("/users", methods=["GET", "POST"])
+@app.route("/users")
+def users_legacy():
+    return redirect(url_for("users"))
+
+
+@app.route("/settings/users", methods=["GET", "POST"])
 def users():
     user = require_admin()
     if not isinstance(user, dict):
@@ -1744,13 +1110,13 @@ def users():
         try:
             with db_cursor(commit=True) as cur:
                 cur.execute(
-                    "INSERT INTO Users (Login, FullName, Email, Pass, Role) VALUES (%s, %s, %s, %s, %s)",
+                    "INSERT INTO Users (Login, FullName, Email, Pass, Role) VALUES (?, ?, ?, ?, ?)",
                     (login_value, full_name, email or None, generate_password_hash(password), role),
                 )
             log_action("user_create", login_value)
             flash("Користувача створено.", "success")
         except Exception as ex:
-            if mysql_error_code(ex) == 1062:
+            if isinstance(ex, sqlite3.IntegrityError):
                 flash("Такий логін вже існує.", "error")
             else:
                 _report_critical_error("user create failed", ex)
@@ -1759,7 +1125,7 @@ def users():
     with db_cursor() as cur:
         cur.execute("SELECT Login, FullName, Email, Role, IsBlocked, Last, CreatedAt FROM Users ORDER BY Login")
         rows = cur.fetchall()
-    return render_template("users.html", users=rows, active_page="users")
+    return render_template("users.html", users=rows, active_page="settings")
 
 
 @app.route("/users/<login_value>/update", methods=["POST"])
@@ -1773,30 +1139,53 @@ def user_update(login_value: str):
         return redirect(url_for("users"))
     with db_cursor(commit=True) as cur:
         if action == "delete":
-            cur.execute("DELETE FROM Users WHERE Login=%s", (login_value,))
+            cur.execute("DELETE FROM Users WHERE Login=?", (login_value,))
             log_action("user_delete", login_value)
         elif action == "block":
-            cur.execute("UPDATE Users SET IsBlocked=TRUE, ActiveSessionId=NULL WHERE Login=%s", (login_value,))
+            cur.execute("UPDATE Users SET IsBlocked=TRUE, ActiveSessionId=NULL WHERE Login=?", (login_value,))
             log_action("user_block", login_value)
         elif action == "unblock":
-            cur.execute("UPDATE Users SET IsBlocked=FALSE WHERE Login=%s", (login_value,))
+            cur.execute("UPDATE Users SET IsBlocked=FALSE WHERE Login=?", (login_value,))
             log_action("user_unblock", login_value)
         elif action == "password":
             password = request.form.get("password", "")
             if len(password) < 5:
                 flash("Пароль має бути мінімум 5 символів.", "error")
                 return redirect(url_for("users"))
-            cur.execute("UPDATE Users SET Pass=%s, ActiveSessionId=NULL WHERE Login=%s", (generate_password_hash(password), login_value))
+            cur.execute("UPDATE Users SET Pass=?, ActiveSessionId=NULL WHERE Login=?", (generate_password_hash(password), login_value))
             log_action("user_password_change", login_value)
         elif action == "role":
             role = "admin" if request.form.get("role") == "admin" else "manager"
             if login_value == session.get("login") and role != "admin":
                 flash("Не можна забрати адмінські права у себе.", "error")
                 return redirect(url_for("users"))
-            cur.execute("UPDATE Users SET Role=%s WHERE Login=%s", (role, login_value))
+            cur.execute("UPDATE Users SET Role=? WHERE Login=?", (role, login_value))
             log_action("user_role_change", f"{login_value} -> {role}")
     flash("Готово.", "success")
     return redirect(url_for("users"))
+
+
+def log_period(args, now=None):
+    today = (now or datetime.now()).date()
+    mode = args.get('period', 'today')
+    if 'date' in args and 'period' not in args:
+        day = datetime.strptime(args['date'], '%Y-%m-%d').date()
+        return day, day, 'custom'
+    if mode == 'today':
+        return today, today, mode
+    if mode == 'yesterday':
+        day = today - timedelta(days=1)
+        return day, day, mode
+    if mode == 'month':
+        month = datetime.strptime(args.get('month', today.strftime('%Y-%m')), '%Y-%m').date()
+        return month, month.replace(day=calendar.monthrange(month.year, month.month)[1]), mode
+    if mode != 'custom':
+        raise ValueError('Оберіть період.')
+    start = datetime.strptime(args.get('start_date', ''), '%Y-%m-%d').date()
+    end = datetime.strptime(args.get('end_date', ''), '%Y-%m-%d').date()
+    if end < start or (end - start).days > 3660:
+        raise ValueError('Оберіть коректний період до 10 років.')
+    return start, end, mode
 
 
 @app.route("/logs")
@@ -1804,16 +1193,21 @@ def logs():
     user = require_admin()
     if not isinstance(user, dict):
         return user
-    today = datetime.now().strftime("%Y-%m-%d")
-    raw_date = request.args.get("date", today)
-    date = raw_date if re.fullmatch(r"\d{4}-\d{2}-\d{2}", raw_date or "") else today
     try:
-        datetime.strptime(date, "%Y-%m-%d")
+        start, end, mode = log_period(request.args)
     except ValueError:
-        return "Некоректна дата", 400
-    rows = load_journal(date)
-    return render_template("logs.html", date=date, journal=sorted(rows, key=lambda row: row['Час'], reverse=True),
-                           filename=sl.log_path(PPath, date).name, active_page="logs")
+        return "Некоректний діапазон дат", 400
+    rows = []
+    day = start
+    while day <= end:
+        rows.extend(load_journal(day.isoformat()))
+        day += timedelta(days=1)
+    today = datetime.now().date()
+    filename = sl.log_path(PPath, start.isoformat()).name if start == end else f"{sl.log_path(PPath, start.isoformat()).name} … {sl.log_path(PPath, end.isoformat()).name}"
+    return render_template("logs.html", journal=sorted(rows, key=lambda row: row['Час'], reverse=True),
+                           period=mode, today=today.isoformat(), yesterday=(today - timedelta(days=1)).isoformat(),
+                           month=start.strftime('%Y-%m'), start_date=start.isoformat(), end_date=end.isoformat(),
+                           filename=filename, active_page="logs")
 
 
 def load_journal(day):
@@ -1824,7 +1218,7 @@ def load_journal(day):
         start = datetime.strptime(day, '%Y-%m-%d')
         try:
             with db_cursor() as cur:
-                cur.execute('SELECT CreatedAt, Actor, Action, Details, Ip FROM AuditLog WHERE CreatedAt >= %s AND CreatedAt < %s ORDER BY CreatedAt',
+                cur.execute('SELECT CreatedAt, Actor, Action, Details, Ip FROM AuditLog WHERE CreatedAt >= ? AND CreatedAt < ? ORDER BY CreatedAt',
                             (start, start + timedelta(days=1)))
                 for row in cur.fetchall():
                     history.append(dict(zip(sl.FIELDS, (row['CreatedAt'].strftime('%Y/%m/%d %H:%M:%S'), row['Actor'], row['Action'], row['Details'] or '', row['Ip'] or ''))))
@@ -1840,17 +1234,13 @@ def logs_download_range():
     user = require_admin()
     if not isinstance(user, dict):
         return user
-    start_raw = request.args.get("start_date", "")
-    end_raw = request.args.get("end_date", "")
-    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", start_raw) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", end_raw):
-        return ("Некоректний діапазон дат", 400)
     try:
-        start_date = datetime.strptime(start_raw, "%Y-%m-%d").date()
-        end_date = datetime.strptime(end_raw, "%Y-%m-%d").date()
+        args = request.args.to_dict()
+        args.setdefault('period', 'custom')
+        start_date, end_date, _ = log_period(args)
     except ValueError:
         return "Некоректний діапазон дат", 400
-    if end_date < start_date:
-        return "Некоректний діапазон дат", 400
+    start_raw, end_raw = start_date.isoformat(), end_date.isoformat()
     mem = io.BytesIO()
     with zipfile.ZipFile(mem, "w", zipfile.ZIP_DEFLATED) as zf:
         current = start_date
@@ -1875,16 +1265,8 @@ def content_page(slug):
         return "Сторінку не знайдено", 404
     manager_view = can_manage_services(current_user()) and request.args.get("preview") != "public"
     source = page.get("source")
-    if source and not manager_view:
-        kind, item_id = source.split("-", 1)
-        table = "ServiceSections" if kind == "section" else "ServiceCards"
-        with db_cursor() as cur:
-            if kind == "section":
-                cur.execute("SELECT Id FROM ServiceSections WHERE Id=%s AND IsActive=TRUE", (item_id,))
-            else:
-                cur.execute("SELECT c.Id FROM ServiceCards c JOIN ServiceSections s ON s.Id=c.SectionId WHERE c.Id=%s AND c.IsActive=TRUE AND s.IsActive=TRUE", (item_id,))
-            if not cur.fetchone():
-                return "Сторінку не знайдено", 404
+    if source and not manager_view and source not in pc.active_service_sources(content):
+        return "Сторінку не знайдено", 404
     return render_template("content_page.html", page=page, page_path=path,
                            manager_view=manager_view, active_page="services")
 
@@ -1908,8 +1290,11 @@ def content_save():
         title = request.form.get("page_title", "").strip()[:250]
         if not title:
             raise ValueError("Назва сторінки обов’язкова.")
+        menu = pc.normalize_menu(json.loads(request.form["menu"])) if path == "/services" and "menu" in request.form else None
         def change(content):
             content["pages"][path].update(title=title, blocks=blocks)
+            if menu is not None:
+                content["pages"][path]["menu"] = menu
             if shared_blocks is not None:
                 content["site_blocks"] = shared_blocks
             if site_background is not None:

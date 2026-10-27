@@ -1,4 +1,4 @@
-"""Isolated checks: never import app's production startup or connect to MySQL."""
+"""Isolated checks: never import app's production startup or access live data."""
 import importlib.util
 import json
 import sys
@@ -63,52 +63,14 @@ class ContentTests(unittest.TestCase):
         self.assertIn('Відвідало за останні 7 дн.:', html)
         self.assertNotIn('Записалось:', html)
 
-    def test_visitor_period_query(self):
-        from contextlib import nullcontext
-        # Restore the real counting function in this isolated module only.
-        source = (ROOT / 'app.py').read_text(encoding='utf-8')
-        start = source.index('def total_visit_count()')
-        end = source.index('def total_appointment_count()', start)
-        scope = dict(self.module.__dict__)
-        cursor = Mock()
-        cursor.fetchone.return_value = {'cnt': 12}
-        scope['db_cursor'] = lambda: nullcontext(cursor)
-        scope['runtime_state'] = {'schema_ready':True}
-        for unit, sql_unit, value in [('days','DAY','7'), ('months','MONTH','2')]:
-            scope['load_config'] = lambda: {'VISITOR_PERIOD_UNIT':unit, 'VISITOR_PERIOD_VALUE':value}
-            exec(source[start:end], scope)
-            self.assertEqual(scope['total_visit_count'](), 12)
-            sql, params = cursor.execute.call_args.args
-            self.assertIn('CreatedAt >= DATE_SUB(NOW(), INTERVAL %s ' + sql_unit + ')', sql)
-            self.assertEqual(params, (int(value),))
-
-    def test_current_visitor_queries_and_all_time(self):
-        from contextlib import nullcontext
-        source = (ROOT / 'app.py').read_text(encoding='utf-8')
-        scope = dict(self.module.__dict__)
-        cursor = Mock()
-        cursor.fetchone.return_value = {'cnt': 10}
-        scope['db_cursor'] = lambda: nullcontext(cursor)
-        scope['runtime_state'] = {'schema_ready': True}
-        start = source.index('def total_visit_count()')
-        end = source.index('def total_appointment_count()', start)
-        exec(source[start:end], scope)
-        for period, expression in [
-            ('month', "DATE_FORMAT(CURDATE(), '%Y-%m-01')"),
-            ('week', 'WEEKDAY(CURDATE())'),
-            ('year', "DATE_FORMAT(CURDATE(), '%Y-01-01')"),
-            ('ten_days', 'LEAST(20,'), ('day', 'CreatedAt >= CURDATE()'),
-            ('invalid', "DATE_FORMAT(CURDATE(), '%Y-%m-01')"),
-        ]:
-            scope['load_config'] = lambda: {'VISITOR_CURRENT_ENABLED': '1', 'VISITOR_CURRENT_PERIOD': period}
-            self.assertEqual(scope['total_visit_count'](), 10)
-            sql = cursor.execute.call_args.args[0]
-            self.assertIn(expression, sql)
-            self.assertIn('CreatedAt <= NOW()', sql)
-            self.assertIn('COUNT(DISTINCT VisitorKey)', sql)
-        cursor.fetchone.return_value = {'cnt': 100}
-        self.assertEqual(scope['all_time_visit_count'](), 100)
-        self.assertNotIn('CreatedAt >=', cursor.execute.call_args.args[0])
+    def test_visitor_period_boundaries(self):
+        from datetime import datetime
+        now = datetime(2026, 3, 31, 12, 30)
+        self.assertEqual(self.module.visitor_period_start({'VISITOR_PERIOD_VALUE':'1','VISITOR_PERIOD_UNIT':'months'},now),datetime(2026,2,28,12,30))
+        self.assertEqual(self.module.visitor_period_start({'VISITOR_PERIOD_VALUE':'7','VISITOR_PERIOD_UNIT':'days'},now),datetime(2026,3,24,12,30))
+        for period, expected in [('month',datetime(2026,3,1)),('week',datetime(2026,3,30)),
+                                 ('year',datetime(2026,1,1)),('ten_days',datetime(2026,3,21)),('day',datetime(2026,3,31))]:
+            self.assertEqual(self.module.visitor_period_start({'VISITOR_CURRENT_ENABLED':'1','VISITOR_CURRENT_PERIOD':period},now),expected)
 
     def test_current_footer_and_settings_save(self):
         from datetime import datetime
@@ -303,21 +265,24 @@ class ContentTests(unittest.TestCase):
         self.assertEqual(pc.read_content()['pages'][first]['title'],'Ручна назва')
         self.assertEqual(pc.read_content()['services']['section-1']['title_url'], first)
 
-    def test_service_edit_saves_database_then_page(self):
-        cursor = Mock()
-        cursor.fetchone.return_value = {'ImageUrl':'/static/original.png'}
-        @contextmanager
-        def fake_cursor(commit=False):
-            yield cursor
-        self.module.db_cursor = fake_cursor
-        response = self.client.post('/services/item/section/8/edit', data={'title':'Пірсинг','description':'Оновлений опис','image_position':'right','page_action':'open'})
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.headers['Location'], '/services/pirsing#page-editor')
-        update = [call for call in cursor.execute.call_args_list if call.args[0].startswith('UPDATE')][0]
-        self.assertEqual(update.args[1], ('Пірсинг','Оновлений опис','/static/original.png',8))
-        metadata = pc.read_content()['services']['section-8']
-        self.assertEqual(metadata['image_position'],'right')
-        self.assertEqual(metadata['title_url'],'/services/pirsing')
+    def test_services_editor_saves_menu_and_blocks_without_database(self):
+        response = self.client.get('/services')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('data-service-menu-editor', response.get_data(as_text=True))
+        data = {'csrf':'test-csrf','page_path':'/services','page_title':'Мої послуги',
+                'blocks':json.dumps([{'layout':'text','anchor':'test-service','heading':{'text':'Новий розділ'}}]),
+                'menu':json.dumps([{'title':'Мій пункт','url':'#test-service','enabled':True}])}
+        self.assertEqual(self.client.post('/content/save',data=data).status_code,200)
+        self.user = None
+        html = self.client.get('/services').get_data(as_text=True)
+        self.assertIn('href="#test-service"',html)
+        self.assertIn('id="test-service"',html)
+        self.assertNotIn('data-page-editor',html)
+        self.module.db_cursor.assert_not_called()
+        data['menu'] = '[]'
+        self.user = {'Login':'tester','Role':'admin'}
+        self.assertEqual(self.client.post('/content/save',data=data).status_code,200)
+        self.assertEqual(pc.read_content()['pages']['/services']['menu'],[])
 
     def test_code_multiline_and_admin_only(self):
         response = self.client.get('/settings/code')
@@ -339,22 +304,17 @@ class ContentTests(unittest.TestCase):
         self.assertIn(pc.DEFAULT_CODE,response.get_data(as_text=True))
         self.assertNotIn('id="page-editor"',response.get_data(as_text=True))
 
-    def test_metadata_and_services_render(self):
-        section = {'Id':1,'Title':'Пірсинг','Description':'Опис','ImageUrl':'/static/test.png','IsActive':True}
-        card = {'Id':2,'SectionId':1,'Title':'Вухо','ShortDescription':'Опис','ImageUrl':'','PriceText':'100 грн','IsActive':True}
-        cursor = Mock()
-        cursor.fetchall.side_effect = [[section],[card]]
-        @contextmanager
-        def fake_cursor(commit=False):
-            yield cursor
-        self.module.db_cursor = fake_cursor
-        pc.save_service_metadata('section',1,'Пірсинг','Опис', {'page_action':'open','image_position':'right'})
-        response = self.client.get('/services')
-        self.assertEqual(response.status_code,200)
-        html = response.get_data(as_text=True)
-        self.assertIn('service-section-head image-right',html)
-        self.assertIn('href="/services/pirsing"',html)
-        self.assertIn('Edit Page',html)
+    def test_service_menu_validation_and_source_visibility(self):
+        with self.assertRaises(ValueError):
+            pc.normalize_menu([{'title':'Bad','url':'javascript:alert(1)'}])
+        with self.assertRaises(ValueError):
+            pc.normalize_blocks([{'layout':'text','anchor':'same'},{'layout':'text','anchor':'same'}])
+        content = {'pages':{'/services':{'blocks':[
+            {'source':'section-1','enabled':False},
+            {'source':'card-2','source_parent':'section-1','enabled':True}]}}}
+        self.assertEqual(pc.active_service_sources(content),set())
+        content['pages']['/services']['blocks'][0]['enabled'] = True
+        self.assertEqual(pc.active_service_sources(content),{'section-1','card-2'})
 
 
 if __name__ == '__main__':

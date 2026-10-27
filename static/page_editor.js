@@ -19,13 +19,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function setStatus(message, state = 'error') { status.textContent = message; status.dataset.state = state; }
     function syncActions() { cancelButton.disabled = saving || uploads > 0; }
     function editorState() {
-        return structuredClone({blocks, siteBlocks, siteBackground, logoText, pageTitle:form.querySelector('[name="page_title"]').value});
+        return structuredClone({blocks, siteBlocks, siteBackground, logoText, menu:serviceMenu, pageTitle:form.querySelector('[name="page_title"]').value});
     }
     const siteList = root.querySelector('[data-site-block-list]');
     let siteBlocks = JSON.parse(root.querySelector('[data-site-block-data]').textContent);
     let siteBackground = JSON.parse(root.querySelector('[data-site-background-data]').textContent);
     let blocks = JSON.parse(root.querySelector('[data-page-data]').textContent);
     let logoText = JSON.parse(root.querySelector('[data-logotext-data]').textContent);
+    const menuList = root.querySelector('[data-service-menu-editor]');
+    let serviceMenu = JSON.parse(root.querySelector('[data-service-menu-data]')?.textContent || '[]');
     const expanded = new WeakMap();
     function disclosure(object, key, cls) {
         const panel = node('details', '', cls);
@@ -289,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const controls = node('span', '', 'block-toolbar');
             controls.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); });
             controls.append(button('↑ Вище', () => reorder(blocks,index,-1)), button('↓ Нижче', () => reorder(blocks,index,1)),
-                button('Копіювати', () => { blocks.splice(index+1,0,structuredClone(block)); markDirty(); render(); }),
+                button('Копіювати', () => { const copy = structuredClone(block); if (copy.anchor) copy.anchor = copy.anchor.slice(0,55) + '-copy-' + Date.now(); delete copy.source; delete copy.source_parent; blocks.splice(index+1,0,copy); markDirty(); render(); }),
                 button('Видалити', async () => { if (await window.ladyDialog('Видалити блок?') === 'yes') { blocks.splice(index,1); markDirty(); render(); } },'danger'));
             // Let the checkbox keep its native checked state inside the summary.
             const enabled = node('label','Показувати блок'); const check = node('input'); check.type = 'checkbox'; check.checked = block.enabled;
@@ -298,14 +300,35 @@ document.addEventListener('DOMContentLoaded', () => {
             enabled.addEventListener('click', event => event.stopPropagation()); enabled.append(check);
             summary.append(controls,enabled); panel.append(summary);
             field(panel,'Тип блоку',block,'layout',layouts);
+            if (menuList && list === root.querySelector('[data-block-list]')) field(panel,'Якір блоку (для меню: #якір)',block,'anchor');
             renderNodes(panel,block.nodes); addControls(panel,block.nodes,false,block.layout);
             wrapper.append(panel); list.append(wrapper);
         });
     }
-    function render() { renderList(list,blocks); renderList(siteList,siteBlocks); }
+    function renderMenu() {
+        if (!menuList) return;
+        menuList.replaceChildren();
+        serviceMenu.forEach((item,index) => {
+            const row = node('div','','service-menu-row');
+            field(row,'Назва пункту',item,'title');
+            field(row,'Посилання (#якір або URL)',item,'url');
+            const actions = node('div','','service-menu-actions');
+            field(actions,'Показувати',item,'enabled',null,'checkbox');
+            actions.append(button('↑', () => { if(index) { [serviceMenu[index-1],serviceMenu[index]] = [item,serviceMenu[index-1]]; markDirty(); renderMenu(); } }),
+                button('↓', () => { if(index < serviceMenu.length-1) { [serviceMenu[index],serviceMenu[index+1]] = [serviceMenu[index+1],item]; markDirty(); renderMenu(); } }),
+                button('Видалити', () => { serviceMenu.splice(index,1); markDirty(); renderMenu(); }));
+            row.append(actions); menuList.append(row);
+        });
+    }
+    root.querySelector('[data-menu-add]')?.addEventListener('click', () => {
+        if (serviceMenu.length >= 100) { setStatus('Максимум 100 пунктів меню.'); return; }
+        serviceMenu.push({title:'Новий пункт',url:'#' + (blocks.find(block => block.anchor)?.anchor || 'services'),enabled:true});
+        markDirty(); renderMenu();
+    });
+    function render() { renderList(list,blocks); renderList(siteList,siteBlocks); renderMenu(); }
     root.querySelector('[data-block-add]').addEventListener('click', () => {
         if (blocks.length >= 100) { setStatus('Максимум 100 блоків.'); return; }
-        blocks.push({note:'', layout:'text-image', enabled:true, nodes:[], items:[]});
+        blocks.push({note:'', layout:'text-image', enabled:true, anchor:menuList ? 'block-' + Date.now() : '', nodes:[], items:[]});
         markDirty(); render(); list.lastElementChild.scrollIntoView({behavior:'smooth', block:'start'});
     });
     root.querySelector('[data-site-block-add]').addEventListener('click', () => {
@@ -323,6 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
         data.append('logotext', JSON.stringify(submittedState.logoText));
         data.append('site_blocks',JSON.stringify(submittedState.siteBlocks));
         data.append('site_background',JSON.stringify(submittedState.siteBackground));
+        if (menuList) data.append('menu',JSON.stringify(submittedState.menu));
         const submit = form.querySelector('[type="submit"]');
         saving = true; submit.disabled = true; syncActions();
         setStatus('Збереження…','saving');
@@ -339,8 +363,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const preview = await fetch(result.url + '?preview=public', {cache:'no-store'});
                 if (!preview.ok || preview.redirected) throw new Error('preview');
                 const documentPreview = new DOMParser().parseFromString(await preview.text(), 'text/html');
-                const content = documentPreview.querySelector('.content-blocks');
-                const current = document.querySelector('.content-blocks');
+                const selector = menuList ? '[data-services-preview]' : '.content-blocks';
+                const content = documentPreview.querySelector(selector);
+                const current = document.querySelector(selector);
                 if (!content || !current) throw new Error('preview');
                 const offset = root.getBoundingClientRect().top;
                 current.replaceWith(content);
@@ -349,6 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (newSite && currentSite) currentSite.replaceWith(newSite);
                 document.body.setAttribute('style',documentPreview.body.getAttribute('style') || '');
                 window.initContentEffects?.();
+                window.initServiceNavigation?.();
                 const brand = document.querySelector('.brand');
                 const updatedBrand = documentPreview.querySelector('.brand');
                 if (brand && updatedBrand) brand.replaceWith(updatedBrand);
@@ -384,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dirty && await window.ladyDialog('Відмінити незбережені зміни?') !== 'yes') return;
         const restored = structuredClone(savedState);
         blocks = restored.blocks; siteBlocks = restored.siteBlocks;
-        siteBackground = restored.siteBackground; logoText = restored.logoText;
+        siteBackground = restored.siteBackground; logoText = restored.logoText; serviceMenu = restored.menu;
         form.querySelector('[name="page_title"]').value = restored.pageTitle;
         revision++; dirty = false;
         renderPageFields(); render(); setStatus('Зміни відмінено.','success');

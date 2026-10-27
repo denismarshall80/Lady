@@ -341,6 +341,7 @@ ASALocalRun/
 healthchecksdb
 [Vv]ersions/
 /*.txt
+!/requirements.txt
 /TASK
 /Updates.txt
 /Task
@@ -354,7 +355,9 @@ healthchecksdb
 /TEST
 /Input
 /Report
-/DATA
+/DATA/*
+!/DATA/default_pages.json
+!/DATA/LadySite.config.example
 /logs
 /Deploy
 /venv

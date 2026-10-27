@@ -33,10 +33,10 @@
 {% endfor %}
 {% endmacro %}
 <div class="content-blocks {{ blocks_class|default('') }}">
-{% for block in page.blocks if block.enabled %}
+{% for block in page.blocks if block.enabled and (not block.source_parent|default('') or block.source_parent in service_sources|default([])) %}
 {% if block.nodes is defined %}
 {% set rendered %}{{ show_nodes(block.nodes) }}{% endset %}
-{% if has_visible_nodes(block.nodes) %}<section class="content-block" style="{{ background_style(block_background(block)) }}"><div class="content-nodes nodes-{{ block.layout }}">{{ rendered }}</div></section>{% endif %}
+{% if has_visible_nodes(block.nodes) %}<section class="content-block{% if block.get('source', '').startswith('card-') %} service-card-block{% endif %}"{% if block.anchor|default('') %} id="{{ block.anchor }}"{% endif %} style="{{ background_style(block_background(block)) }}"><div class="content-nodes nodes-{{ block.layout }}">{{ rendered }}</div></section>{% endif %}
 {% else %}
 {% set visible = namespace(rows=[]) %}
 {% for item in block['items'] %}
@@ -45,7 +45,7 @@
     {% endif %}
 {% endfor %}
 {% if block.heading.text or visible.rows %}
-<section class="content-block" style="{{ background_style(block_background(block)) }}">
+<section class="content-block{% if block.get('source', '').startswith('card-') %} service-card-block{% endif %}"{% if block.anchor|default('') %} id="{{ block.anchor }}"{% endif %} style="{{ background_style(block_background(block)) }}">
     {{ show_element(block.heading, 'h2') }}
     <div class="content-layout layout-{{ block.layout }}" {% if block.layout == 'columns' %}style="--columns:{{ visible.rows|length or 1 }}"{% endif %}>
     {% for item in visible.rows %}

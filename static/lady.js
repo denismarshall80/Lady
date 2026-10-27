@@ -1,4 +1,20 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const logForm = document.querySelector('[data-log-period-form]');
+    if (logForm) {
+        const period = logForm.querySelector('[data-log-period]');
+        const updateLogFields = () => {
+            logForm.querySelector('[data-log-month]').hidden = period.value !== 'month';
+            logForm.querySelector('[data-log-custom]').hidden = period.value !== 'custom';
+            logForm.querySelector('[data-log-apply]').hidden = ['today','yesterday'].includes(period.value);
+            logForm.querySelector('[name="month"]').disabled = period.value !== 'month';
+            logForm.querySelectorAll('[data-log-custom] input').forEach(input => input.disabled = period.value !== 'custom');
+        };
+        updateLogFields();
+        period.addEventListener('change', () => {
+            updateLogFields();
+            if (['today','yesterday'].includes(period.value)) logForm.requestSubmit();
+        });
+    }
     document.querySelectorAll('[data-menu-alert]').forEach(alert => {
         alert.querySelector('[data-alert-close]').addEventListener('click', () => alert.remove());
         setTimeout(() => alert.remove(), 10000);
@@ -155,10 +171,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    let serviceObserver;
+    window.initServiceNavigation = function () {
+    serviceObserver?.disconnect();
     const serviceLinks = Array.from(document.querySelectorAll('[data-service-nav]'));
     const serviceSections = serviceLinks
         .map(function (link) {
-            const target = document.querySelector(link.getAttribute('href'));
+            const href = link.getAttribute('href') || '';
+            const target = href.startsWith('#') ? document.getElementById(href.slice(1)) : null;
             return target ? { link: link, target: target } : null;
         })
         .filter(Boolean);
@@ -173,7 +193,10 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }, { rootMargin: '-20% 0px -55% 0px', threshold: [0.05, 0.2, 0.45] });
         serviceSections.forEach(function (item) { observer.observe(item.target); });
+        serviceObserver = observer;
     }
+    };
+    window.initServiceNavigation();
 
     function positionContextMenu(menu) {
         const trigger = menu.querySelector('summary');

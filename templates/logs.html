@@ -2,21 +2,31 @@
 {% block content %}
 <section class="admin-head">
     <div>
-        <p class="eyebrow">Адміністратор</p>
         <h1 class="admin-title-small">Журнал</h1>
     </div>
 </section>
 <section class="log-tools">
-    <form class="log-tools-row" method="get">
-        <label>Дата <input type="date" name="date" value="{{ date }}" onchange="this.form.submit()"></label>
-        <label>Від <input type="date" name="start_date" value="{{ date }}" required></label>
-        <label>До <input type="date" name="end_date" value="{{ date }}" required></label>
+    <form class="log-tools-row" method="get" data-log-period-form>
+        <label>Дата
+            <select name="period" data-log-period>
+                <option value="today" {{ 'selected' if period == 'today' else '' }}>Сьогодні {{ today }}</option>
+                <option value="yesterday" {{ 'selected' if period == 'yesterday' else '' }}>Вчора {{ yesterday }}</option>
+                <option value="month" {{ 'selected' if period == 'month' else '' }}>Місяць</option>
+                <option value="custom" {{ 'selected' if period == 'custom' else '' }}>Період Від і До</option>
+            </select>
+        </label>
+        <label data-log-month {{ 'hidden' if period != 'month' else '' }}>Місяць <input type="month" name="month" value="{{ month }}" required></label>
+        <div class="log-custom-range" data-log-custom {{ 'hidden' if period != 'custom' else '' }}>
+            <label>Від <input type="date" name="start_date" value="{{ start_date }}" required></label>
+            <label>До <input type="date" name="end_date" value="{{ end_date }}" required></label>
+        </div>
+        <button data-log-apply {{ 'hidden' if period in ['today','yesterday'] else '' }}>Показати</button>
         <button formaction="{{ url_for('logs_download_range') }}">Завантажити ZIP</button>
+        <span class="log-filename">{{ filename }}</span>
     </form>
 </section>
 <section class="logs-grid">
     <div>
-        <h2>{{ filename }}</h2>
         <div class="table-wrap compact">
             <table>
                 <thead><tr><th>Час</th><th>Користувач</th><th>Дія</th><th>Деталі</th><th>IP</th></tr></thead>

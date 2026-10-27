@@ -1,11 +1,18 @@
 {% extends "base.html" %}
+{% block body_class %}settings-screen users-settings-screen{% endblock %}
 {% block content %}
 <section class="admin-head">
     <div>
-        <p class="eyebrow">Адміністратор</p>
-        <h1>Користувачі</h1>
+        <h1 class="admin-title-small">Налаштування сайту</h1>
     </div>
 </section>
+<nav class="settings-tabs" aria-label="Розділи налаштувань">
+{% for tab, label in [('maintenance','Обслуговування'),('email','Email'),('tg','TG'),('html','HTML'),('alert','Alert')] %}
+<a class="settings-tab" href="{{ url_for('settings', tab=tab) }}">{{ label }}</a>
+{% endfor %}
+<a class="settings-tab is-active" href="{{ url_for('users') }}">Користувачі</a>
+</nav>
+<h2>Користувачі</h2>
 <form class="user-create" method="post">
     <label>Логін <input name="login" required></label>
     <label>Ім'я <input name="full_name"></label>

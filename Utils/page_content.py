@@ -93,7 +93,7 @@ def read_content():
     if CONTENT_PATH.exists():
         with CONTENT_PATH.open(encoding='utf-8') as source:
             return json.load(source)
-    with (ROOT / 'default_pages.json').open(encoding='utf-8') as source:
+    with (ROOT / 'DATA' / 'default_pages.json').open(encoding='utf-8') as source:
         return json.load(source)
 
 
@@ -174,6 +174,13 @@ def normalize_blocks(raw):
             raise ValueError('Дозволено до 12 колонок у блоці.')
         normalized = {'note': str(block.get('note', '')), 'layout': block['layout'], 'heading': element(block.get('heading', {})),
                       'items': [], 'enabled': block.get('enabled', True) is not False}
+        anchor = str(block.get('anchor', '')).strip()
+        if anchor and not re.fullmatch(r'[A-Za-z][A-Za-z0-9_-]{0,79}', anchor):
+            raise ValueError('Якір блоку: латинські літери, цифри, дефіс або підкреслення.')
+        normalized['anchor'] = anchor
+        for key in ('source', 'source_parent'):
+            if key in block:
+                normalized[key] = str(block[key])[:80]
         if 'nodes' in block:
             normalized['nodes'] = normalize_nodes(block['nodes'])
         if 'background' in block:
@@ -190,7 +197,32 @@ def normalize_blocks(raw):
                 'image_vertical': item.get('image_vertical') if item.get('image_vertical') in {'top', 'center', 'bottom'} else 'center',
                 **{key: element(item.get(key, {})) for key in ('title', 'text', 'button')}})
         blocks.append(normalized)
+    anchors = [block['anchor'] for block in blocks if block['anchor']]
+    if len(set(anchors)) != len(anchors):
+        raise ValueError('Якорі блоків мають бути унікальними.')
     return blocks
+
+
+def normalize_menu(raw):
+    if not isinstance(raw, list) or len(raw) > 100:
+        raise ValueError('Дозволено до 100 пунктів меню.')
+    result = []
+    for item in raw:
+        if not isinstance(item, dict):
+            raise ValueError('Некоректний пункт меню.')
+        title = str(item.get('title', '')).strip()[:250]
+        url = safe_url(item.get('url'))
+        if not title or not url:
+            raise ValueError('Заповніть назву і посилання пункту меню.')
+        result.append({'title': title, 'url': url, 'enabled': item.get('enabled', True) is not False})
+    return result
+
+
+def active_service_sources(content):
+    blocks = content.get('pages', {}).get('/services', {}).get('blocks', [])
+    enabled = {block.get('source') for block in blocks if block.get('enabled', True)}
+    return {block['source'] for block in blocks if block.get('source') and block.get('enabled', True)
+            and (not block.get('source_parent') or block['source_parent'] in enabled)}
 
 
 def slugify(title):

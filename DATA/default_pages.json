@@ -1,0 +1,4008 @@
+{
+  "version": 1,
+  "global_code": {
+    "head": "<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2294227136369675\" crossorigin=\"anonymous\"></script>",
+    "body_end": ""
+  },
+  "pages": {
+    "/": {
+      "title": "Центр краси і здоров’я ЛЕДІ",
+      "blocks": [
+        {
+          "layout": "text-image",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [
+            {
+              "image": "https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=1200&q=80",
+              "alt": "Фахівчиня у медичному кабінеті",
+              "title": {
+                "text": "Центр краси і здоров'я “ЛЕДІ”",
+                "url": "",
+                "font": "Arial",
+                "size": 42,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "text": {
+                "text": "Кам'янець-Подільський\n\nДогляд, ортопедичні рішення, реабілітація та уважний прийом без зайвої метушні. Ми допомагаємо почуватися легше, впевненіше і красивіше щодня.",
+                "url": "",
+                "font": "Arial",
+                "size": 20,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "button": {
+                "text": "Подивитись послуги",
+                "url": "/services",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              }
+            }
+          ],
+          "enabled": true
+        },
+        {
+          "layout": "text-image",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [
+            {
+              "image": "/static/Lady_02.png",
+              "alt": "Атмосфера центру ЛЕДІ",
+              "title": {
+                "text": "Тут дбають про деталі",
+                "url": "",
+                "font": "Arial",
+                "size": 30,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "text": {
+                "text": "У “ЛЕДІ” поєднані практичні послуги для здоров'я стопи, професійний масаж, реабілітаційний догляд і акуратні beauty-процедури. Атмосфера проста: спокійно, людяно, з повагою до часу клієнта.\n\nПрацюємо з ортопедичним взуттям, індивідуальними устілками, товарами для дітей і дорослих, медичним пірсингом та прикрасами з італійською медичною позолотою.",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "button": {
+                "text": "",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              }
+            }
+          ],
+          "enabled": true
+        },
+        {
+          "layout": "columns",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [
+            {
+              "image": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80",
+              "alt": "Консультація і підбір",
+              "title": {
+                "text": "Консультація і підбір",
+                "url": "",
+                "font": "Arial",
+                "size": 24,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "text": {
+                "text": "Підкажемо, з чого почати, і підберемо зручний час для візиту.",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "button": {
+                "text": "",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              }
+            },
+            {
+              "image": "https://images.unsplash.com/photo-1583947581924-860bda6a26df?auto=format&fit=crop&w=900&q=80",
+              "alt": "Ортопедичні товари",
+              "title": {
+                "text": "Ортопедичні товари",
+                "url": "",
+                "font": "Arial",
+                "size": 24,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "text": {
+                "text": "Широкий вибір ортопедичних товарів: підберемо, допоможемо і за потреби замовимо.",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "button": {
+                "text": "",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              }
+            },
+            {
+              "image": "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=900&q=80",
+              "alt": "Здоров'я і краса",
+              "title": {
+                "text": "Здоров'я і краса",
+                "url": "",
+                "font": "Arial",
+                "size": 24,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "text": {
+                "text": "Ортопедичні товари, індивідуальні устілки та акуратні процедури.",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "button": {
+                "text": "",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              }
+            }
+          ],
+          "enabled": true
+        }
+      ]
+    },
+    "/services": {
+      "title": "Послуги і ціни",
+      "blocks": [
+        {
+          "note": "",
+          "layout": "text",
+          "heading": {
+            "text": "Послуги і ціни",
+            "url": "",
+            "font": "Arial",
+            "size": 34,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [
+            {
+              "name": "",
+              "image": "",
+              "alt": "",
+              "image_mode": "normal",
+              "image_align": "center",
+              "image_vertical": "center",
+              "title": {
+                "text": "",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "text": {
+                "text": "Тут розділи і напрямки, якими займається наш центр.",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              },
+              "button": {
+                "text": "",
+                "url": "",
+                "font": "Arial",
+                "size": 18,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              }
+            }
+          ],
+          "enabled": true,
+          "anchor": ""
+        },
+        {
+          "note": "Взуття і устілки",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "section-1",
+          "source": "section-1",
+          "source_parent": "",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Взуття і устілки",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "heading",
+                      "name": "",
+                      "value": {
+                        "text": "Взуття і устілки",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 30,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Індивідуальні рішення для комфорту стопи, щоденної ходи та підтримки.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Індивідуальні устілки",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-1",
+          "source": "card-1",
+          "source_parent": "section-1",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Індивідуальні устілки",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Індивідуальні устілки",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Підбір і виготовлення устілок під особливості стопи.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "ціна уточнюється",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Пошиття взуття",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-2",
+          "source": "card-2",
+          "source_parent": "section-1",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Пошиття взуття",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Пошиття взуття",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Взуття за індивідуальними замірами для щоденного комфорту.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "від ХХ грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Ортопедичні товари",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "section-2",
+          "source": "section-2",
+          "source_parent": "",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1583947581924-860bda6a26df?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Ортопедичні товари",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "heading",
+                      "name": "",
+                      "value": {
+                        "text": "Ортопедичні товари",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 30,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Практичні товари для дітей і дорослих, які допомагають рухатися впевненіше.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Ортопедичне взуття",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-3",
+          "source": "card-3",
+          "source_parent": "section-2",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1603808033192-082d6919d3e1?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Ортопедичне взуття",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Ортопедичне взуття",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Моделі для дітей і дорослих, підібрані під потреби клієнта.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "від ХХ грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Товари класу lux",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-4",
+          "source": "card-4",
+          "source_parent": "section-2",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1584516150909-c43483ee7932?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Товари класу lux",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Товари класу lux",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Якісні ортопедичні товари за доступними цінами.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "від ХХ грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Професійний масаж та реабілітація",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "section-3",
+          "source": "section-3",
+          "source_parent": "",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Професійний масаж та реабілітація",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "heading",
+                      "name": "",
+                      "value": {
+                        "text": "Професійний масаж та реабілітація",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 30,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Відновлення, легкість у тілі та уважна робота з самопочуттям.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Професійний масаж",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-5",
+          "source": "card-5",
+          "source_parent": "section-3",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Професійний масаж",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Професійний масаж",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Робота з напругою, втомою і відновленням після навантажень.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "від ХХ грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Реабілітаційний догляд",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-6",
+          "source": "card-6",
+          "source_parent": "section-3",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Реабілітаційний догляд",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Реабілітаційний догляд",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Підтримка рухливості та м'яке повернення до активності.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "від ХХ грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Пірсинг",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "section-4",
+          "source": "section-4",
+          "source_parent": "",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Пірсинг",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "heading",
+                      "name": "",
+                      "value": {
+                        "text": "Пірсинг",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 30,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Професійні проколи, прикраси оплачуються окремо, консультація перед процедурою безкоштовна.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Пірсинг вуха",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": false,
+          "anchor": "card-7",
+          "source": "card-7",
+          "source_parent": "section-4",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Пірсинг вуха",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Пірсинг вуха",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Акуратна процедура з поясненням догляду після візиту.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "від ХХ грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Прокол мочки вуха",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-10",
+          "source": "card-10",
+          "source_parent": "section-4",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Прокол мочки вуха",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Прокол мочки вуха",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Тривалість процедури: до 15 хвилин.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "400 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Консультація без проколу / зняття сережок",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": false,
+          "anchor": "card-27",
+          "source": "card-27",
+          "source_parent": "section-4",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/Doctor_01.png",
+                  "alt": "Консультація без проколу / зняття сережок",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Консультація без проколу / зняття сережок",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Окрема консультація або зняття сережок.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "150 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Пірсинг носа або пупка",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": false,
+          "anchor": "card-8",
+          "source": "card-8",
+          "source_parent": "section-4",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Пірсинг носа або пупка",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Пірсинг носа або пупка",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Делікатний підхід, стерильність і спокійна атмосфера.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "від ХХ грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Прокол хряща вуха",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-11",
+          "source": "card-11",
+          "source_parent": "section-4",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Прокол хряща вуха",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Прокол хряща вуха",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Helix, tragus та інші проколи. Якщо процедура триває більше 15 хвилин - доплата +50 грн.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "від 250 грн / 1 прокол",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Розхідний матеріал",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": false,
+          "anchor": "card-28",
+          "source": "card-28",
+          "source_parent": "section-4",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/Doctor_01.png",
+                  "alt": "Розхідний матеріал",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Розхідний матеріал",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Одноразові матеріали для процедури.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "від 60 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Пірсинг носа (nostril)",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-12",
+          "source": "card-12",
+          "source_parent": "section-4",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Пірсинг носа (nostril)",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Пірсинг носа (nostril)",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Прокол крила носа з рекомендаціями після процедури.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "400 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Пірсинг брови",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-13",
+          "source": "card-13",
+          "source_parent": "section-4",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1512316609839-ce289d3eba0a?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Пірсинг брови",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Пірсинг брови",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Прокол брови у стерильних умовах.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "500 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Прокол язика",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-14",
+          "source": "card-14",
+          "source_parent": "section-4",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Прокол язика",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Прокол язика",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Стерильні умови та одноразові матеріали.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "600 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Пірсинг пупка",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-15",
+          "source": "card-15",
+          "source_parent": "section-4",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Пірсинг пупка",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Пірсинг пупка",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Прикраси оплачуються окремо.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "500 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Додатково",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-56",
+          "source": "card-56",
+          "source_parent": "section-4",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/Doctor_01.png",
+                  "alt": "Додатково",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Додатково",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Консультація без проколу / зняття сережок - 150 грн. Розхідний матеріал - від 60 грн.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "від 60 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Прикраси",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "section-5",
+          "source": "section-5",
+          "source_parent": "",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Прикраси",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "heading",
+                      "name": "",
+                      "value": {
+                        "text": "Прикраси",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 30,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Сережки та прикраси для вух, носа і пупка.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Медична позолота",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": false,
+          "anchor": "card-9",
+          "source": "card-9",
+          "source_parent": "section-5",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Медична позолота",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Медична позолота",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Прикраси з охайним виглядом для повсякденного стилю.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "від ХХ грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Сережки для вух R",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-16",
+          "source": "card-16",
+          "source_parent": "section-5",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Сережки для вух R",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Сережки для вух R",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Сережки для вух.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "95 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Сережки для вух L",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-17",
+          "source": "card-17",
+          "source_parent": "section-5",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Сережки для вух L",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Сережки для вух L",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Сережки для вух.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "110 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Циркон (M)",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-18",
+          "source": "card-18",
+          "source_parent": "section-5",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Циркон (M)",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Циркон (M)",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Прикраса для вух.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "230 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Циркон (L / R)",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-19",
+          "source": "card-19",
+          "source_parent": "section-5",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Циркон (L / R)",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Циркон (L / R)",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Прикраса для вух.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "250 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Перлина (M)",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-20",
+          "source": "card-20",
+          "source_parent": "section-5",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Перлина (M)",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Перлина (M)",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Прикраса для вух.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "230 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Перлина (L / R)",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-21",
+          "source": "card-21",
+          "source_parent": "section-5",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Перлина (L / R)",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Перлина (L / R)",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Прикраса для вух.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "250 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Сережки для носа M",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-22",
+          "source": "card-22",
+          "source_parent": "section-5",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Сережки для носа M",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Сережки для носа M",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Сережки для носа.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "95 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Циркон для носа (M)",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-23",
+          "source": "card-23",
+          "source_parent": "section-5",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Циркон для носа (M)",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Циркон для носа (M)",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Прикраса для носа.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "230 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Перлина для носа (M)",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-24",
+          "source": "card-24",
+          "source_parent": "section-5",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Перлина для носа (M)",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Перлина для носа (M)",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Прикраса для носа.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "230 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Сережки для пупка",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-25",
+          "source": "card-25",
+          "source_parent": "section-5",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Сережки для пупка",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Сережки для пупка",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Прикраси для пупка.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "від 110 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Догляд",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "section-6",
+          "source": "section-6",
+          "source_parent": "",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Догляд",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "heading",
+                      "name": "",
+                      "value": {
+                        "text": "Догляд",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 30,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Засоби для догляду після процедури.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Догляд",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "section-10",
+          "source": "section-10",
+          "source_parent": "",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=900&q=80",
+                  "alt": "Догляд",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "heading",
+                      "name": "",
+                      "value": {
+                        "text": "Догляд",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 30,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Засоби для догляду після процедури.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Срібло 5 мл",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-26",
+          "source": "card-26",
+          "source_parent": "section-10",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/service_images/Image_88ba7c744973.png",
+                  "alt": "Срібло 5 мл",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Срібло 5 мл",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Засіб для догляду після проколу.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "60 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Інформація для клієнтів",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "section-7",
+          "source": "section-7",
+          "source_parent": "",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/Doctor_01.png",
+                  "alt": "Інформація для клієнтів",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "heading",
+                      "name": "",
+                      "value": {
+                        "text": "Інформація для клієнтів",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 30,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Важливі умови перед записом на процедуру.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Інформація для клієнтів",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "section-12",
+          "source": "section-12",
+          "source_parent": "",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/Doctor_01.png",
+                  "alt": "Інформація для клієнтів",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "heading",
+                      "name": "",
+                      "value": {
+                        "text": "Інформація для клієнтів",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 30,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Важливі умови перед записом на процедуру.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Стерильні умови",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-29",
+          "source": "card-29",
+          "source_parent": "section-12",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/Doctor_01.png",
+                  "alt": "Стерильні умови",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Стерильні умови",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Працюємо зі стерильними умовами та одноразовими матеріалами.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "включено",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Прикраси оплачуються окремо",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-30",
+          "source": "card-30",
+          "source_parent": "section-12",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/Lady_02.png",
+                  "alt": "Прикраси оплачуються окремо",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Прикраси оплачуються окремо",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Вартість прикрас не входить у ціну процедури.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "окремо",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Консультація перед процедурою",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-31",
+          "source": "card-31",
+          "source_parent": "section-12",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/Doctor_02.png",
+                  "alt": "Консультація перед процедурою",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Консультація перед процедурою",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Попередня консультація перед процедурою безкоштовна.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "безкоштовно",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Попередній запис",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-32",
+          "source": "card-32",
+          "source_parent": "section-12",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/Doctor_03.png",
+                  "alt": "Попередній запис",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Попередній запис",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Працюємо за попереднім записом.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "за записом",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        }
+      ],
+      "menu": [
+        {
+          "title": "Взуття і устілки",
+          "url": "#section-1",
+          "enabled": true
+        },
+        {
+          "title": "Ортопедичні товари",
+          "url": "#section-2",
+          "enabled": true
+        },
+        {
+          "title": "Професійний масаж та реабілітація",
+          "url": "#section-3",
+          "enabled": true
+        },
+        {
+          "title": "Пірсинг",
+          "url": "#section-4",
+          "enabled": true
+        },
+        {
+          "title": "Прикраси",
+          "url": "#section-5",
+          "enabled": true
+        },
+        {
+          "title": "Догляд",
+          "url": "#section-6",
+          "enabled": true
+        },
+        {
+          "title": "Догляд",
+          "url": "#section-10",
+          "enabled": true
+        },
+        {
+          "title": "Інформація для клієнтів",
+          "url": "#section-7",
+          "enabled": true
+        },
+        {
+          "title": "Інформація для клієнтів",
+          "url": "#section-12",
+          "enabled": true
+        }
+      ]
+    }
+  },
+  "services": {}
+}
