@@ -47,7 +47,8 @@ import Utils.database as database
 #Ver = "LadySite v0.97 (2026-10-13)" #robots.txt та автоматична карта сайту sitemap.xml
 #Ver = "LadySite v1.00 (2026-10-26)" #публічний маршрут ads.txt для AdSense
 #Ver = "LadySite v1.00.01 (2026-10-27)" #автоматичне приховування банера waifly
-Ver = "LadySite v1.00.02 (2026-10-27)" #SQLite, JSON-послуги, компактне меню та журнал
+#Ver = "LadySite v1.00.02 (2026-10-27)" #SQLite, JSON-послуги, компактне меню та журнал
+Ver = "LadySite v1.00.03 (2026-10-27)" #згортання секцій редактора, блок партнерів із редагованим HTML
 
 
 HOST = "localhost" if os.name == "nt" else "0.0.0.0"

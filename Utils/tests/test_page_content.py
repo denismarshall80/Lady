@@ -190,6 +190,8 @@ class ContentTests(unittest.TestCase):
         self.assertNotIn('Заголовок після тексту', self.client.get('/?preview=public').get_data(as_text=True))
 
     def test_contacts_save_order_and_permissions(self):
+        # Exercise the legacy contacts fallback independently of editable shared blocks.
+        pc.update_content(lambda content: content.pop('site_blocks', None))
         self.assertEqual(self.client.post('/settings/contacts',data={}).status_code,400)
         values = {'csrf':'test-csrf','address':'Адреса для тесту','comment':'У дворі',
                   'hours':'Пн: 10–18\nВт: вихідний','phone':'123',
@@ -206,6 +208,23 @@ class ContentTests(unittest.TestCase):
         values['instagram'] = 'javascript:alert(1)'
         self.user = {'Role':'admin'}
         self.assertEqual(self.client.post('/settings/contacts',data=values).status_code,400)
+
+    def test_html_widget_save_render_and_empty_visibility(self):
+        code = '<a href="https://example.com"><img src="https://example.com/logo.svg"></a><script>window.widget=true;</script>'
+        response = self.client.post('/content/save', data={
+            'csrf':'test-csrf','page_path':'/','page_title':'Головна',
+            'blocks':json.dumps([{'layout':'text','nodes':[{'kind':'html','name':'Партнер','code':code,'height':120}]}])})
+        self.assertEqual(response.status_code,200)
+        saved = pc.read_content()['pages']['/']['blocks'][0]['nodes'][0]
+        self.assertEqual(saved['code'],code)
+        html = self.client.get('/?preview=public').get_data(as_text=True)
+        self.assertIn('class="content-html"',html)
+        self.assertIn('height:120px',html)
+        self.assertIn('sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"',html)
+        self.assertNotIn('<script>window.widget=true;</script>',html)
+        self.assertFalse(pc.has_visible_nodes(pc.normalize_nodes([{'kind':'html','code':'  '}])) )
+        with self.assertRaises(ValueError):
+            pc.normalize_nodes([{'kind':'html','code':'x'*100001}])
 
     def test_shared_blocks_background_and_editor_last(self):
         html = self.client.get('/').get_data(as_text=True)

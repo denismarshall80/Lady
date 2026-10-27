@@ -4004,5 +4004,322 @@
       ]
     }
   },
-  "services": {}
+  "services": {},
+  "site_blocks": [
+    {
+      "note": "Адреса салону та графік роботи",
+      "layout": "text-image",
+      "heading": {
+        "text": "",
+        "url": "",
+        "font": "Arial",
+        "size": 18,
+        "bold": false,
+        "italic": false,
+        "underline": false,
+        "align": "left",
+        "vertical": "top"
+      },
+      "items": [],
+      "enabled": true,
+      "anchor": "",
+      "nodes": [
+        {
+          "kind": "heading",
+          "name": "",
+          "value": {
+            "text": "Адреса салону та графік роботи",
+            "url": "",
+            "font": "Arial",
+            "size": 28,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          }
+        },
+        {
+          "kind": "group",
+          "name": "",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "text",
+                  "name": "Адреса салону",
+                  "value": {
+                    "text": "Кам’янець-Подільський, вул. Лесі Українки, 41",
+                    "url": "",
+                    "font": "Arial",
+                    "size": 18,
+                    "bold": true,
+                    "italic": false,
+                    "underline": false,
+                    "align": "left",
+                    "vertical": "top"
+                  }
+                },
+                {
+                  "kind": "text",
+                  "name": "Коментар до адреси",
+                  "value": {
+                    "text": "На території дитячої поліклініки.",
+                    "url": "",
+                    "font": "Arial",
+                    "size": 18,
+                    "bold": false,
+                    "italic": false,
+                    "underline": false,
+                    "align": "left",
+                    "vertical": "top"
+                  }
+                },
+                {
+                  "kind": "title",
+                  "name": "",
+                  "value": {
+                    "text": "Графік роботи",
+                    "url": "",
+                    "font": "Arial",
+                    "size": 22,
+                    "bold": false,
+                    "italic": false,
+                    "underline": false,
+                    "align": "left",
+                    "vertical": "top"
+                  }
+                },
+                {
+                  "kind": "text",
+                  "name": "Графік роботи",
+                  "value": {
+                    "text": "Пн–Пт: 09:00–17:00\nСб: 09:00–13:00\nНд: вихідний",
+                    "url": "",
+                    "font": "Arial",
+                    "size": 18,
+                    "bold": false,
+                    "italic": false,
+                    "underline": false,
+                    "align": "left",
+                    "vertical": "top"
+                  }
+                },
+                {
+                  "kind": "button",
+                  "name": "",
+                  "value": {
+                    "text": "Відкрити в Google Maps",
+                    "url": "",
+                    "font": "Arial",
+                    "size": 18,
+                    "bold": false,
+                    "italic": false,
+                    "underline": false,
+                    "align": "left",
+                    "vertical": "top"
+                  }
+                }
+              ],
+              "columns": 1
+            },
+            {
+              "kind": "map",
+              "name": "Google-мапа",
+              "url": "",
+              "title": "Адреса салону на Google Maps"
+            }
+          ],
+          "columns": 1
+        }
+      ]
+    },
+    {
+      "note": "Контакти",
+      "layout": "text",
+      "heading": {
+        "text": "",
+        "url": "",
+        "font": "Arial",
+        "size": 18,
+        "bold": false,
+        "italic": false,
+        "underline": false,
+        "align": "left",
+        "vertical": "top"
+      },
+      "items": [],
+      "enabled": true,
+      "anchor": "",
+      "nodes": [
+        {
+          "kind": "group",
+          "name": "Контакти та соціальні мережі",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "Ліва колонка",
+              "nodes": [
+                {
+                  "kind": "heading",
+                  "name": "",
+                  "value": {
+                    "text": "Контакти:",
+                    "url": "",
+                    "font": "Arial",
+                    "size": 24,
+                    "bold": false,
+                    "italic": false,
+                    "underline": false,
+                    "align": "left",
+                    "vertical": "top"
+                  }
+                },
+                {
+                  "kind": "text",
+                  "name": "Телефон",
+                  "value": {
+                    "text": "+38 093 299-59-21",
+                    "url": "tel:+38093299-59-21",
+                    "font": "Arial",
+                    "size": 18,
+                    "bold": false,
+                    "italic": false,
+                    "underline": false,
+                    "align": "left",
+                    "vertical": "top"
+                  }
+                }
+              ],
+              "columns": 1
+            },
+            {
+              "kind": "group",
+              "name": "Права колонка",
+              "nodes": [
+                {
+                  "kind": "social",
+                  "name": "",
+                  "value": {
+                    "text": "Ми у соціальних мережах",
+                    "url": "",
+                    "font": "Arial",
+                    "size": 18,
+                    "bold": false,
+                    "italic": false,
+                    "underline": false,
+                    "align": "left",
+                    "vertical": "top"
+                  }
+                }
+              ],
+              "columns": 1
+            }
+          ],
+          "columns": 2
+        },
+        {
+          "kind": "text",
+          "name": "Примітка контактів",
+          "value": {
+            "text": "Інформація про салон поступово доповнюється.",
+            "url": "",
+            "font": "Arial",
+            "size": 14,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          }
+        }
+      ],
+      "background": {
+        "color": "#f7efe7",
+        "image": "",
+        "mode": "tile",
+        "align": "center",
+        "vertical": "top",
+        "attachment": "scroll"
+      }
+    },
+    {
+      "note": "Інформація для відвідувачів",
+      "layout": "text",
+      "heading": {
+        "text": "",
+        "url": "",
+        "font": "Arial",
+        "size": 18,
+        "bold": false,
+        "italic": false,
+        "underline": false,
+        "align": "left",
+        "vertical": "top"
+      },
+      "items": [],
+      "enabled": true,
+      "anchor": "",
+      "nodes": [
+        {
+          "kind": "text",
+          "name": "Інформація для відвідувачів",
+          "value": {
+            "text": "Інформація, розміщена на сайті, призначена тільки для ознайомлювальних цілей.\nЯкщо у вас виникла проблема зі здоров'ям, зверніться до сімейного лікаря.",
+            "url": "",
+            "font": "Arial",
+            "size": 14,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "center",
+            "vertical": "top"
+          }
+        }
+      ]
+    },
+    {
+      "note": "Наші партнери",
+      "layout": "text",
+      "heading": {
+        "text": "",
+        "url": "",
+        "font": "Arial",
+        "size": 18,
+        "bold": false,
+        "italic": false,
+        "underline": false,
+        "align": "left",
+        "vertical": "top"
+      },
+      "items": [],
+      "enabled": true,
+      "anchor": "site-partners",
+      "nodes": [
+        {
+          "kind": "heading",
+          "name": "",
+          "value": {
+            "text": "Наші партнери",
+            "url": "",
+            "font": "Arial",
+            "size": 26,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "center",
+            "vertical": "top"
+          }
+        },
+        {
+          "kind": "html",
+          "name": "Barb.ua",
+          "code": "<a href=\"https://barb.ua/uk/kamenets-podolskiy/salon/ledi\"><img src=\"https://barb.ua/p/225522-light-r-wd.svg\" alt=\"Рейтинг на Barb.ua\" width=\"250\" height=\"60\" referrerpolicy=\"unsafe-url\"></a>",
+          "height": 65
+        }
+      ]
+    }
+  ]
 }

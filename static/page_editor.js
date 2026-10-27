@@ -8,6 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
     root.addEventListener('toggle', () => {
         try { localStorage.setItem(collapseKey, root.open ? '1' : '0'); } catch {}
     });
+    root.querySelectorAll('[data-editor-section]').forEach(section => {
+        const key = collapseKey + ':' + section.dataset.editorSection;
+        try { section.open = localStorage.getItem(key) === '1'; } catch {}
+        section.addEventListener('toggle', () => {
+            try { localStorage.setItem(key, section.open ? '1' : '0'); } catch {}
+        });
+    });
     window.addEventListener('hashchange', () => {
         if (location.hash === '#page-editor') root.open = true;
     });
@@ -161,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         return label;
     }
-    const kinds = {group:'Група елементів', columns:'Колонки', heading:'Заголовок усього блоку', image:'Малюнок', title:'Заголовок інформації', text:'Основний текст', button:'Кнопка з надписом і посиланням', auto:'Елемент з автонаповненням', carousel:'Карусель', animation:'Анімація', map:'Мапа', social:'Соціальні мережі', background:'Фон блоку'};
+    const kinds = {group:'Група елементів', columns:'Колонки', heading:'Заголовок усього блоку', image:'Малюнок', title:'Заголовок інформації', text:'Основний текст', button:'Кнопка з надписом і посиланням', auto:'Елемент з автонаповненням', carousel:'Карусель', animation:'Анімація', map:'Мапа', social:'Соціальні мережі', background:'Фон блоку', html:'HTML-код / віджет'};
     const effects = {none:'Без анімації', random:'Випадкова', ShortBackLighting:'ShortBackLighting — підсвічування', Flowers:'Flowers — квіточки', Sparkles:'Sparkles — іскри', SoftPulse:'SoftPulse — м’який пульс', Rainbow:'Rainbow — веселковий контур'};
     function makeNode(kind, layout = 'text-image') {
         if (kind === 'auto') {
@@ -172,6 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (kind === 'columns') return {kind:'group', name:'Колонки', columns:2, nodes:[{kind:'group',name:'Ліва колонка',nodes:[]},{kind:'group',name:'Права колонка',nodes:[]}]};
         if (kind === 'group' || kind === 'carousel') return {kind, nodes:[]};
         if (kind === 'background') return {kind, value:{color:'',image:'',mode:'tile',align:'center',vertical:'top',attachment:'scroll'}};
+        if (kind === 'html') return {kind,code:'',height:90};
         if (kind === 'map') return {kind, url:'', title:'Мапа салону'};
         if (kind === 'social') return {kind, value:emptyElement()};
         if (kind === 'animation') return {kind, effect:'random'};
@@ -264,6 +272,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (depth < 5) addControls(panel, item.nodes, item.kind === 'carousel');
             } else if (item.kind === 'image') imageEditor(panel,item);
             else if (item.kind === 'background') backgroundEditor(panel,item.value);
+            else if (item.kind === 'html') {
+                const code = field(panel,'HTML-код партнера або віджета',item,'code',null,'textarea');
+                code.rows = 8; code.spellcheck = false; code.classList.add('html-code-input');
+                const height = field(panel,'Висота віджета, px',item,'height',null,'number');
+                height.min = 40; height.max = 2000;
+            }
             else if (item.kind === 'map') { field(panel,'URL вбудованої Google-мапи (src, без iframe)',item,'url'); field(panel,'Опис мапи',item,'title'); }
             else if (item.kind === 'social') {
                 field(panel,'Розташування посилань',item.value,'align',{left:'Зліва',center:'По центру',right:'Справа'});

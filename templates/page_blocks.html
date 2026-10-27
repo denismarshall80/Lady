@@ -20,6 +20,9 @@
 <div class="carousel-slides">{% for slide in slides %}<div class="carousel-slide" {% if not loop.first %}hidden{% endif %}>{{ show_nodes([slide]) }}</div>{% endfor %}</div>
 {% if slides|length > 1 %}<div class="carousel-controls"><button type="button" data-carousel-step="-1" aria-label="Попередній малюнок">←</button><span aria-live="polite" data-carousel-count>1 / {{ slides|length }}</span><button type="button" data-carousel-step="1" aria-label="Наступний малюнок">→</button></div>{% endif %}
 </div>{% endif %}
+{% elif n.kind == 'html' and n.code|trim %}
+{% set embed_doc = '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><base target="_blank"><style>body{margin:0;overflow-wrap:anywhere}img{max-width:100%}body{text-align:center}</style></head><body>' ~ n.code ~ '</body></html>' %}
+<iframe class="content-html" title="{{ n.name or 'HTML-віджет' }}" srcdoc="{{ embed_doc|forceescape }}" sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" loading="lazy" style="height:{{ n.height }}px"></iframe>
 {% elif n.kind == 'map' and n.url %}<iframe class="content-map" src="{{ n.url }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="{{ n.title }}"></iframe>
 {% elif n.kind == 'social' %}
 <div class="content-social" style="text-align:{{ n.value.align }}">

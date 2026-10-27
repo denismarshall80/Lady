@@ -68,9 +68,6 @@
         {% if not hide_public_shell and active_page not in ['admin','visits','settings','users','logs','profile','login'] %}
         {% with page={'blocks': site_blocks}, blocks_class='site-blocks' %}{% include 'page_blocks.html' %}{% endwith %}
         {% endif %}
-        {% if not hide_public_shell and active_page in ['home', 'services', 'about'] %}
-        <div class="barb-rating"><a href="https://barb.ua/uk/kamenets-podolskiy/salon/ledi"><img src="https://barb.ua/p/225522-light-r-wd.svg" alt="Рейтинг на Barb.ua" width="250" height="60" referrerpolicy="unsafe-url" loading="lazy"></a></div>
-        {% endif %}
         {% if manager_view|default(false) and page is defined and page_path is defined %}{% include 'page_editor.html' %}{% endif %}
     </main>
     {% if not hide_public_shell %}

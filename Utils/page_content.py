@@ -52,7 +52,7 @@ def normalize_nodes(raw, depth=0):
     result = []
     for node in raw:
         kind = node.get('kind') if isinstance(node, dict) else None
-        if kind not in {'group', 'heading', 'image', 'title', 'text', 'button', 'carousel', 'animation', 'map', 'social', 'background'}:
+        if kind not in {'group', 'heading', 'image', 'title', 'text', 'button', 'carousel', 'animation', 'map', 'social', 'background', 'html'}:
             raise ValueError('Невідомий тип ноди.')
         value = {'kind': kind, 'name': str(node.get('name', ''))}
         if kind == 'group':
@@ -60,6 +60,11 @@ def normalize_nodes(raw, depth=0):
             value['columns'] = max(1, min(4, int(node.get('columns', 1))))
         elif kind in {'heading', 'title', 'text', 'button'}:
             value['value'] = element(node.get('value', {}))
+        elif kind == 'html':
+            code = str(node.get('code', ''))
+            if len(code) > 100000:
+                raise ValueError('HTML-код перевищує 100 000 символів.')
+            value.update(code=code, height=max(40, min(2000, int(node.get('height', 90)))))
         elif kind == 'image':
             image = safe_url(node.get('image'))
             if image and not (image.startswith('/') or urlsplit(image).scheme in {'http', 'https'}):
@@ -282,6 +287,8 @@ def has_visible_nodes(nodes):
         if kind in {'group', 'carousel'} and has_visible_nodes(node['nodes']):
             return True
         if kind == 'map' and node.get('url'):
+            return True
+        if kind == 'html' and node.get('code', '').strip():
             return True
         if kind == 'social':
             return True

@@ -1,4 +1,8 @@
 /* A closed editor takes one tiny row within the public content width. */
+.editor-section { border:1px solid var(--line); border-radius:8px; padding:12px; margin:12px 0; }
+.editor-section > summary { cursor:pointer; font-size:19px; font-weight:700; }
+.editor-section[open] > summary { margin-bottom:12px; }
+.html-code-input { font-family:monospace; tab-size:4; }
 #page-editor { padding:0; }
 #page-editor:not([open]) { width:100%; max-width:100%; margin:12px 0 0; background:#f7efe766; }
 #page-editor > .page-editor-toggle { padding:3px 10px; font-size:11px; line-height:16px; color:var(--muted); cursor:pointer; }
