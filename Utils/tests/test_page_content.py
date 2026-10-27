@@ -60,7 +60,7 @@ class ContentTests(unittest.TestCase):
         self.module.get_service_data = lambda: []
         html = self.client.get('/?preview=public').get_data(as_text=True)
         self.assertIn('footer-version', html)
-        self.assertIn('Відвідало за останні 7 дн.:', html)
+        self.assertIn('data-visit-summary="/api/visits/summary"', html)
         self.assertNotIn('Записалось:', html)
 
     def test_visitor_period_boundaries(self):
@@ -81,7 +81,8 @@ class ContentTests(unittest.TestCase):
         self.module.total_visit_count = lambda: 10
         self.module.all_time_visit_count = lambda: 100
         html = self.client.get('/?preview=public').get_data(as_text=True)
-        self.assertIn(': 10/100', html)
+        self.assertIn('Відвідало: …', html)
+        self.assertIn('data-visit-summary="/api/visits/summary"', html)
         html = self.client.get('/settings').get_data(as_text=True)
         self.assertIn('Показувати відвідування за поточний:', html)
         with patch.object(self.module, 'save_config') as save:

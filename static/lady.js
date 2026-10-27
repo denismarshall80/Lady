@@ -1,4 +1,24 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const visitSummary = document.querySelector('[data-visit-summary]');
+    if (visitSummary) {
+        fetch(visitSummary.dataset.visitSummary)
+            .then(response => {
+                if (!response.ok) throw new Error('visits');
+                return response.json();
+            })
+            .then(data => {
+                const keys = ['yesterday','today','month','year','total'];
+                if (!keys.every(key => Number.isSafeInteger(data[key]) && data[key] >= 0)
+                    || !Number.isInteger(data.month_number) || data.month_number < 1 || data.month_number > 12
+                    || !Number.isInteger(data.year_number)) throw new Error('visits');
+                const months = ['Січень','Лютий','Березень','Квітень','Травень','Червень',
+                    'Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+                visitSummary.textContent = `Відвідало: ${data.yesterday}/${data.today}/${data.month}/${data.total}`;
+                visitSummary.title = `Вчора: ${data.yesterday}\nСьогодні: ${data.today}\n${months[data.month_number - 1]}: ${data.month}\n${data.year_number} рік: ${data.year}\nВсього: ${data.total}`;
+                visitSummary.setAttribute('aria-label', visitSummary.title);
+            })
+            .catch(() => { visitSummary.textContent = 'Відвідало: —'; visitSummary.title = 'Статистика тимчасово недоступна'; });
+    }
     const logForm = document.querySelector('[data-log-period-form]');
     if (logForm) {
         const period = logForm.querySelector('[data-log-period]');

@@ -73,7 +73,7 @@
     {% if not hide_public_shell %}
     <footer class="footer">
         <span class="footer-version">{{ app_version }}</span>
-        <span class="footer-stats" title="Унікальні відвідувачі: за обраний період / за весь час">{% if user %}<a href="{{ url_for('visit_stats') }}">{% endif %}Відвідало {{ visitor_period_label }}: {{ visit_count() }}/{{ visit_count_all() }}{% if user %}</a>{% endif %}{% if can_manage_services and footer_online_enabled %}&nbsp;&nbsp;&nbsp; Записалось: {{ appointment_count() }}{% endif %}</span>
+        <span class="footer-stats">{% if user %}<a href="{{ url_for('visit_stats') }}"{% else %}<span{% endif %} data-visit-summary="{{ url_for('visit_summary_api') }}" aria-label="Статистика відвідувачів">Відвідало: …{% if user %}</a>{% else %}</span>{% endif %}{% if can_manage_services and footer_online_enabled %}&nbsp;&nbsp;&nbsp; Записалось: {{ appointment_count() }}{% endif %}</span>
     </footer>
     {% endif %}
     {{ global_code.body_end|default('')|safe }}

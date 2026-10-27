@@ -10,7 +10,7 @@ from werkzeug.security import generate_password_hash
 from test_page_content import isolated_app
 from Utils import database, page_content as pc, site_log as sl
 from Utils.migrate_storage import import_database
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 
 class SQLiteTests(unittest.TestCase):
@@ -71,6 +71,30 @@ class SQLiteTests(unittest.TestCase):
         with self.module.db_cursor() as cur:
             cur.execute('SELECT Pass FROM Users WHERE Login=?',('tester',))
             self.assertEqual(cur.fetchone()['Pass'],self.password_hash)
+
+    def test_footer_summary_distinct_periods_and_api_cache(self):
+        now = datetime(2026,10,27,12)
+        with self.module.db_cursor(commit=True) as cur:
+            for key, when in [('a',datetime(2026,10,26,23,59)),('a',datetime(2026,10,27)),
+                              ('b',datetime(2026,10,26)),('c',datetime(2026,10,1)),
+                              ('d',datetime(2026,1,1)),('e',datetime(2025,12,31)),
+                              ('future',datetime(2026,10,27,13))]:
+                cur.execute('INSERT INTO PageVisits(VisitorKey,Path,CreatedAt) VALUES(?,?,?)',(key,'/',when))
+        summary = self.module.read_visit_summary(now)
+        self.assertEqual(summary,{'yesterday':2,'today':1,'month':3,'year':4,'total':5,'month_number':10,'year_number':2026})
+        self.module.read_visit_summary = Mock(return_value=summary)
+        for _ in range(2):
+            response = self.client.get('/api/visits/summary')
+            self.assertEqual(response.status_code,200)
+            self.assertEqual(response.json,summary)
+            self.assertIn('max-age=30',response.headers['Cache-Control'])
+        self.module.read_visit_summary.assert_called_once()
+        self.module.current_user = lambda: None
+        self.module.record_page_visit = lambda: None
+        self.module.total_visit_count = Mock(side_effect=AssertionError('Footer counts must load in browser'))
+        self.module.all_time_visit_count = self.module.total_visit_count
+        self.assertEqual(self.client.get('/login').status_code,200)
+        self.module.total_visit_count.assert_not_called()
 
     def test_appointments_datetime_and_notifications_flags(self):
         visit = datetime(2026,11,1,10,30)

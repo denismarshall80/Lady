@@ -7,6 +7,8 @@ import os
 import re
 import smtplib
 import uuid
+import time
+from threading import Lock
 import zipfile
 from xml.etree import ElementTree as ET
 from contextlib import contextmanager
@@ -48,7 +50,8 @@ import Utils.database as database
 #Ver = "LadySite v1.00 (2026-10-26)" #публічний маршрут ads.txt для AdSense
 #Ver = "LadySite v1.00.01 (2026-10-27)" #автоматичне приховування банера waifly
 #Ver = "LadySite v1.00.02 (2026-10-27)" #SQLite, JSON-послуги, компактне меню та журнал
-Ver = "LadySite v1.00.03 (2026-10-27)" #згортання секцій редактора, блок партнерів із редагованим HTML
+#Ver = "LadySite v1.00.03 (2026-10-27)" #згортання секцій редактора, блок партнерів із редагованим HTML
+Ver = "LadySite v1.00.04 (2026-10-27)" #клієнтський лічильник відвідин: вчора, сьогодні, місяць, всього
 
 
 HOST = "localhost" if os.name == "nt" else "0.0.0.0"
@@ -573,9 +576,6 @@ def inject_globals():
         "site_background": content.get("site_background", pc.background({})),
         "content_csrf": session["content_csrf"],
         "app_version": Ver,
-        "visit_count": total_visit_count,
-        "visit_count_all": all_time_visit_count,
-        "visitor_period_label": visitor_period_label(global_config),
         "appointment_count": total_appointment_count,
         "user": user,
         "is_admin": is_admin(user),
@@ -697,6 +697,44 @@ def all_time_visit_count() -> int:
     except Exception as ex:
         mf.tolog(f"all_time_visit_count() failed: {ex}")
         return 0
+
+
+_visit_summary_cache = {}
+_visit_summary_lock = Lock()
+
+
+def read_visit_summary(now):
+    today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    with db_cursor() as cur:
+        cur.execute('''
+            SELECT
+                COUNT(DISTINCT CASE WHEN CreatedAt >= ? AND CreatedAt < ? THEN VisitorKey END) AS yesterday,
+                COUNT(DISTINCT CASE WHEN CreatedAt >= ? THEN VisitorKey END) AS today,
+                COUNT(DISTINCT CASE WHEN CreatedAt >= ? THEN VisitorKey END) AS month,
+                COUNT(DISTINCT CASE WHEN CreatedAt >= ? THEN VisitorKey END) AS year,
+                COUNT(DISTINCT VisitorKey) AS total
+            FROM PageVisits WHERE CreatedAt <= ?
+        ''', (today - timedelta(days=1), today, today, today.replace(day=1),
+              today.replace(month=1, day=1), now))
+        result = {key: int(value) for key, value in cur.fetchone().items()}
+    return {**result, 'month_number': now.month, 'year_number': now.year}
+
+
+@app.route('/api/visits/summary')
+def visit_summary_api():
+    now = datetime.now()
+    try:
+        with _visit_summary_lock:
+            if (_visit_summary_cache.get('day') != now.date()
+                    or _visit_summary_cache.get('expires', 0) <= time.monotonic()):
+                if not runtime_state['schema_ready']:
+                    ensure_schema()
+                data = read_visit_summary(now)
+                _visit_summary_cache.update(day=now.date(), expires=time.monotonic() + 30, data=data)
+            return _visit_summary_cache['data'], 200, {'Cache-Control': 'public, max-age=30'}
+    except Exception as ex:
+        mf.tolog(f'visit summary failed: {ex}')
+        return {'error': 'Статистика тимчасово недоступна'}, 503, {'Cache-Control': 'no-store'}
 
 
 def total_appointment_count() -> int:
