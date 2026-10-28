@@ -60,6 +60,11 @@
             <a class="{{ 'active' if active_page == 'login' else '' }}" href="{{ url_for('login') }}">Вхід</a>
         </nav>
         {% endif %}
+        {% if active_page in ['home', 'services'] and page is defined and page.menu %}
+        <nav class="services-sidebar mobile-section-menu" aria-label="Розділи сторінки">
+            {% for item in page.menu if item.enabled %}<a href="{{ item.url }}" data-service-nav>{{ item.title }}</a>{% endfor %}
+        </nav>
+        {% endif %}
     </header>
     {% endif %}
     {% if hide_public_shell %}{% include 'menu_alerts.html' %}{% endif %}

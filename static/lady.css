@@ -1098,8 +1098,12 @@ th { background: #fff0e6; font-size: 17px; }
 .dialog-actions .dialog-no { min-width:92px; background:#b42318; border-color:#b42318; color:white; }
 @media(max-width:760px) { .content-nodes .content-node-group.content-explicit-columns { grid-template-columns:minmax(0,1fr); } }
 
+.topbar > .mobile-section-menu { display: none; }
+
 /* Mobile navigation: two independent horizontal rows in the pinned header. */
 @media (max-width: 900px) {
+    [data-page-editor] { display: none !important; }
+    [data-page-preview] > .services-sidebar { display: none; }
     .topbar { position: sticky; top: 0; }
     .topbar:has(.nav-left) .topbar-left { display: contents; }
     .topbar .brand { grid-column: 1; grid-row: 1; }

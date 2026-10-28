@@ -434,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateActionBar() {
         const rect = root.getBoundingClientRect();
         const headerBottom = document.querySelector('.topbar')?.getBoundingClientRect().bottom || 0;
-        const visible = root.open && rect.top < window.innerHeight && rect.bottom > headerBottom;
+        const visible = !window.matchMedia('(max-width: 900px)').matches && root.open && rect.top < window.innerHeight && rect.bottom > headerBottom;
         actions.classList.toggle('is-pinned', visible);
         document.body.style.setProperty('--editor-action-height', visible ? `${actions.getBoundingClientRect().height}px` : '0px');
     }

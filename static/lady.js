@@ -40,24 +40,23 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(() => alert.remove(), 10000);
     });
     const topbar = document.querySelector('.topbar');
-    // Keep one menu instance so links and editor updates stay in sync.
-    const mobileNavigation = window.matchMedia('(max-width: 900px)');
-    let sectionMenu;
-    let menuSlot;
+    // Both layouts are rendered by the server; refresh the mobile copy after editor saves.
     const placeSectionMenu = () => {
+        const sectionMenu = document.querySelector('[data-page-preview] > .services-sidebar');
+        let mobileMenu = topbar?.querySelector('.mobile-section-menu');
         if (!topbar) return;
-        if (!menuSlot?.isConnected) {
-            sectionMenu?.remove();
-            sectionMenu = document.querySelector('[data-page-preview] > .services-sidebar');
-            if (!sectionMenu) return;
-            menuSlot = document.createComment('section menu desktop position');
-            sectionMenu.before(menuSlot);
+        if (!sectionMenu) {
+            mobileMenu?.remove();
+            return;
         }
-        if (mobileNavigation.matches) topbar.append(sectionMenu);
-        else menuSlot.after(sectionMenu);
+        if (!mobileMenu) {
+            mobileMenu = document.createElement('nav');
+            mobileMenu.className = 'services-sidebar mobile-section-menu';
+            topbar.append(mobileMenu);
+        }
+        mobileMenu.setAttribute('aria-label', sectionMenu.getAttribute('aria-label'));
+        mobileMenu.innerHTML = sectionMenu.innerHTML;
     };
-    placeSectionMenu();
-    mobileNavigation.addEventListener('change', placeSectionMenu);
     const updateAnchorOffset = () => {
         const pinned = topbar && ['sticky', 'fixed'].includes(getComputedStyle(topbar).position);
         const height = pinned ? topbar.getBoundingClientRect().height : 0;
