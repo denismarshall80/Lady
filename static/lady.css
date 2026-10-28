@@ -978,6 +978,7 @@ th { background: #fff0e6; font-size: 17px; }
 }
 
 @media (max-width: 900px) {
+    .topbar .nav .desktop-only-nav { display: none; }
     body { font-size: 17px; }
     .topbar { position: static; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 8px; padding: 8px 12px; }
     .topbar-left { align-items: flex-start; flex-direction: column; }
