@@ -2,11 +2,7 @@
 {% block body_class %}settings-screen{% endblock %}
 {% block content %}
 <div class="settings-workspace" data-tabs data-settings-tabs>
-<section class="admin-head">
-    <div>
-        <h1 class="admin-title-small">Налаштування сайту</h1>
-    </div>
-</section>
+{% with settings_section='site' %}{% include 'settings_navigation.html' %}{% endwith %}
 <form method="post" action="{{ url_for('settings') }}" id="settings-config-form" hidden>
     <input type="hidden" name="active_tab" value="{{ active_tab }}">
 </form>
@@ -17,7 +13,6 @@
         <button class="settings-tab {{ 'is-active' if active_tab == 'tg' else '' }}" type="button" data-tab-target="tg">TG</button>
         <button class="settings-tab {{ 'is-active' if active_tab == 'html' else '' }}" type="button" data-tab-target="html">HTML</button>
         <button class="settings-tab {{ 'is-active' if active_tab == 'alert' else '' }}" type="button" data-tab-target="alert">Alert</button>
-        <a class="settings-tab" href="{{ url_for('users') }}">Користувачі</a>
         <button class="primary settings-save-inline" name="action" value="save" type="submit" form="{{ 'settings-html-form' if active_tab == 'html' else 'settings-config-form' }}">Зберегти налаштування</button>
     </div>
     <div class="settings-panel-scroll">

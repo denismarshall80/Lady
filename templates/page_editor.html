@@ -12,8 +12,8 @@
         </details>
         <p>Порожні заголовки, текст, кнопки й малюнки не показуються. Зміни публікуються після натискання «Зберегти зміни».</p>
         <details class="logo-editor"><summary>Фон сайту</summary><div data-site-background-editor></div></details>
-        {% if page_path == '/services' %}
-        <details class="editor-section" data-editor-section="menu"><summary>Меню послуг</summary>
+        {% if page_path in ['/', '/services'] %}
+        <details class="editor-section" data-editor-section="menu"><summary>{{ 'Меню головної' if page_path == '/' else 'Меню послуг' }}</summary>
         <p>Додавайте пункти та посилання на блоки (#якір), інші сторінки або зовнішні адреси. Якір задається в налаштуваннях блоку нижче.</p>
         <div data-service-menu-editor></div>
         <button type="button" data-menu-add>Додати пункт меню</button>

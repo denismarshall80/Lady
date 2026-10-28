@@ -12,7 +12,7 @@
     <script src="{{ url_for('static', filename='content_effects.js', v=app_version) }}" defer></script>
     {{ global_code.head|default('')|safe }}
 </head>
-<body style="{{ background_style(site_background) }}" class="{{ 'admin-page' if active_page in ['admin', 'visits', 'settings', 'users', 'logs', 'profile'] else '' }} {% block body_class %}{% endblock %}">
+<body id="page-top" style="{{ background_style(site_background) }}" class="{{ 'admin-page' if active_page in ['admin', 'visits', 'settings', 'users', 'logs', 'profile'] else '' }} {% block body_class %}{% endblock %}">
     {% set hide_public_shell = maintenance_mode|default(false) or (site_maintenance|default(false) and not user) %}
     {% set alerts = get_flashed_messages(with_categories=true) %}
     {% set logo = page.logotext if page is defined and page.logotext is defined else site_logotext %}

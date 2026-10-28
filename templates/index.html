@@ -1,7 +1,15 @@
 {% extends "base.html" %}
 {% block title %}{{ page.title }}{% endblock %}
+{% block body_class %}home-page{% endblock %}
 {% block content %}
-{% include 'page_blocks.html' %}
+<div class="services-layout home-layout {{ 'services-without-menu' if not page.menu else '' }}" data-page-preview>
+    {% if page.menu %}
+    <nav class="services-sidebar" aria-label="Розділи головної сторінки">
+        {% for item in page.menu if item.enabled %}{% if item.separator_before|default(false) %}<hr class="sidebar-separator">{% endif %}<a href="{{ item.url }}" data-service-nav>{{ item.title }}</a>{% endfor %}
+    </nav>
+    {% endif %}
+    <div class="home-content" id="home">{% include 'page_blocks.html' %}</div>
+</div>
 {% if online_enabled %}
 <section class="appointment-section" id="appointment">
     <div class="section-head">
@@ -34,6 +42,7 @@
         <button class="primary wide" type="submit">Надіслати запис</button>
     </form>
     {% endif %}
+    <a class="block-back-top" href="#page-top">↑ Наверх</a>
 </section>
 {% endif %}
 {% endblock %}

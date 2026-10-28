@@ -219,7 +219,10 @@ def normalize_menu(raw):
         url = safe_url(item.get('url'))
         if not title or not url:
             raise ValueError('Заповніть назву і посилання пункту меню.')
-        result.append({'title': title, 'url': url, 'enabled': item.get('enabled', True) is not False})
+        normalized = {'title': title, 'url': url, 'enabled': item.get('enabled', True) is not False}
+        if item.get('separator_before'):
+            normalized['separator_before'] = True
+        result.append(normalized)
     return result
 
 

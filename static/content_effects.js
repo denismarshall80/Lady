@@ -47,12 +47,103 @@
         observer?.disconnect(); clearAll();
         document.querySelectorAll('.content-carousel').forEach(carousel => {
             if (carousel.dataset.initialized) return;
-            carousel.dataset.initialized = '1'; let index = 0;
-            const slides = [...carousel.querySelectorAll('.carousel-slide')];
-            carousel.querySelectorAll('[data-carousel-step]').forEach(button => button.addEventListener('click', () => {
-                slides[index].hidden = true; index = (index+Number(button.dataset.carouselStep)+slides.length)%slides.length;
-                slides[index].hidden = false; carousel.querySelector('[data-carousel-count]').textContent = `${index+1} / ${slides.length}`;
-            }));
+            carousel.dataset.initialized = '1';
+            const viewport = carousel.querySelector('.carousel-slides');
+            const originals = [...viewport.children];
+            if (!originals.length) return;
+            const track = document.createElement('div'); track.className = 'carousel-track';
+            viewport.replaceChildren(track);
+            let index = 0, gesture = null, busy = false, ready = false;
+            carousel.setAttribute('aria-busy', 'true');
+            const wrap = value => (value + originals.length) % originals.length;
+            async function preload(slide) {
+                const images = [...slide.querySelectorAll('img, [data-carousel-src]')];
+                await Promise.all(images.map(async image => {
+                    const src = image.dataset.carouselSrc || image.getAttribute('src');
+                    if (!src) return;
+                    const loader = new Image();
+                    loader.src = src;
+                    try { await loader.decode(); } catch { return; }
+                    if (image.tagName === 'IMG') {
+                        image.loading = 'eager'; image.src = src;
+                        try { await image.decode(); } catch {}
+                    } else image.style.backgroundImage = `url(${JSON.stringify(src)})`;
+                    delete image.dataset.carouselSrc;
+                }));
+                return images.every(image => image.tagName === 'IMG'
+                    ? image.complete && image.naturalWidth > 0 : !image.dataset.carouselSrc);
+            }
+            function render() {
+                track.style.transition = 'none';
+                track.style.transform = 'translate3d(-100%,0,0)';
+                track.replaceChildren(...[-1,0,1].map(offset => {
+                    const slide = originals[wrap(index + offset)].cloneNode(true);
+                    slide.hidden = false;
+                    slide.setAttribute('aria-hidden', offset ? 'true' : 'false');
+                    slide.inert = offset !== 0;
+                    slide.querySelectorAll('img').forEach(image => image.draggable = false);
+                    return slide;
+                }));
+            }
+            function move(direction) {
+                if (busy || !ready || originals.length < 2) return;
+                busy = true;
+                const reducedMotion = reduced.matches;
+                track.style.transition = reducedMotion ? 'none' : 'transform 280ms cubic-bezier(.22,.7,.25,1)';
+                track.style.transform = `translate3d(${-viewport.clientWidth * (1 + direction)}px,0,0)`;
+                let finished = false, timer;
+                const finish = () => {
+                    if (finished) return;
+                    finished = true; clearTimeout(timer);
+                    track.removeEventListener('transitionend', finish);
+                    index = wrap(index + direction); render(); busy = false;
+                };
+                if (reducedMotion) finish();
+                else { track.addEventListener('transitionend', finish); timer = setTimeout(finish, 340); }
+            }
+            // Keep the first photo visible while all originals load and decode.
+            const preview = originals[0].cloneNode(true); preview.hidden = false;
+            track.append(preview);
+            Promise.all(originals.map(preload)).then(loaded => {
+                const valid = originals.filter((slide, i) => loaded[i]);
+                if (valid.length) { originals.splice(0, originals.length, ...valid); render(); }
+                ready = valid.length > 0;
+                carousel.setAttribute('aria-busy', 'false');
+            });
+            carousel.addEventListener('dragstart', event => event.preventDefault());
+            viewport.addEventListener('pointerdown', event => {
+                if (!ready || busy || originals.length < 2 || !event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return;
+                gesture = {id:event.pointerId,x:event.clientX,y:event.clientY,delta:0,horizontal:false};
+                viewport.setPointerCapture(event.pointerId);
+            });
+            viewport.addEventListener('pointermove', event => {
+                if (!gesture || gesture.id !== event.pointerId) return;
+                const dx = event.clientX - gesture.x, dy = event.clientY - gesture.y;
+                if (!gesture.horizontal && Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) { gesture = null; return; }
+                if (!gesture.horizontal && Math.abs(dx) > 8) {
+                    gesture.horizontal = true; carousel.classList.add('is-dragging');
+                }
+                if (!gesture.horizontal) return;
+                gesture.delta = Math.max(-viewport.clientWidth, Math.min(viewport.clientWidth, dx));
+                track.style.transition = 'none';
+                track.style.transform = `translate3d(${-viewport.clientWidth + gesture.delta}px,0,0)`;
+            });
+            function end(event, cancel = false) {
+                if (!gesture || gesture.id !== event.pointerId) return;
+                const current = gesture; gesture = null; carousel.classList.remove('is-dragging');
+                if (viewport.hasPointerCapture(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
+                if (!current.horizontal) return;
+                const threshold = Math.min(80,viewport.clientWidth * .15);
+                move(!cancel && Math.abs(current.delta) > threshold ? (current.delta < 0 ? 1 : -1) : 0);
+            }
+            viewport.addEventListener('pointerup', event => end(event));
+            viewport.addEventListener('pointercancel', event => end(event,true));
+            viewport.addEventListener('lostpointercapture', event => end(event,true));
+            carousel.addEventListener('keydown', event => {
+                if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                    event.preventDefault(); move(event.key === 'ArrowLeft' ? -1 : 1);
+                }
+            });
         });
         observer = new IntersectionObserver(entries => entries.forEach(entry => {
             if (entry.intersectionRatio === 1) animate(entry.target); else clear(entry.target);

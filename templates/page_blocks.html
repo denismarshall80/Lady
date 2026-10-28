@@ -6,19 +6,19 @@
 </div>
 {% endif %}
 {% endmacro %}
-{% macro show_nodes(nodes) %}
+{% macro back_top() %}{% if active_page in ['home','services'] %}<a class="block-back-top" href="#page-top" aria-label="На початок сторінки" title="На початок сторінки"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 13 6-6 6 6M12 7v12"/></svg></a>{% endif %}{% endmacro %}
+{% macro show_nodes(nodes, defer_image=false) %}
 {% for n in nodes %}
 {% if n.kind == 'group' and has_visible_nodes(n.nodes) %}<div {% if n.columns|default(1) > 1 %}style="--node-columns:{{ n.columns }}"{% endif %} class="content-node-group{% if n.columns|default(1) > 1 %} content-explicit-columns{% endif %}{% if n.nodes|length > 1 and n.nodes|map(attribute='kind')|unique|list == ['image'] %} content-image-gallery{% endif %}">{{ show_nodes(n.nodes) }}</div>
 {% elif n.kind in ['heading','title','text','button'] %}{{ show_element(n.value, 'h2' if n.kind in ['heading','title'] else 'div' if n.kind == 'button' else 'p', n.kind == 'button') }}
 {% elif n.kind == 'image' and n.image %}
 {% set position = (n.image_align|default('center')) ~ ' ' ~ (n.image_vertical|default('center')) %}
-{% if n.image_mode == 'tile' %}<div class="content-image image-mode-tile" role="img" aria-label="{{ n.alt }}" style="background-image:url({{ n.image|tojson|forceescape }});background-position:{{ position }}"></div>
-{% else %}<img class="content-image image-mode-{{ n.image_mode|default('normal') }}" src="{{ n.image }}" alt="{{ n.alt }}" loading="lazy" style="object-position:{{ position }}">{% endif %}
+{% if n.image_mode == 'tile' %}<div class="content-image image-mode-tile" role="img" aria-label="{{ n.alt }}" {% if defer_image %}data-carousel-src="{{ n.image }}"{% endif %} style="{% if not defer_image %}background-image:url({{ n.image|tojson|forceescape }});{% endif %}background-position:{{ position }}"></div>
+{% else %}<img class="content-image image-mode-{{ n.image_mode|default('normal') }}" {% if defer_image %}data-carousel-src="{{ n.image }}"{% else %}src="{{ n.image }}"{% endif %} alt="{{ n.alt }}" loading="lazy" decoding="async" style="object-position:{{ position }}">{% endif %}
 {% elif n.kind == 'carousel' %}
 {% set slides = n.nodes|selectattr('image')|list %}
-{% if slides %}<div class="content-carousel" role="region" aria-label="Карусель малюнків">
-<div class="carousel-slides">{% for slide in slides %}<div class="carousel-slide" {% if not loop.first %}hidden{% endif %}>{{ show_nodes([slide]) }}</div>{% endfor %}</div>
-{% if slides|length > 1 %}<div class="carousel-controls"><button type="button" data-carousel-step="-1" aria-label="Попередній малюнок">←</button><span aria-live="polite" data-carousel-count>1 / {{ slides|length }}</span><button type="button" data-carousel-step="1" aria-label="Наступний малюнок">→</button></div>{% endif %}
+{% if slides %}<div class="content-carousel" role="region" aria-label="Карусель малюнків" aria-roledescription="карусель" tabindex="0">
+<div class="carousel-slides">{% for slide in slides %}<div class="carousel-slide" {% if not loop.first %}hidden{% endif %}>{{ show_nodes([slide], not loop.first) }}</div>{% endfor %}</div>
 </div>{% endif %}
 {% elif n.kind == 'html' and n.code|trim %}
 {% set embed_doc = '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><base target="_blank"><style>body{margin:0;overflow-wrap:anywhere}img{max-width:100%}body{text-align:center}</style></head><body>' ~ n.code ~ '</body></html>' %}
@@ -39,7 +39,7 @@
 {% for block in page.blocks if block.enabled and (not block.source_parent|default('') or block.source_parent in service_sources|default([])) %}
 {% if block.nodes is defined %}
 {% set rendered %}{{ show_nodes(block.nodes) }}{% endset %}
-{% if has_visible_nodes(block.nodes) %}<section class="content-block{% if block.get('source', '').startswith('card-') %} service-card-block{% endif %}"{% if block.anchor|default('') %} id="{{ block.anchor }}"{% endif %} style="{{ background_style(block_background(block)) }}"><div class="content-nodes nodes-{{ block.layout }}">{{ rendered }}</div></section>{% endif %}
+{% if has_visible_nodes(block.nodes) %}<section class="content-block{% if block.get('source', '').startswith('card-') %} service-card-block{% endif %}"{% if block.anchor|default('') %} id="{{ block.anchor }}"{% endif %} style="{{ background_style(block_background(block)) }}"><div class="content-nodes nodes-{{ block.layout }}">{{ rendered }}</div>{{ back_top() }}</section>{% endif %}
 {% else %}
 {% set visible = namespace(rows=[]) %}
 {% for item in block['items'] %}
@@ -72,6 +72,7 @@
         </article>
     {% endfor %}
     </div>
+    {{ back_top() }}
 </section>
 {% endif %}
 {% endif %}

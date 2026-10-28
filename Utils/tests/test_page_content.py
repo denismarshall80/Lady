@@ -138,7 +138,7 @@ class ContentTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(pc.read_content()['pages']['/']['blocks'], [])
         html = self.client.get('/?preview=public').get_data(as_text=True)
-        self.assertNotIn('Тут дбають про деталі', html)
+        self.assertNotIn('id="studio"', html)
         self.assertNotIn('Консультація і підбір', html)
         self.assertEqual(pc.read_content()['pages']['/']['blocks'], [])
 
@@ -181,7 +181,9 @@ class ContentTests(unittest.TestCase):
         self.assertEqual(pc.read_content()['pages']['/']['blocks'][0]['nodes'][1]['kind'], 'heading')
         html = self.client.get('/?preview=public').get_data(as_text=True)
         self.assertLess(html.index('Перший текст'), html.index('Заголовок після тексту'))
-        self.assertIn('data-carousel-step="1"', html)
+        self.assertIn('class="content-carousel"', html)
+        self.assertNotIn('data-carousel-step', html)
+        self.assertNotIn('data-carousel-count', html)
         self.assertIn('data-block-effect="Flowers"', html)
         self.assertEqual(save([{'kind':'group','nodes':[]}]).status_code, 200)
         html = self.client.get('/?preview=public').get_data(as_text=True)
@@ -323,6 +325,23 @@ class ContentTests(unittest.TestCase):
         self.assertEqual(response.status_code,503)
         self.assertIn(pc.DEFAULT_CODE,response.get_data(as_text=True))
         self.assertNotIn('id="page-editor"',response.get_data(as_text=True))
+
+    def test_home_menu_is_editable_and_sections_have_back_to_top(self):
+        blocks = [{'layout':'text','anchor':'my-section','heading':{'text':'Мій розділ'}}]
+        response = self.client.post('/content/save',data={
+            'csrf':'test-csrf','page_path':'/','page_title':'Головна',
+            'blocks':json.dumps(blocks),'menu':json.dumps([{'title':'Мій пункт','url':'#my-section','separator_before':True}])})
+        self.assertEqual(response.status_code,200)
+        self.user = None
+        html = self.client.get('/').get_data(as_text=True)
+        self.assertIn('class="services-sidebar"',html)
+        self.assertIn('href="#my-section"',html)
+        self.assertIn('id="my-section"',html)
+        self.assertIn('href="#page-top"',html)
+        self.assertIn('id="page-top"',html)
+        self.assertEqual(pc.read_content()['pages']['/']['menu'][0]['title'],'Мій пункт')
+        self.assertTrue(pc.read_content()['pages']['/']['menu'][0]['separator_before'])
+        self.assertIn('class="sidebar-separator"',html)
 
     def test_service_menu_validation_and_source_visibility(self):
         with self.assertRaises(ValueError):

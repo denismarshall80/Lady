@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 {% block title %}{{ page.title }} — ЛЕДІ{% endblock %}
 {% block content %}
-<div class="services-layout {{ 'services-without-menu' if not page.menu else '' }}" data-services-preview>
+<div class="services-layout {{ 'services-without-menu' if not page.menu else '' }}" data-services-preview data-page-preview>
     {% if page.menu %}
     <nav class="services-sidebar" aria-label="Розділи послуг">
         {% for item in page.menu if item.enabled %}
+        {% if item.separator_before|default(false) %}<hr class="sidebar-separator">{% endif %}
         <a href="{{ item.url }}" data-service-nav>{{ item.title }}</a>
         {% endfor %}
     </nav>

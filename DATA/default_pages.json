@@ -6,9 +6,10 @@
   },
   "pages": {
     "/": {
-      "title": "Центр краси і здоров’я ЛЕДІ",
+      "title": "PIERCING STUDIO",
       "blocks": [
         {
+          "note": "✨ Piercing Studio Кам’янець ✨",
           "layout": "text-image",
           "heading": {
             "text": "",
@@ -23,10 +24,14 @@
           },
           "items": [
             {
-              "image": "https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=1200&q=80",
+              "name": "",
+              "image": "/static/service_images/Image_9b8f6eadaf8f.png",
               "alt": "Фахівчиня у медичному кабінеті",
+              "image_mode": "normal",
+              "image_align": "center",
+              "image_vertical": "center",
               "title": {
-                "text": "Центр краси і здоров'я “ЛЕДІ”",
+                "text": "✨ Piercing Studio Кам’янець ✨",
                 "url": "",
                 "font": "Arial",
                 "size": 42,
@@ -37,7 +42,7 @@
                 "vertical": "top"
               },
               "text": {
-                "text": "Кам'янець-Подільський\n\nДогляд, ортопедичні рішення, реабілітація та уважний прийом без зайвої метушні. Ми допомагаємо почуватися легше, впевненіше і красивіше щодня.",
+                "text": "Кам'янець-Подільський\n\nДогляд, ортопедичні рішення, реабілітація та уважний прийом без зайвої метушні. Ми допомагаємо почуватися легше, впевненіше і красивіше щодня.\n\n",
                 "url": "",
                 "font": "Arial",
                 "size": 20,
@@ -60,10 +65,97 @@
               }
             }
           ],
-          "enabled": true
+          "enabled": true,
+          "anchor": "welcome",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "ЛЕДІ · КАМ’ЯНЕЦЬ-ПОДІЛЬСЬКИЙ · З 1997 РОКУ",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 12,
+                        "bold": true,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Piercing Studio\nКам’янець",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 38,
+                        "bold": true,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Кам'янець-Подільський\n\nДогляд, ортопедичні рішення, реабілітація та уважний прийом без зайвої метушні. Ми допомагаємо почуватися легше, впевненіше і красивіше щодня.\n\nПірсинг — це не просто прикраса, це твій вайб 💎",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 20,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "button",
+                      "name": "",
+                      "value": {
+                        "text": "Подивитись послуги",
+                        "url": "/services",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/IMG_20251014_131017.jpg",
+                  "alt": "Пірсинг вуха: робота Piercing Studio Кам’янець",
+                  "image_mode": "cover",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                }
+              ],
+              "columns": 2
+            }
+          ]
         },
         {
-          "layout": "text-image",
+          "note": "Тут дбають про деталі",
+          "layout": "image-text",
           "heading": {
             "text": "",
             "url": "",
@@ -77,17 +169,21 @@
           },
           "items": [
             {
+              "name": "",
               "image": "/static/Lady_02.png",
               "alt": "Атмосфера центру ЛЕДІ",
+              "image_mode": "normal",
+              "image_align": "center",
+              "image_vertical": "center",
               "title": {
                 "text": "Тут дбають про деталі",
                 "url": "",
                 "font": "Arial",
                 "size": 30,
-                "bold": false,
+                "bold": true,
                 "italic": false,
                 "underline": false,
-                "align": "left",
+                "align": "center",
                 "vertical": "top"
               },
               "text": {
@@ -114,15 +210,72 @@
               }
             }
           ],
-          "enabled": true
+          "enabled": true,
+          "anchor": "studio",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/IMG_20251014_132548.jpg",
+                  "alt": "Прикраси для пірсингу та одноразові витратні матеріали",
+                  "image_mode": "cover",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Тут дбають про деталі",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 30,
+                        "bold": true,
+                        "italic": false,
+                        "underline": false,
+                        "align": "center",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": " У нас працює хірургічна медсестра, тому все робимо стерильно і професійно 💫\n\n   Знеболення для твого комфорту.\n\n   Чотири види систем для пірсингу:\n      👍 разові катріджі\n      👍 безшумні системи\n      👍 разова хірургічна голка\n      👍 пістолет Studex",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
         },
         {
-          "layout": "columns",
+          "note": "3 в 1 перший блок",
+          "layout": "image",
           "heading": {
             "text": "",
             "url": "",
             "font": "Arial",
-            "size": 18,
+            "size": 32,
             "bold": false,
             "italic": false,
             "underline": false,
@@ -131,50 +284,17 @@
           },
           "items": [
             {
-              "image": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80",
-              "alt": "Консультація і підбір",
+              "name": "",
+              "image": "",
+              "alt": "",
+              "image_mode": "normal",
+              "image_align": "center",
+              "image_vertical": "center",
               "title": {
-                "text": "Консультація і підбір",
-                "url": "",
-                "font": "Arial",
-                "size": 24,
-                "bold": false,
-                "italic": false,
-                "underline": false,
-                "align": "left",
-                "vertical": "top"
-              },
-              "text": {
-                "text": "Підкажемо, з чого почати, і підберемо зручний час для візиту.",
-                "url": "",
-                "font": "Arial",
-                "size": 18,
-                "bold": false,
-                "italic": false,
-                "underline": false,
-                "align": "left",
-                "vertical": "top"
-              },
-              "button": {
                 "text": "",
                 "url": "",
                 "font": "Arial",
-                "size": 18,
-                "bold": false,
-                "italic": false,
-                "underline": false,
-                "align": "left",
-                "vertical": "top"
-              }
-            },
-            {
-              "image": "https://images.unsplash.com/photo-1583947581924-860bda6a26df?auto=format&fit=crop&w=900&q=80",
-              "alt": "Ортопедичні товари",
-              "title": {
-                "text": "Ортопедичні товари",
-                "url": "",
-                "font": "Arial",
-                "size": 24,
+                "size": 28,
                 "bold": false,
                 "italic": false,
                 "underline": false,
@@ -182,44 +302,7 @@
                 "vertical": "top"
               },
               "text": {
-                "text": "Широкий вибір ортопедичних товарів: підберемо, допоможемо і за потреби замовимо.",
-                "url": "",
-                "font": "Arial",
-                "size": 18,
-                "bold": false,
-                "italic": false,
-                "underline": false,
-                "align": "left",
-                "vertical": "top"
-              },
-              "button": {
                 "text": "",
-                "url": "",
-                "font": "Arial",
-                "size": 18,
-                "bold": false,
-                "italic": false,
-                "underline": false,
-                "align": "left",
-                "vertical": "top"
-              }
-            },
-            {
-              "image": "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=900&q=80",
-              "alt": "Здоров'я і краса",
-              "title": {
-                "text": "Здоров'я і краса",
-                "url": "",
-                "font": "Arial",
-                "size": 24,
-                "bold": false,
-                "italic": false,
-                "underline": false,
-                "align": "left",
-                "vertical": "top"
-              },
-              "text": {
-                "text": "Ортопедичні товари, індивідуальні устілки та акуратні процедури.",
                 "url": "",
                 "font": "Arial",
                 "size": 18,
@@ -242,7 +325,943 @@
               }
             }
           ],
+          "enabled": true,
+          "anchor": "",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "",
+                  "alt": "",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                }
+              ],
+              "columns": 1
+            }
+          ]
+        },
+        {
+          "note": "Консультація і підбір",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "consultation",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/IMG_20251013_152239.jpg",
+                  "alt": "Вибір сережок для проколювання",
+                  "image_mode": "cover",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Консультація і підбір",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 30,
+                        "bold": true,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Підкажемо, з чого почати, і підберемо зручний час для візиту.\n\nПояснимо етапи процедури, допоможемо обрати прикрасу та відповімо на запитання про догляд. Починаємо з уважної розмови про ваші побажання.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "button",
+                      "name": "",
+                      "value": {
+                        "text": "Поставити запитання",
+                        "url": "#contacts",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Ортопедичні товари",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "orthopedics",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Ортопедичні товари",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 30,
+                        "bold": true,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Широкий вибір ортопедичних товарів: підберемо, допоможемо і за потреби замовимо.\n\nРозкажіть, що шукаєте для щоденного комфорту. Допоможемо зорієнтуватися в асортименті, розмірах і доступних варіантах.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "button",
+                      "name": "",
+                      "value": {
+                        "text": "Переглянути напрямки",
+                        "url": "/services",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/Piercing Studio Кам'янець_20251004_101129_0000.png",
+                  "alt": "ЛЕДІ — центр краси і здоров’я",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Здоров'я і краса",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "beauty",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/IMG_20251013_142849.jpg",
+                  "alt": "Делікатна прикраса вуха — робота студії",
+                  "image_mode": "cover",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Здоров'я і краса",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 30,
+                        "bold": true,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Ортопедичні товари, індивідуальні устілки та акуратні процедури.\n\nПрикраси, що пасують саме вам, і увага до деталей. Обговоримо бажаний результат та пояснимо, як доглядати за проколом після візиту.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "button",
+                      "name": "",
+                      "value": {
+                        "text": "Дізнатися про пірсинг",
+                        "url": "#piercing",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Пірсинг із увагою до тебе",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "piercing",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/post (1).jpg",
+                  "alt": "Пірсинг носа — приклад роботи студії",
+                  "image_mode": "cover",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "heading",
+                      "name": "",
+                      "value": {
+                        "text": "Пірсинг із увагою до тебе",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 30,
+                        "bold": true,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Проколюємо мочки вух, ніс, пупок та інші ділянки. Перед процедурою обговоримо побажання, прикрасу й догляд.\n\nУ студії працює хірургічна медсестра. Доступні одноразові картриджі, безшумні системи, хірургічна голка та Studex.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "button",
+                      "name": "",
+                      "value": {
+                        "text": "Про студію на Barb.ua",
+                        "url": "https://barb.ua/uk/kamenets-podolskiy/salon/ledi#about",
+                        "font": "Arial",
+                        "size": 17,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Загоєння: час і щоденний догляд",
+          "layout": "text-image",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "healing",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "heading",
+                      "name": "",
+                      "value": {
+                        "text": "Загоєння: час і щоденний догляд",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 30,
+                        "bold": true,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Загоєння залежить від ділянки проколу та індивідуальних особливостей. Початкову прикрасу не варто знімати щонайменше шість тижнів; це не означає, що будь-який прокол уже повністю загоївся.\n\nМийте руки перед дотиком, дбайливо очищуйте ділянку та дотримуйтеся рекомендацій фахівця. Не використовуйте перекис водню для очищення нового проколу.\n\nЯкщо біль і набряк посилюються, з’являється гній або підвищується температура — зверніться до лікаря.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "button",
+                      "name": "",
+                      "value": {
+                        "text": "Поради дерматологів щодо догляду",
+                        "url": "https://www.aad.org/public/everyday-care/skin-care-basics/tattoos/caring-for-pierced-ears",
+                        "font": "Arial",
+                        "size": 17,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/IMG_20251014_131132.jpg",
+                  "alt": "Прикраси вуха: загоєння потребує уважного догляду",
+                  "image_mode": "cover",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Протипоказання: що обговорити до візиту",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "before-visit",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/post.jpg",
+                  "alt": "Пірсинг носа: консультація перед процедурою",
+                  "image_mode": "cover",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "heading",
+                      "name": "",
+                      "value": {
+                        "text": "Протипоказання: що обговорити до візиту",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 30,
+                        "bold": true,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Підвищена температура, гостре запалення, свіжі рани чи висипання в місці проколу — привід відкласти процедуру.\n\nПовідомте про порушення згортання крові, алергію на знеболювальні засоби й загострення хронічних захворювань. За потреби спочатку порадьтеся з лікарем.\n\nПерелік не вичерпний: рекомендації залежать від вашого стану.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "button",
+                      "name": "",
+                      "value": {
+                        "text": "Ознаки інфекції та коли звернутися до лікаря",
+                        "url": "https://www.nhs.uk/conditions/infected-piercings/",
+                        "font": "Arial",
+                        "size": 17,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Фото студії та наші роботи",
+          "layout": "text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "studio-gallery",
+          "nodes": [
+            {
+              "kind": "heading",
+              "name": "",
+              "value": {
+                "text": "Фото студії та наші роботи",
+                "url": "",
+                "font": "Arial",
+                "size": 30,
+                "bold": true,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              }
+            },
+            {
+              "kind": "text",
+              "name": "",
+              "value": {
+                "text": "Прикраси, деталі процедури та приклади робіт. Перетягуйте фото мишкою або гортайте пальцем — карусель рухається по колу.",
+                "url": "",
+                "font": "Arial",
+                "size": 17,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              }
+            },
+            {
+              "kind": "carousel",
+              "name": "Фото студії",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/754015534_122133609603038268_8605868728260258269_n.jpg",
+                  "alt": "Перший прокол вушок — інформація студії",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/1000040280.jpg",
+                  "alt": "Пірсинг вуха: поєднання прикрас",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/1000040315.jpg",
+                  "alt": "Проколювання вух у студії",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/IMG20251011122427.jpg",
+                  "alt": "Одноразові матеріали для процедури",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/IMG_20251014_134832.jpg",
+                  "alt": "Обладнання та інструменти студії",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/зразок безшумної системи.jpg",
+                  "alt": "Зразок безшумної системи для проколювання",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/Simple Retro Travel Photo Collage Instagram Story_20251014_131708_0000.png",
+                  "alt": "Приклади робіт — пірсинг вух і носа",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/logo2.png",
+                  "alt": "Piercing Studio Кам’янець",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "note": "Barb.ua рекомендує",
+          "layout": "text-image",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "certificate",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "heading",
+                      "name": "",
+                      "value": {
+                        "text": "Barb.ua рекомендує",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 30,
+                        "bold": true,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Сертифікат Barb.ua для центру «ЛЕДІ» — рейтинг 9,7 у жовтні 2026 року.\n\nДякуємо за довіру та рекомендації. Більше робіт і відгуків — у профілі студії.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "button",
+                      "name": "",
+                      "value": {
+                        "text": "Відкрити сертифікат",
+                        "url": "/static/media/certificate_1793091691.jpg",
+                        "font": "Arial",
+                        "size": 17,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/certificate_1793091691.jpg",
+                  "alt": "Сертифікат Barb.ua рекомендує: ЛЕДІ, 9,7, жовтень 2026",
+                  "image_mode": "cover",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Про нас — що важливо для нас",
+          "layout": "text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "our-values",
+          "nodes": [
+            {
+              "kind": "heading",
+              "name": "",
+              "value": {
+                "text": "Що важливо для нас",
+                "url": "",
+                "font": "Arial",
+                "size": 28,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "center",
+                "vertical": "top"
+              }
+            },
+            {
+              "kind": "group",
+              "name": "Малюнки фахівців",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/IMG_20251014_131017.jpg",
+                  "alt": "Акуратний прокол та підібрана прикраса",
+                  "image_mode": "cover",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/IMG_20251014_132548.jpg",
+                  "alt": "Увага до матеріалів і деталей",
+                  "image_mode": "cover",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/IMG_20251013_142849.jpg",
+                  "alt": "Робота студії: пірсинг вуха",
+                  "image_mode": "cover",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                }
+              ],
+              "columns": 1
+            },
+            {
+              "kind": "text",
+              "name": "",
+              "value": {
+                "text": "Ми не поспішаємо там, де потрібна точність. Пояснюємо простими словами, допомагаємо підібрати послугу і підтримуємо контакт після запису.",
+                "url": "",
+                "font": "Arial",
+                "size": 20,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              }
+            },
+            {
+              "kind": "text",
+              "name": "",
+              "value": {
+                "text": "У нас можна дізнатися про індивідуальні устілки, ортопедичне взуття, товари для дітей і дорослих, професійний масаж, реабілітацію, медичний пірсинг та італійську медичну позолоту.",
+                "url": "",
+                "font": "Arial",
+                "size": 20,
+                "bold": false,
+                "italic": false,
+                "underline": false,
+                "align": "left",
+                "vertical": "top"
+              }
+            }
+          ]
+        }
+      ],
+      "logotext": {
+        "text": "PIERCING STUDIO",
+        "url": "",
+        "font": "Arial",
+        "size": 18,
+        "bold": true,
+        "italic": false,
+        "underline": false,
+        "align": "left",
+        "vertical": "center"
+      },
+      "menu": [
+        {
+          "title": "Про студію",
+          "url": "#welcome",
           "enabled": true
+        },
+        {
+          "title": "Тут дбають про деталі",
+          "url": "#studio",
+          "enabled": true
+        },
+        {
+          "title": "Консультація",
+          "url": "#consultation",
+          "enabled": true
+        },
+        {
+          "title": "Ортопедія",
+          "url": "#orthopedics",
+          "enabled": true
+        },
+        {
+          "title": "Краса",
+          "url": "#beauty",
+          "enabled": true
+        },
+        {
+          "title": "Пірсинг",
+          "url": "#piercing",
+          "enabled": true
+        },
+        {
+          "title": "Загоєння",
+          "url": "#healing",
+          "enabled": true
+        },
+        {
+          "title": "Перед візитом",
+          "url": "#before-visit",
+          "enabled": true
+        },
+        {
+          "title": "Фото студії",
+          "url": "#studio-gallery",
+          "enabled": true
+        },
+        {
+          "title": "Сертифікат",
+          "url": "#certificate",
+          "enabled": true
+        },
+        {
+          "title": "Наш підхід",
+          "url": "#our-values",
+          "enabled": true
+        },
+        {
+          "title": "Адреса і Графік",
+          "url": "#location",
+          "enabled": true,
+          "separator_before": true
         }
       ]
     },
@@ -1101,8 +2120,8 @@
                 {
                   "kind": "image",
                   "name": "",
-                  "image": "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=900&q=80",
-                  "alt": "Пірсинг",
+                  "image": "/static/media/1000040280.jpg",
+                  "alt": "Пірсинг вуха — робота студії",
                   "image_mode": "normal",
                   "image_align": "center",
                   "image_vertical": "center"
@@ -1266,8 +2285,8 @@
                 {
                   "kind": "image",
                   "name": "",
-                  "image": "https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=900&q=80",
-                  "alt": "Прокол мочки вуха",
+                  "image": "/static/media/IMG_20251014_131132.jpg",
+                  "alt": "Прокол мочки вуха — робота студії",
                   "image_mode": "normal",
                   "image_align": "center",
                   "image_vertical": "center"
@@ -1536,8 +2555,8 @@
                 {
                   "kind": "image",
                   "name": "",
-                  "image": "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=900&q=80",
-                  "alt": "Прокол хряща вуха",
+                  "image": "/static/media/1000040280.jpg",
+                  "alt": "Прикраси у вусі — робота студії",
                   "image_mode": "normal",
                   "image_align": "center",
                   "image_vertical": "center"
@@ -1600,96 +2619,6 @@
           ]
         },
         {
-          "note": "Розхідний матеріал",
-          "layout": "image-text",
-          "heading": {
-            "text": "",
-            "url": "",
-            "font": "Arial",
-            "size": 18,
-            "bold": false,
-            "italic": false,
-            "underline": false,
-            "align": "left",
-            "vertical": "top"
-          },
-          "items": [],
-          "enabled": false,
-          "anchor": "card-28",
-          "source": "card-28",
-          "source_parent": "section-4",
-          "nodes": [
-            {
-              "kind": "group",
-              "name": "",
-              "nodes": [
-                {
-                  "kind": "image",
-                  "name": "",
-                  "image": "/static/Doctor_01.png",
-                  "alt": "Розхідний матеріал",
-                  "image_mode": "normal",
-                  "image_align": "center",
-                  "image_vertical": "center"
-                },
-                {
-                  "kind": "group",
-                  "name": "",
-                  "nodes": [
-                    {
-                      "kind": "title",
-                      "name": "",
-                      "value": {
-                        "text": "Розхідний матеріал",
-                        "url": "",
-                        "font": "Arial",
-                        "size": 24,
-                        "bold": false,
-                        "italic": false,
-                        "underline": false,
-                        "align": "left",
-                        "vertical": "top"
-                      }
-                    },
-                    {
-                      "kind": "text",
-                      "name": "",
-                      "value": {
-                        "text": "Одноразові матеріали для процедури.",
-                        "url": "",
-                        "font": "Arial",
-                        "size": 18,
-                        "bold": false,
-                        "italic": false,
-                        "underline": false,
-                        "align": "left",
-                        "vertical": "top"
-                      }
-                    },
-                    {
-                      "kind": "text",
-                      "name": "",
-                      "value": {
-                        "text": "від 60 грн",
-                        "url": "",
-                        "font": "Arial",
-                        "size": 18,
-                        "bold": false,
-                        "italic": false,
-                        "underline": false,
-                        "align": "left",
-                        "vertical": "top"
-                      }
-                    }
-                  ],
-                  "columns": 1
-                }
-              ],
-              "columns": 2
-            }
-          ]
-        },
-        {
           "note": "Пірсинг носа (nostril)",
           "layout": "image-text",
           "heading": {
@@ -1716,8 +2645,8 @@
                 {
                   "kind": "image",
                   "name": "",
-                  "image": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=900&q=80",
-                  "alt": "Пірсинг носа (nostril)",
+                  "image": "/static/media/post.jpg",
+                  "alt": "Пірсинг носа — робота студії",
                   "image_mode": "normal",
                   "image_align": "center",
                   "image_vertical": "center"
@@ -1806,8 +2735,8 @@
                 {
                   "kind": "image",
                   "name": "",
-                  "image": "https://images.unsplash.com/photo-1512316609839-ce289d3eba0a?auto=format&fit=crop&w=900&q=80",
-                  "alt": "Пірсинг брови",
+                  "image": "/static/service_images/eyebrow-illustration.png",
+                  "alt": "Пірсинг брови — згенерована ілюстрація",
                   "image_mode": "normal",
                   "image_align": "center",
                   "image_vertical": "center"
@@ -1896,8 +2825,8 @@
                 {
                   "kind": "image",
                   "name": "",
-                  "image": "https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=900&q=80",
-                  "alt": "Прокол язика",
+                  "image": "/static/service_images/tongue-illustration.png",
+                  "alt": "Прокол язика — згенерована ілюстрація",
                   "image_mode": "normal",
                   "image_align": "center",
                   "image_vertical": "center"
@@ -1986,8 +2915,8 @@
                 {
                   "kind": "image",
                   "name": "",
-                  "image": "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?auto=format&fit=crop&w=900&q=80",
-                  "alt": "Пірсинг пупка",
+                  "image": "/static/service_images/navel-illustration.png",
+                  "alt": "Пірсинг пупка — згенерована ілюстрація",
                   "image_mode": "normal",
                   "image_align": "center",
                   "image_vertical": "center"
@@ -2076,8 +3005,8 @@
                 {
                   "kind": "image",
                   "name": "",
-                  "image": "/static/Doctor_01.png",
-                  "alt": "Додатково",
+                  "image": "/static/media/IMG_20251014_134832.jpg",
+                  "alt": "Обладнання та інструменти студії",
                   "image_mode": "normal",
                   "image_align": "center",
                   "image_vertical": "center"
@@ -2105,7 +3034,97 @@
                       "kind": "text",
                       "name": "",
                       "value": {
-                        "text": "Консультація без проколу / зняття сережок - 150 грн. Розхідний матеріал - від 60 грн.",
+                        "text": "Консультація без проколу / зняття сережок.",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "150 грн",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 18,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    }
+                  ],
+                  "columns": 1
+                }
+              ],
+              "columns": 2
+            }
+          ]
+        },
+        {
+          "note": "Розхідний матеріал",
+          "layout": "image-text",
+          "heading": {
+            "text": "",
+            "url": "",
+            "font": "Arial",
+            "size": 18,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "align": "left",
+            "vertical": "top"
+          },
+          "items": [],
+          "enabled": true,
+          "anchor": "card-28",
+          "source": "card-28",
+          "source_parent": "section-4",
+          "nodes": [
+            {
+              "kind": "group",
+              "name": "",
+              "nodes": [
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/IMG20251011122427.jpg",
+                  "alt": "Одноразові матеріали для проколювання",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "group",
+                  "name": "",
+                  "nodes": [
+                    {
+                      "kind": "title",
+                      "name": "",
+                      "value": {
+                        "text": "Розхідний матеріал",
+                        "url": "",
+                        "font": "Arial",
+                        "size": 24,
+                        "bold": false,
+                        "italic": false,
+                        "underline": false,
+                        "align": "left",
+                        "vertical": "top"
+                      }
+                    },
+                    {
+                      "kind": "text",
+                      "name": "",
+                      "value": {
+                        "text": "Одноразові матеріали для процедури.",
                         "url": "",
                         "font": "Arial",
                         "size": 18,
@@ -3219,7 +4238,7 @@
             "vertical": "top"
           },
           "items": [],
-          "enabled": true,
+          "enabled": false,
           "anchor": "section-6",
           "source": "section-6",
           "source_parent": "",
@@ -3294,7 +4313,7 @@
             "vertical": "top"
           },
           "items": [],
-          "enabled": true,
+          "enabled": false,
           "anchor": "section-10",
           "source": "section-10",
           "source_parent": "",
@@ -3369,10 +4388,10 @@
             "vertical": "top"
           },
           "items": [],
-          "enabled": true,
+          "enabled": false,
           "anchor": "card-26",
           "source": "card-26",
-          "source_parent": "section-10",
+          "source_parent": "section-6",
           "nodes": [
             {
               "kind": "group",
@@ -3459,7 +4478,7 @@
             "vertical": "top"
           },
           "items": [],
-          "enabled": true,
+          "enabled": false,
           "anchor": "section-7",
           "source": "section-7",
           "source_parent": "",
@@ -3534,7 +4553,7 @@
             "vertical": "top"
           },
           "items": [],
-          "enabled": true,
+          "enabled": false,
           "anchor": "section-12",
           "source": "section-12",
           "source_parent": "",
@@ -3609,10 +4628,10 @@
             "vertical": "top"
           },
           "items": [],
-          "enabled": true,
+          "enabled": false,
           "anchor": "card-29",
           "source": "card-29",
-          "source_parent": "section-12",
+          "source_parent": "section-7",
           "nodes": [
             {
               "kind": "group",
@@ -3699,10 +4718,10 @@
             "vertical": "top"
           },
           "items": [],
-          "enabled": true,
+          "enabled": false,
           "anchor": "card-30",
           "source": "card-30",
-          "source_parent": "section-12",
+          "source_parent": "section-7",
           "nodes": [
             {
               "kind": "group",
@@ -3789,10 +4808,10 @@
             "vertical": "top"
           },
           "items": [],
-          "enabled": true,
+          "enabled": false,
           "anchor": "card-31",
           "source": "card-31",
-          "source_parent": "section-12",
+          "source_parent": "section-7",
           "nodes": [
             {
               "kind": "group",
@@ -3879,10 +4898,10 @@
             "vertical": "top"
           },
           "items": [],
-          "enabled": true,
+          "enabled": false,
           "anchor": "card-32",
           "source": "card-32",
-          "source_parent": "section-12",
+          "source_parent": "section-7",
           "nodes": [
             {
               "kind": "group",
@@ -3982,24 +5001,10 @@
           "enabled": true
         },
         {
-          "title": "Догляд",
-          "url": "#section-6",
-          "enabled": true
-        },
-        {
-          "title": "Догляд",
-          "url": "#section-10",
-          "enabled": true
-        },
-        {
-          "title": "Інформація для клієнтів",
-          "url": "#section-7",
-          "enabled": true
-        },
-        {
-          "title": "Інформація для клієнтів",
-          "url": "#section-12",
-          "enabled": true
+          "title": "Адреса і Графік",
+          "url": "#location",
+          "enabled": true,
+          "separator_before": true
         }
       ]
     }
@@ -4022,7 +5027,7 @@
       },
       "items": [],
       "enabled": true,
-      "anchor": "",
+      "anchor": "location",
       "nodes": [
         {
           "kind": "heading",
@@ -4152,7 +5157,7 @@
       },
       "items": [],
       "enabled": true,
-      "anchor": "",
+      "anchor": "contacts",
       "nodes": [
         {
           "kind": "group",

@@ -40,6 +40,24 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(() => alert.remove(), 10000);
     });
     const topbar = document.querySelector('.topbar');
+    // Keep one menu instance so links and editor updates stay in sync.
+    const mobileNavigation = window.matchMedia('(max-width: 900px)');
+    let sectionMenu;
+    let menuSlot;
+    const placeSectionMenu = () => {
+        if (!topbar) return;
+        if (!menuSlot?.isConnected) {
+            sectionMenu?.remove();
+            sectionMenu = document.querySelector('[data-page-preview] > .services-sidebar');
+            if (!sectionMenu) return;
+            menuSlot = document.createComment('section menu desktop position');
+            sectionMenu.before(menuSlot);
+        }
+        if (mobileNavigation.matches) topbar.append(sectionMenu);
+        else menuSlot.after(sectionMenu);
+    };
+    placeSectionMenu();
+    mobileNavigation.addEventListener('change', placeSectionMenu);
     const updateAnchorOffset = () => {
         const pinned = topbar && ['sticky', 'fixed'].includes(getComputedStyle(topbar).position);
         const height = pinned ? topbar.getBoundingClientRect().height : 0;
@@ -193,6 +211,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let serviceObserver;
     window.initServiceNavigation = function () {
+    placeSectionMenu();
     serviceObserver?.disconnect();
     const serviceLinks = Array.from(document.querySelectorAll('[data-service-nav]'));
     const serviceSections = serviceLinks

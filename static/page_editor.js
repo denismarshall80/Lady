@@ -328,6 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
             field(row,'Посилання (#якір або URL)',item,'url');
             const actions = node('div','','service-menu-actions');
             field(actions,'Показувати',item,'enabled',null,'checkbox');
+            field(actions,'Роздільник перед пунктом',item,'separator_before',null,'checkbox');
             actions.append(button('↑', () => { if(index) { [serviceMenu[index-1],serviceMenu[index]] = [item,serviceMenu[index-1]]; markDirty(); renderMenu(); } }),
                 button('↓', () => { if(index < serviceMenu.length-1) { [serviceMenu[index],serviceMenu[index+1]] = [serviceMenu[index+1],item]; markDirty(); renderMenu(); } }),
                 button('Видалити', () => { serviceMenu.splice(index,1); markDirty(); renderMenu(); }));
@@ -336,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     root.querySelector('[data-menu-add]')?.addEventListener('click', () => {
         if (serviceMenu.length >= 100) { setStatus('Максимум 100 пунктів меню.'); return; }
-        serviceMenu.push({title:'Новий пункт',url:'#' + (blocks.find(block => block.anchor)?.anchor || 'services'),enabled:true});
+        serviceMenu.push({title:'Новий пункт',url:'#' + (blocks.find(block => block.anchor)?.anchor || 'page-top'),enabled:true});
         markDirty(); renderMenu();
     });
     function render() { renderList(list,blocks); renderList(siteList,siteBlocks); renderMenu(); }
@@ -377,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const preview = await fetch(result.url + '?preview=public', {cache:'no-store'});
                 if (!preview.ok || preview.redirected) throw new Error('preview');
                 const documentPreview = new DOMParser().parseFromString(await preview.text(), 'text/html');
-                const selector = menuList ? '[data-services-preview]' : '.content-blocks';
+                const selector = menuList ? '[data-page-preview]' : '.content-blocks';
                 const content = documentPreview.querySelector(selector);
                 const current = document.querySelector(selector);
                 if (!content || !current) throw new Error('preview');

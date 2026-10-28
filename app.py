@@ -51,7 +51,13 @@ import Utils.database as database
 #Ver = "LadySite v1.00.01 (2026-10-27)" #автоматичне приховування банера waifly
 #Ver = "LadySite v1.00.02 (2026-10-27)" #SQLite, JSON-послуги, компактне меню та журнал
 #Ver = "LadySite v1.00.03 (2026-10-27)" #згортання секцій редактора, блок партнерів із редагованим HTML
-Ver = "LadySite v1.00.04 (2026-10-27)" #клієнтський лічильник відвідин: вчора, сьогодні, місяць, всього
+#Ver = "LadySite v1.00.04 (2026-10-27)" #клієнтський лічильник відвідин: вчора, сьогодні, місяць, всього
+#Ver = "LadySite v1.00.05 (2026-10-27)" #оновлена головна, меню розділів та кнопки наверх
+#Ver = "LadySite v1.00.06 (2026-10-27)" #вертикальне меню головної, компактні послуги, вкладки налаштувань
+#Ver = "LadySite v1.00.07 (2026-10-27)" #клієнтська фотокарусель, посилання меню та накладена кнопка наверх
+#Ver = "LadySite v1.00.08 (2026-10-27)" #плавна циклічна карусель перетягуванням, роздільники меню та адреса
+#Ver = "LadySite v1.00.09 (2026-10-27)" #попереднє завантаження каруселі, фото послуг та компактна іконка наверх
+Ver = "LadySite v1.00.10 (2026-10-28)" #горизонтальні закріплені меню та центровані написи кнопок на мобільному
 
 
 HOST = "localhost" if os.name == "nt" else "0.0.0.0"
@@ -1329,7 +1335,7 @@ def content_save():
         title = request.form.get("page_title", "").strip()[:250]
         if not title:
             raise ValueError("Назва сторінки обов’язкова.")
-        menu = pc.normalize_menu(json.loads(request.form["menu"])) if path == "/services" and "menu" in request.form else None
+        menu = pc.normalize_menu(json.loads(request.form["menu"])) if path in {"/", "/services"} and "menu" in request.form else None
         def change(content):
             content["pages"][path].update(title=title, blocks=blocks)
             if menu is not None:

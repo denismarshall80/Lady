@@ -1,0 +1,4 @@
+<nav class="settings-primary-tabs" aria-label="Керування сайтом">
+    <a class="{{ 'is-active' if settings_section == 'site' else '' }}" href="{{ url_for('settings') }}"{% if settings_section == 'site' %} aria-current="page"{% endif %}>Налаштування сайту</a>
+    <a class="{{ 'is-active' if settings_section == 'users' else '' }}" href="{{ url_for('users') }}"{% if settings_section == 'users' %} aria-current="page"{% endif %}>Користувачі</a>
+</nav>
