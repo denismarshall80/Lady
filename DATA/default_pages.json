@@ -997,6 +997,96 @@
                   "image_mode": "normal",
                   "image_align": "center",
                   "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/IMG_20251013_142849.jpg",
+                  "alt": "Пірсинг вуха з прикрасами",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/IMG_20251013_152239.jpg",
+                  "alt": "Асортимент прикрас у студії",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/IMG_20251014_131017.jpg",
+                  "alt": "Прокол вуха із зеленою прикрасою",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/IMG_20251014_131132.jpg",
+                  "alt": "Поєднання прикрас у вусі",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/IMG_20251014_132548.jpg",
+                  "alt": "Прикраси із золотистими деталями",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/post (1).jpg",
+                  "alt": "Приклад пірсингу носа",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/post.jpg",
+                  "alt": "Прокол носа з прикрасою",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/Piercing Studio Кам'янець_20251004_101129_0000.png",
+                  "alt": "Проколювання вуха у студії",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/Прокол носика.png",
+                  "alt": "Пірсинг носа — інформація студії",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
+                },
+                {
+                  "kind": "image",
+                  "name": "",
+                  "image": "/static/media/733233150_122132023671038268_6797916112806866041_n.jpg",
+                  "alt": "Прокол носа — приклади та інформація",
+                  "image_mode": "normal",
+                  "image_align": "center",
+                  "image_vertical": "center"
                 }
               ]
             }

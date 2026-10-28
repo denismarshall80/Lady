@@ -27,6 +27,7 @@
             </a>
             {% if not is_admin %}
             <nav class="nav nav-left">
+                <a class="{{ 'active' if active_page == 'home' else '' }}" href="{{ url_for('index') }}">Головна</a>
                 <a class="{{ 'active' if active_page == 'services' else '' }}" href="{{ url_for('services') }}">Послуги і ціни</a>
             </nav>
             {% endif %}

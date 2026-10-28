@@ -208,33 +208,62 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    let serviceObserver;
+    let serviceSections = [];
+    let activeSection;
+    let navigationFrame;
+    function updateServiceNavigation() {
+        navigationFrame = null;
+        if (!serviceSections.length) return;
+        const offset = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--anchor-offset')) || 12;
+        const targets = [...new Set(serviceSections.map(item => item.target))]
+            .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
+        let current = targets[0];
+        for (const target of targets) {
+            if (target.getBoundingClientRect().top <= offset + 24) current = target;
+            else break;
+        }
+        if (current === activeSection) return;
+        activeSection = current;
+        serviceSections.forEach(({link, target}) => {
+            const active = target === current;
+            link.classList.toggle('active', active);
+            if (active) link.setAttribute('aria-current', 'location');
+            else link.removeAttribute('aria-current');
+            const menu = link.parentElement;
+            if (!active || !menu.getClientRects().length) return;
+            const itemRect = link.getBoundingClientRect();
+            const menuRect = menu.getBoundingClientRect();
+            // Scroll only the menu, preserving the page position.
+            if (menu.scrollWidth > menu.clientWidth) {
+                if (itemRect.left < menuRect.left || itemRect.right > menuRect.right) {
+                    menu.scrollTo({left: link.offsetLeft - menu.offsetLeft - (menu.clientWidth - link.offsetWidth) / 2,
+                        behavior: 'auto'});
+                }
+            } else if (itemRect.top < menuRect.top || itemRect.bottom > menuRect.bottom) {
+                menu.scrollTop += itemRect.top - menuRect.top - (menu.clientHeight - link.offsetHeight) / 2;
+            }
+        });
+    }
+    function scheduleServiceNavigation() {
+        if (!navigationFrame) navigationFrame = requestAnimationFrame(updateServiceNavigation);
+    }
     window.initServiceNavigation = function () {
-    placeSectionMenu();
-    serviceObserver?.disconnect();
-    const serviceLinks = Array.from(document.querySelectorAll('[data-service-nav]'));
-    const serviceSections = serviceLinks
-        .map(function (link) {
+        placeSectionMenu();
+        serviceSections = Array.from(document.querySelectorAll('[data-service-nav]')).map(link => {
             const href = link.getAttribute('href') || '';
             const target = href.startsWith('#') ? document.getElementById(href.slice(1)) : null;
-            return target ? { link: link, target: target } : null;
-        })
-        .filter(Boolean);
-    if ('IntersectionObserver' in window && serviceSections.length) {
-        const observer = new IntersectionObserver(function (entries) {
-            const visible = entries
-                .filter(function (entry) { return entry.isIntersecting; })
-                .sort(function (a, b) { return b.intersectionRatio - a.intersectionRatio; })[0];
-            if (!visible) return;
-            serviceSections.forEach(function (item) {
-                item.link.classList.toggle('active', item.target === visible.target);
-            });
-        }, { rootMargin: '-20% 0px -55% 0px', threshold: [0.05, 0.2, 0.45] });
-        serviceSections.forEach(function (item) { observer.observe(item.target); });
-        serviceObserver = observer;
-    }
+            return target ? {link, target} : null;
+        }).filter(Boolean);
+        activeSection = null;
+        updateServiceNavigation();
     };
     window.initServiceNavigation();
+    window.addEventListener('scroll', scheduleServiceNavigation, {passive: true});
+    window.addEventListener('resize', () => {
+        activeSection = null;
+        scheduleServiceNavigation();
+    });
+    window.addEventListener('load', scheduleServiceNavigation);
 
     function positionContextMenu(menu) {
         const trigger = menu.querySelector('summary');

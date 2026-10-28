@@ -54,6 +54,16 @@
             const track = document.createElement('div'); track.className = 'carousel-track';
             viewport.replaceChildren(track);
             let index = 0, gesture = null, busy = false, ready = false;
+            let autoTimer;
+            function restartAutoSwipe() {
+                clearTimeout(autoTimer);
+                if (!carousel.isConnected || originals.length < 2) return;
+                autoTimer = setTimeout(() => {
+                    if (!carousel.isConnected) return;
+                    if (!document.hidden && !gesture && !busy) move(1);
+                    restartAutoSwipe();
+                }, 40000);
+            }
             carousel.setAttribute('aria-busy', 'true');
             const wrap = value => (value + originals.length) % originals.length;
             async function preload(slide) {
@@ -109,17 +119,19 @@
                 if (valid.length) { originals.splice(0, originals.length, ...valid); render(); }
                 ready = valid.length > 0;
                 carousel.setAttribute('aria-busy', 'false');
+                restartAutoSwipe();
             });
             carousel.addEventListener('dragstart', event => event.preventDefault());
             viewport.addEventListener('pointerdown', event => {
                 if (!ready || busy || originals.length < 2 || !event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return;
                 gesture = {id:event.pointerId,x:event.clientX,y:event.clientY,delta:0,horizontal:false};
+                clearTimeout(autoTimer);
                 viewport.setPointerCapture(event.pointerId);
             });
             viewport.addEventListener('pointermove', event => {
                 if (!gesture || gesture.id !== event.pointerId) return;
                 const dx = event.clientX - gesture.x, dy = event.clientY - gesture.y;
-                if (!gesture.horizontal && Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) { gesture = null; return; }
+                if (!gesture.horizontal && Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) { gesture = null; restartAutoSwipe(); return; }
                 if (!gesture.horizontal && Math.abs(dx) > 8) {
                     gesture.horizontal = true; carousel.classList.add('is-dragging');
                 }
@@ -131,6 +143,7 @@
             function end(event, cancel = false) {
                 if (!gesture || gesture.id !== event.pointerId) return;
                 const current = gesture; gesture = null; carousel.classList.remove('is-dragging');
+                restartAutoSwipe();
                 if (viewport.hasPointerCapture(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
                 if (!current.horizontal) return;
                 const threshold = Math.min(80,viewport.clientWidth * .15);
@@ -142,6 +155,7 @@
             carousel.addEventListener('keydown', event => {
                 if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
                     event.preventDefault(); move(event.key === 'ArrowLeft' ? -1 : 1);
+                    restartAutoSwipe();
                 }
             });
         });
